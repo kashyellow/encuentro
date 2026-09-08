@@ -14,7 +14,6 @@
   <div class="font-bold text-xl tracking-widest">ENCUENTRO</div>
   <button id="navAuth" class="bg-black text-white px-6 py-2 rounded-full text-sm">Sign in</button>
 </nav>
-
 <section class="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center">
   <div>
     <h1 class="serif text-5xl md:text-7xl leading-[0.9]">Travel.<br>Connect.<br><span class="text-[#FF5A2C]">Belong.</span></h1>
@@ -23,7 +22,6 @@
       <button id="ctaJoin" class="bg-black text-white px-8 py-4 rounded-full font-semibold">Join Encuentro</button>
       <button class="border border-black px-8 py-4 rounded-full">How it works</button>
     </div>
-    <p class="mt-4 text-xs text-neutral-500">18+ only. Profiles moderated. Public bucket: avatars</p>
   </div>
   <div class="bg-white rounded-[2rem] p-4 shadow-2xl rotate-1">
     <div class="bg-neutral-100 rounded-[1.5rem] h-[480px] flex items-center justify-center">
@@ -35,8 +33,6 @@
     </div>
   </div>
 </section>
-
-<!-- Auth Modal -->
 <div id="authModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center p-6 z-50">
   <div class="bg-white rounded-3xl p-8 w-full max-w-md">
     <h2 class="serif text-3xl">Welcome</h2>
@@ -49,19 +45,14 @@
     <p id="authMsg" class="mt-3 text-sm text-center"></p>
   </div>
 </div>
-
 <script>
-// === REPLACE THESE 2 LINES WITH YOUR SUPABASE KEYS ===
-const SUPABASE_URL = 'YOUR_SUPABASE_URL' // from supabase.com > encuentro > Project Settings > API > Project URL
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY' // same page > anon public key
-
+const SUPABASE_URL = 'https://ygacbyhuetmwfcayuixv.supabase.co'
+const SUPABASE_ANON_KEY = 'sb_publishable_T17mfdgegtiNJx8L7JqHRQ_BAodjoG9'
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
 const modal = document.getElementById('authModal')
 document.getElementById('navAuth').onclick = () => modal.classList.remove('hidden')
 document.getElementById('ctaJoin').onclick = () => modal.classList.remove('hidden')
 document.getElementById('closeModal').onclick = () => modal.classList.add('hidden')
-
 async function checkProfile() {
   const { data: { user } } = await supabaseClient.auth.getUser()
   if (!user) return
@@ -69,7 +60,6 @@ async function checkProfile() {
   if (!data) window.location.href = './onboarding.html'
   else window.location.href = './feed.html'
 }
-
 document.getElementById('signUpBtn').onclick = async () => {
   const email = document.getElementById('email').value
   const password = document.getElementById('password').value
@@ -80,11 +70,10 @@ document.getElementById('signUpBtn').onclick = async () => {
 document.getElementById('signInBtn').onclick = async () => {
   const email = document.getElementById('email').value
   const password = document.getElementById('password').value
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password })
   document.getElementById('authMsg').textContent = error? error.message : 'Signed in!'
   if (!error) checkProfile()
 }
-
 checkProfile()
 </script>
 </body>
