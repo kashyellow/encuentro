@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #fdf8f0;
+  --dark: #0f172a;
+  --beige: #f5ebe0;
+}
+
+body {
+  background: var(--cream);
+  font-family: ui-sans-serif, system-ui;
+}
