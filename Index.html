@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global Amor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{background:#0a0a0a;color:#fff;font-family:ui-sans-serif,system-ui,-apple-system}
+.scrollbar-none::-webkit-scrollbar{display:none}
+.scrollbar-none{-ms-overflow-style:none;scrollbar-width:none}
+</style>
+</head>
+<body class="bg-[#0a0a0a] min-h-screen">
+<header class="sticky top-0 z-40 bg-[#0a0a0a] border-b border-white/[0.08]">
+  <div class="mx-auto max-w-[1280px] px-4 py-4 sm:px-6 flex items-center justify-between">
+    <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-white text-black grid place-items-center font-bold text-sm">GA</div><div class="font-bold text-[18px]">GlobalAmor</div></div>
+    <div class="flex items-center gap-2">
+      <select id="langSelect" class="text-[13px] bg-[#1c1c1e] border border-white/[0.08] rounded-full px-3 py-1.5"><option value="en">🌍 English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option><option value="ht">Kreyòl</option></select>
+      <button id="joinBtn" class="rounded-full bg-[#ff2d85] px-4 py-1.5 text-[13px] font-semibold">Join</button>
+    </div>
+  </div>
+  <div class="mx-auto max-w-[1280px] px-4 pb-4 pt-1 sm:px-6">
+    <nav class="flex gap-2 overflow-x-auto scrollbar-none">
+      <button data-tab="discover" class="tabBtn whitespace-nowrap rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-black">Discover</button>
+      <button data-tab="wall" class="tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Wall</button>
+      <button data-tab="matches" class="tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Matches</button>
+      <button data-tab="admin" class="tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Admin</button>
+      <button data-tab="shop" class="tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Community Merch</button>
+    </nav>
+  </div>
+</header>
+
+<main class="mx-auto max-w-[1280px] px-4 py-5 sm:px-6 sm:py-6">
+  <section id="discover" class="tabSection">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="text-[11px] font-bold tracking-[0.14em] text-zinc-500">PASSPORT</span>
+      <div id="passportRow" class="flex flex-wrap gap-2"></div>
+    </div>
+    <div class="mt-4 flex items-center gap-2 text-[13px] text-zinc-500"><span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span></span><span id="showingText">Showing 12 travelers • online now</span></div>
+    <div class="mt-5 flex justify-between items-center"><h2 class="font-semibold">Discover</h2><button id="addProfileBtn" class="rounded-full bg-white text-black px-3 py-1 text-xs font-semibold">+ Create Profile</button></div>
+    <div id="profilesGrid" class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+  </section>
+
+  <section id="wall" class="tabSection hidden">
+    <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+      <h2 class="font-semibold mb-3">Wall — upload single photo</h2>
+      <textarea id="wallText" placeholder="What's on your mind?" class="w-full bg-[#1c1c1e] border border-white/[0.06] rounded-xl p-3 text-sm text-white"></textarea>
+      <div class="mt-3 grid gap-2">
+        <input id="wallUrl" placeholder="Paste image URL (optional)" class="bg-[#1c1c1e] border border-white/[0.06] rounded-xl p-2.5 text-sm w-full text-white"/>
+        <div class="flex items-center gap-2">
+          <button id="wallUploadBtn" class="border border-white/[0.1] rounded-full px-3 py-1.5 text-sm">📷 Upload Photo</button>
+          <span class="text-xs text-zinc-500">single only</span>
+        </div>
+        <input type="file" id="wallFile" accept="image/*" class="hidden"/>
+        <div id="wallPreviewWrap" class="hidden relative w-[160px]"><img id="wallPreview" class="rounded-xl w-[160px] h-[160px] object-cover border border-white/10"/><button id="wallPreviewRemove" class="absolute -top-2 -right-2 bg-white text-black rounded-full w-6 h-6 text-xs">X</button></div>
+      </div>
+      <button id="wallPostBtn" class="mt-3 bg-white text-black rounded-full px-5 py-2 text-sm font-semibold">Post to Wall</button>
+    </div>
+    <div id="wallFeed" class="mt-4 grid gap-4"></div>
+  </section>
+
+  <section id="matches" class="tabSection hidden"><div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] text-sm text-zinc-400">Matches chat list — demo</div></section>
+
+  <section id="admin" class="tabSection hidden">
+    <div id="adminLoginBox" class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+      <h2 class="font-semibold mb-2">Admin Login</h2>
+      <input id="adminEmail" placeholder="Email (for sub editors, leave blank for full admin)" class="bg-[#1c1c1e] border border-white/[0.06] rounded-xl p-2.5 text-sm w-full text-white mb-2"/>
+      <input id="adminPass" type="password" placeholder="Super password or sub editor password" class="bg-[#1c1c1e] border border-white/[0.06] rounded-xl p-2.5 text-sm w-full text-white"/>
+      <button id="adminLoginBtn" class="mt-2 bg-white text-black rounded-full px-4 py-1.5 text-sm font-semibold">Login</button>
+      <div id="adminLoginMsg" class="text-xs mt-2 text-red-400"></div>
+    </div>
+    <div id="adminPanel" class="hidden">
+      <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] mb-4">
+        <div class="flex gap-4 text-sm"><div>Total: <span id="countTotal"></span></div><div>Demo: <span id="countDemo"></span></div><div>Real: <span id="countReal"></span></div></div>
+        <div class="flex flex-wrap gap-2 mt-3"><button id="restoreDemoBtn" class="border border-white/10 rounded-full px-3 py-1 text-xs">RESTORE DEMO PROFILES</button><button id="resetAllBtn" class="border border-white/10 rounded-full px-3 py-1 text-xs">Reset All</button></div>
+        <div id="lastAction" class="text-xs text-zinc-500 mt-2"></div>
+      </div>
+      <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] mb-4"><div class="flex justify-between items-center mb-2"><h3 class="font-semibold">Community Merch — Sub Users (Merch Editors)</h3><button id="addSubUserBtn" class="border border-white/10 rounded-full px-3 py-1 text-xs">+ Add Editor</button></div><p class="text-xs text-zinc-500 mb-3">Sub users can login with email + password and edit merch. Full admin (AmorMaster2025!) can add/remove them.</p><div id="subUsersList" class="grid gap-2 text-sm"></div></div>
+      <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]"><h3 class="font-semibold mb-2">Community Merch Manager</h3><div id="adminEssentialsList" class="grid gap-2 text-sm"></div></div>
+    </div>
+  </section>
+
+  <section id="shop" class="tabSection hidden">
+    <div class="flex items-center justify-between mb-3"><div class="bg-white text-black rounded-full px-4 py-1.5 text-sm font-semibold">Community Merch by: ~Mamasota~</div><button id="addEssentialBtn" class="hidden bg-white text-black rounded-full px-3 py-1 text-xs font-semibold">+ Add Merch</button></div>
+
+<div id="essentialsGrid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+  </section>
+
+<section id="terms" class="tabSection hidden">
+  <div class="mx-auto max-w-[900px] bg-[#151517] rounded-[20px] border border-white/[0.06] p-6 sm:p-8">
+    <h1 class="text-2xl font-bold mb-1">GLOBAL AMOR TERMS OF SERVICE</h1>
+    <p class="text-xs text-zinc-500 mb-6">Last Updated: September 12, 2026</p>
+    <div class="prose prose-invert prose-sm max-w-none text-[13px] leading-6 text-zinc-300 space-y-4">
+      <p>Welcome to Global Amor (“Global Amor,” “we,” “us,” or “our”). These Terms of Service (“Terms”) govern your access to and use of the Global Amor website, mobile application, services, features, communications tools, and related platforms (collectively, the “Service”).</p>
+      <p>By creating an account, accessing, browsing, or using the Service, you acknowledge that you have read, understood, and agree to be legally bound by these Terms and our Privacy Policy.</p>
+      <p class="font-bold text-white">IF YOU DO NOT AGREE TO THESE TERMS, DO NOT CREATE AN ACCOUNT OR USE GLOBAL AMOR.</p>
+      <p>These Terms constitute a legally binding agreement between you and Global Amor.</p>
+      <hr class="border-white/10"/>
+      <h3 class="font-semibold text-white mt-4">1. PURPOSE OF GLOBAL AMOR</h3>
+      <p>Global Amor is an online dating and social connection platform intended to help adults discover, communicate with, and potentially develop romantic or personal relationships with other adults. Global Amor is intended for genuine dating and social interaction. You agree that you will not use Global Amor primarily for purposes unrelated to dating, meeting people, forming relationships, or legitimate social interaction. We reserve the right to determine, in our reasonable discretion, whether an account or activity is inconsistent with the intended purpose of the Service.</p>
+      <h3 class="font-semibold text-white">2. AGE REQUIREMENT — 18+ ONLY</h3>
+      <p>Global Amor is strictly limited to individuals who are 18 years of age or older. By registering for or using Global Amor, you represent and warrant that: (1) You are at least 18 years old; (2) You have the legal capacity to enter into these Terms; (3) You are not prohibited by law from using an online dating service; (4) The information you provide regarding your age is truthful and accurate; and (5) You will not allow a person under 18 to access or use your account. You may be required to confirm your age before accessing certain portions of the Service. If we discover or reasonably believe that an individual is under 18, we may immediately suspend or terminate the account and remove associated content. If you believe that a person under 18 is using Global Amor, please report the account to us immediately.</p>
+      <h3 class="font-semibold text-white">3. ACCOUNT REGISTRATION</h3>
+      <p>To use certain features of Global Amor, you may be required to create an account. You agree to provide information that is accurate, current, and complete. You agree not to: Create an account using false information; Misrepresent your age; Pretend to be another person; Use another person’s photographs without permission; Create an account for another person without authorization; Create multiple accounts for deceptive purposes; Create accounts after being banned or suspended; Use an account belonging to another person; or Provide information intended to deceive or mislead other users. You are responsible for maintaining the confidentiality of your account credentials. You are responsible for activity occurring through your account unless you can demonstrate that the activity occurred without your authorization and despite reasonable precautions. You must notify Global Amor promptly if you believe your account has been compromised.</p>
+      <h3 class="font-semibold text-white">4. AUTHENTICITY OF PROFILES</h3>
+      <p>Global Amor is designed around authentic interactions between adults. You agree that information contained in your profile should be truthful and not materially misleading. You must not intentionally misrepresent: Your identity; Your age; Your relationship status; Your location; Your occupation; Your photographs; Your intentions; Your financial circumstances; Your education; Your marital status; Your relationship history; or Other information where the misrepresentation is intended to deceive another user. Global Amor does not guarantee that every profile or statement made by a user is accurate. Users should exercise appropriate caution when interacting with people online.</p>
+      <h3 class="font-semibold text-white">5. INTENDED USE OF GLOBAL AMOR</h3>
+      <p>Global Amor may only be used for lawful purposes consistent with its purpose as an adult dating and social platform. You agree not to use the Service primarily for: Advertising unrelated products or services; Recruiting customers for businesses; Recruiting employees or independent contractors; Multi-level marketing; Affiliate marketing; Political campaigning; Religious solicitation; Fundraising; Spam; Lead generation; Data collection; Market research without authorization; Promoting unrelated websites or businesses; Recruiting for other dating services; Recruiting for escort or sexual services; Financial solicitation; Fraudulent schemes; Cryptocurrency or investment solicitation; Gambling-related solicitation; or Any other commercial or non-dating purpose that Global Amor determines to be inappropriate. You may not use Global Amor as a substitute for a general advertising platform, classified-advertising service, employment platform, or financial solicitation platform.</p>
+      <h3 class="font-semibold text-white">6. PROHIBITED COMMERCIAL AND SEXUAL SOLICITATION</h3>
+      <p>Global Amor is not a marketplace for sexual services. You may not use Global Amor to advertise, offer, arrange, promote, sell, purchase, or solicit: Prostitution; Escort services; Sexual services; Sexual performances for compensation; Sexual companionship for compensation; Paid dates; Sexual content for compensation; Sexual services in exchange for money, gifts, cryptocurrency, transportation, lodging, or other benefits; or Any substantially similar commercial sexual arrangement. You may not use profile descriptions, messages, photographs, links, usernames, or other features of Global Amor to facilitate such activity. This prohibition applies whether compensation is offered directly or indirectly. Global Amor may remove accounts or content that appear to facilitate prohibited commercial sexual activity.</p>
+      <h3 class="font-semibold text-white">7. FINANCIAL SOLICITATION, SCAMS, AND FRAUD</h3>
+      <p>Global Amor strictly prohibits scams and fraudulent activity. You may not use the Service to deceive another person for financial or personal gain. Prohibited conduct includes, without limitation: Asking another user for money; Requesting loans; Requesting gift cards; Requesting cryptocurrency; Requesting wire transfers; Requesting bank-account information; Requesting credit-card information; Asking users to invest money; Promoting fraudulent investments; Promoting fake investment opportunities; Romance scams; Impersonation scams; Fake emergencies; Fake charitable causes; Fake business opportunities; Advance-fee schemes; Ponzi or pyramid schemes; Identity theft; Account takeover attempts; Money laundering; Using another person as a money mule; or Any other fraudulent or deceptive financial activity. Global Amor may suspend or terminate accounts suspected of participating in fraudulent activity, including where we reasonably believe that additional investigation or verification is appropriate.</p>
+      <h3 class="font-semibold text-white">8. NO GUARANTEE OF USER IDENTITY</h3>
+      <p>Global Amor does not guarantee that any user is who they claim to be. Although we may implement verification, moderation, safety measures, or other safeguards, no online identity-verification system can guarantee that a person is genuine, safe, honest, or accurately represented. You are responsible for exercising your own judgment when communicating with another user. Do not assume that a profile photograph, verification indicator, telephone number, social-media account, or other information proves a person’s identity.</p>
+      <h3 class="font-semibold text-white">9. PERSONAL SAFETY</h3>
+      <p>Online dating involves inherent risks. You acknowledge that you are responsible for taking reasonable precautions when interacting with other users. You should consider: Communicating through Global Amor before sharing personal contact information; Avoiding disclosure of sensitive personal information; Not sending money to someone you met online; Meeting in public locations; Informing someone you trust about your plans; Maintaining control of your own transportation; Avoiding excessive alcohol or other substances during initial meetings; Leaving immediately if you feel unsafe; and Contacting appropriate emergency services if necessary. Global Amor does not guarantee your safety during online or offline interactions.</p>
+      <h3 class="font-semibold text-white">10. OFFLINE MEETINGS</h3>
+      <p>Global Amor is not responsible for meetings or interactions that occur outside the Service. If you choose to meet another user in person, you do so at your own risk. Global Amor does not conduct personal background investigations on every user and does not guarantee that a user has no criminal history or poses no safety risk. You are solely responsible for deciding whether, when, where, and how to meet another person.</p>
+      <h3 class="font-semibold text-white">11. HARASSMENT AND ABUSE</h3>
+      <p>You may not use Global Amor to harass, intimidate, threaten, stalk, bully, abuse, or repeatedly contact another person against their wishes. Prohibited behavior includes: Threats of violence; Stalking; Repeated unwanted contact; Sexual harassment; Intimidation; Extortion; Blackmail; Humiliation; Targeted harassment; Hate-based harassment; Encouraging another person to harm themselves; Threatening to disclose private information; Threatening to disclose intimate images; Repeatedly contacting someone after they have clearly asked you to stop; or Coordinating harassment against another person. We may take action based on reported behavior even when conduct occurs partly outside Global Amor if it materially affects the safety or integrity of the Service or its users.</p>
+      <h3 class="font-semibold text-white">12. NON-CONSENSUAL INTIMATE CONTENT</h3>
+      <p>You may not upload, send, distribute, threaten to distribute, or otherwise share intimate photographs or videos of another person without that person’s consent. You may not use intimate images to: Threaten another person; Blackmail another person; Extort money; Humiliate another person; Retaliate against another person; or Pressure another person into a relationship or sexual activity. Threatening to release intimate content may itself constitute prohibited conduct. Global Amor may remove reported content and take appropriate action against accounts involved in suspected non-consensual intimate-image activity.</p>
+      <h3 class="font-semibold text-white">13. MINORS AND CHILD SAFETY</h3>
+      <p>Global Amor has zero tolerance for sexual exploitation or abuse involving minors. You may not: Use the Service to contact minors for sexual purposes; Request sexual images from a minor; Share sexual content involving a minor; Attempt to arrange a sexual encounter with a minor; Facilitate exploitation or trafficking of minors; Misrepresent yourself to gain access to minors; or Use Global Amor for any unlawful activity involving children. Any content or activity that may involve child sexual exploitation may be reported to appropriate authorities or relevant organizations where required or appropriate.</p>
+      <h3 class="font-semibold text-white">14. ILLEGAL ACTIVITY</h3>
+      <p>You may not use Global Amor to plan, facilitate, encourage, advertise, or participate in unlawful activity. This includes, without limitation: Fraud; Theft; Extortion; Trafficking; Exploitation; Money laundering; Identity theft; Threats of violence; Distribution of illegal substances; Sale of illegal goods; Sexual exploitation; Child exploitation; Cybercrime; or Other unlawful conduct. We may cooperate with law enforcement authorities when required by law or when we reasonably believe disclosure is necessary to address an emergency, protect individuals, investigate suspected unlawful activity, or protect our rights.</p>
+      <h3 class="font-semibold text-white">15. HATE, DISCRIMINATION, AND EXTREMIST CONTENT</h3>
+      <p>You may not use Global Amor to threaten, harass, or promote violence against individuals or groups based on protected characteristics. We may remove content that promotes violence, dehumanization, or serious harassment. Global Amor may also restrict accounts associated with extremist or violent organizations where such activity conflicts with the purpose or safety of the Service.</p>
+      <h3 class="font-semibold text-white">16. CONTENT YOU MAY NOT POST</h3>
+      <p>You may not upload, transmit, publish, or send content that: Is unlawful; Is fraudulent; Is intentionally deceptive; Infringes another person’s rights; Contains another person’s private information without authorization; Contains malicious software; Facilitates criminal activity; Contains sexual exploitation material; Contains non-consensual intimate content; Threatens violence; Constitutes harassment; Attempts to scam users; Is primarily commercial spam; Impersonates another person; Infringes intellectual-property rights; or Otherwise violates these Terms. Global Amor may remove content that violates these Terms or that we reasonably believe creates a safety, legal, or operational risk.</p>
+      <h3 class="font-semibold text-white">17. PHOTOS AND PROFILE CONTENT</h3>
+      <p>You are responsible for the photographs and other content you upload. You represent that you have the necessary rights to use photographs you upload. You should not upload: Another person’s photographs without permission; Images intended to impersonate another person; Private images of another person; Images containing minors in inappropriate or prohibited circumstances; Content that violates applicable law; or Images designed primarily to facilitate prohibited commercial activity. Global Amor may remove profile photographs that violate our policies.</p>
+      <h3 class="font-semibold text-white">18. MESSAGING</h3>
+      <p>Global Amor may provide private messaging, chat, video, audio, or other communication features. You are responsible for your communications. You agree not to use messaging features to: Spam users; Send mass unsolicited messages; Harass users; Threaten users; Solicit money; Solicit prohibited services; Distribute malware; Distribute fraudulent links; Promote unrelated businesses; Conduct scams; or Engage in unlawful activity. Global Amor may use automated systems, reports, moderation tools, and human review to identify or investigate violations, subject to applicable law and our Privacy Policy.</p>
+      <h3 class="font-semibold text-white">19. BLOCKING AND REPORTING</h3>
+      <p>Global Amor may provide tools that allow users to block or report other users. You should use these tools when another user behaves inappropriately or violates these Terms. A report does not guarantee that Global Amor will take a particular action. We may investigate reports in our discretion and may consider available information when determining whether action is appropriate. We may restrict an account while investigating a report.</p>
+      <h3 class="font-semibold text-white">20. MODERATION</h3>
+      <p>Global Amor reserves the right, but does not assume an obligation, to monitor, review, moderate, restrict, remove, or investigate content and activity on the Service. We may take action when we reasonably believe that: These Terms have been violated; Our safety policies have been violated; The Service is being misused; An account poses a risk to users; Fraud may be occurring; Illegal activity may be occurring; An account may be compromised; Information appears materially deceptive; or Action is necessary to protect Global Amor, its users, or third parties. We are not required to provide advance notice before taking moderation action where immediate action is reasonably necessary.</p>
+      <h3 class="font-semibold text-white">21. SUSPENSION AND TERMINATION</h3>
+      <p>We may suspend, restrict, or terminate your account at any time where permitted by applicable law. Reasons may include, without limitation: Violation of these Terms; Violation of safety rules; Fraud; Scamming; Harassment; Impersonation; Prohibited solicitation; Commercial misuse; Threatening conduct; Abuse of other users; Circumvention of a previous ban; Providing materially false information; Activity that creates legal or safety risks; or Conduct that we reasonably believe is harmful to the Service or its community. We may also terminate accounts that remain inactive for an extended period, subject to applicable law. Termination may result in loss of access to your profile, messages, matches, subscriptions, and other account information.</p>
+      <h3 class="font-semibold text-white">22. BAN EVASION</h3>
+      <p>If your account has been suspended or terminated, you may not create another account or otherwise attempt to circumvent the restriction without our express permission. This includes using: A different email address; A different telephone number; Another person’s account; A different device; A false identity; or Other methods designed to evade enforcement. We may take additional action against accounts reasonably believed to be attempting to circumvent enforcement.</p>
+      <h3 class="font-semibold text-white">23. USER CONTENT</h3>
+      <p>You retain ownership of content that you legally own and upload to Global Amor. However, by submitting content to the Service, you grant Global Amor a non-exclusive, worldwide, royalty-free, transferable and sublicensable license to host, store, reproduce, process, display, and distribute that content as reasonably necessary to operate, maintain, improve, promote, and provide the Service. This license continues only for as long as reasonably necessary for these purposes, subject to our Privacy Policy and applicable law. You represent that you have the necessary rights to grant this license.</p>
+      <h3 class="font-semibold text-white">24. CONTENT REMOVAL</h3>
+      <p>We may remove, restrict, disable access to, or refuse to display content when we believe it violates these Terms, applicable law, safety requirements, or our policies. We are not responsible for preserving content that has been removed. You should maintain your own copies of important information.</p>
+      <h3 class="font-semibold text-white">25. PRIVACY</h3>
+      <p>Your use of Global Amor is also subject to our Privacy Policy. Our Privacy Policy explains how we collect, use, store, disclose, and otherwise process personal information. By using Global Amor, you acknowledge that you have reviewed the Privacy Policy. Privacy Policy: [INSERT PRIVACY POLICY LINK]</p>
+      <h3 class="font-semibold text-white">26. THIRD-PARTY SERVICES AND LINKS</h3>
+      <p>Global Amor may contain links to third-party websites, applications, products, or services. We do not necessarily control or endorse third-party services. Your use of third-party services is governed by the terms and policies of those third parties. Global Amor is not responsible for third-party services or their content, availability, security, or practices.</p>
+      <h3 class="font-semibold text-white">27. PAID FEATURES AND SUBSCRIPTIONS</h3>
+      <p>Certain Global Amor features may require payment. Where applicable, pricing, billing frequency, subscription terms, renewal terms, cancellation procedures, and refund policies will be presented before purchase. You authorize Global Amor or its payment provider to charge applicable fees to your selected payment method. Unless otherwise stated, subscriptions may automatically renew until cancelled. You are responsible for cancelling a subscription before the next billing period if you do not wish to renew. Additional terms may apply to purchases made through Apple, Google, or another third-party marketplace.</p>
+      <h3 class="font-semibold text-white">28. REFUNDS</h3>
+      <p>Refunds will be handled according to the applicable purchase terms and applicable law. Where a purchase is processed through a third-party app store or payment provider, that provider’s refund procedures may apply. Nothing in these Terms is intended to limit any non-waivable consumer rights you may have.</p>
+      <h3 class="font-semibold text-white">29. INTELLECTUAL PROPERTY</h3>
+      <p>Global Amor and its associated branding, designs, software, logos, trademarks, text, graphics, interfaces, and other materials are owned by or licensed to Global Amor and are protected by applicable intellectual-property laws. You may not copy, reproduce, modify, distribute, sell, reverse engineer, publicly display, or commercially exploit Global Amor’s proprietary materials without authorization. The name Global Amor and associated branding may not be used without our written permission.</p>
+      <h3 class="font-semibold text-white">30. PROHIBITED TECHNOLOGICAL ACTIVITY</h3>
+      <p>You may not: Attempt to gain unauthorized access to the Service; Circumvent security measures; Introduce malicious software; Scrape information without authorization; Use automated systems to collect user information; Reverse engineer the Service except where legally permitted; Interfere with the operation of the Service; Conduct denial-of-service attacks; Attempt to access another user’s account; Probe or test vulnerabilities without authorization; or Use the Service to develop competing databases or services using unauthorized data.</p>
+      <h3 class="font-semibold text-white">31. USER FEEDBACK</h3>
+      <p>If you provide suggestions, ideas, recommendations, or other feedback regarding Global Amor, you grant us permission to use that feedback without compensation or obligation to you. You agree that feedback does not create an ownership interest in Global Amor or its products.</p>
+      <h3 class="font-semibold text-white">32. DISCLAIMER REGARDING OTHER USERS</h3>
+      <p>GLOBAL AMOR DOES NOT GUARANTEE THE IDENTITY, AGE, CHARACTER, BACKGROUND, INTENTIONS, HONESTY, SAFETY, OR BEHAVIOR OF ANY USER. We do not guarantee that users will actually meet, communicate honestly, form relationships, or behave appropriately. You are solely responsible for your interactions with other users. You should not rely solely on information contained in another person’s profile.</p>
+      <h3 class="font-semibold text-white">33. NO GUARANTEE OF MATCHES OR RELATIONSHIPS</h3>
+      <p>Global Amor does not guarantee that you will: Receive matches; Receive messages; Meet another person; Develop a relationship; Find a romantic partner; Have a successful date; or Achieve any particular result from using the Service. Results vary between users.</p>
+      <h3 class="font-semibold text-white">34. SERVICE PROVIDED “AS IS”</h3>
+      <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, GLOBAL AMOR PROVIDES THE SERVICE ON AN “AS IS” AND “AS AVAILABLE” BASIS. WE DO NOT GUARANTEE THAT THE SERVICE WILL ALWAYS BE: AVAILABLE; ERROR-FREE; SECURE; UNINTERRUPTED; ACCURATE; COMPLETE; OR FREE OF HARMFUL CONTENT. WE MAY MODIFY, SUSPEND, OR DISCONTINUE FEATURES OR PORTIONS OF THE SERVICE.</p>
+      <h3 class="font-semibold text-white">35. LIMITATION OF LIABILITY</h3>
+      <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, GLOBAL AMOR AND ITS OWNERS, OFFICERS, DIRECTORS, EMPLOYEES, CONTRACTORS, AFFILIATES, AND SERVICE PROVIDERS WILL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES ARISING FROM OR RELATED TO YOUR USE OF THE SERVICE. THIS INCLUDES, TO THE EXTENT PERMITTED BY LAW, DAMAGES ARISING FROM: YOUR INTERACTIONS WITH OTHER USERS; OFFLINE MEETINGS; USER-GENERATED CONTENT; FRAUDULENT USER ACTIVITY; PERSONAL INJURY; EMOTIONAL DISTRESS; LOSS OF DATA; LOSS OF PROFITS; LOSS OF BUSINESS OPPORTUNITIES; OR UNAUTHORIZED CONDUCT BY OTHER USERS. Nothing in these Terms excludes liability that cannot legally be excluded.</p>
+      <h3 class="font-semibold text-white">36. INDEMNIFICATION</h3>
+      <p>To the maximum extent permitted by law, you agree to defend, indemnify, and hold harmless Global Amor and its owners, officers, directors, employees, contractors, affiliates, and service providers from claims, damages, liabilities, losses, costs, and expenses arising from: 1. Your use of the Service; 2. Your violation of these Terms; 3. Your violation of applicable law; 4. Your content; 5. Your interactions with other users; 6. Your infringement of another person’s rights; or 7. Your fraudulent, negligent, reckless, or unlawful conduct.</p>
+      <h3 class="font-semibold text-white">37. DISPUTE RESOLUTION</h3>
+      <p>Any dispute between you and Global Amor relating to these Terms or the Service will be handled in accordance with the dispute-resolution procedures required by applicable law. [INSERT CHOICE OF LAW AND DISPUTE-RESOLUTION TERMS AFTER ATTORNEY REVIEW.] If an arbitration provision, class-action waiver, or other dispute-resolution provision is used, it should be reviewed by qualified legal counsel to ensure that it is appropriate for the jurisdictions in which Global Amor operates.</p>
+      <h3 class="font-semibold text-white">38. GOVERNING LAW</h3>
+      <p>These Terms will be governed by the laws of [STATE/COUNTRY], without regard to conflict-of-law principles, except to the extent applicable law requires otherwise. Any court proceedings permitted under these Terms will take place in [COUNTY, STATE], unless applicable law requires another location.</p>
+      <h3 class="font-semibold text-white">39. CHANGES TO THESE TERMS</h3>
+      <p>We may update these Terms from time to time. When we make material changes, we may provide notice through the Service, by email, or by other reasonable means. Your continued use of Global Amor after the effective date of updated Terms constitutes acceptance of the updated Terms to the extent permitted by law. If you do not agree to updated Terms, you should stop using the Service and close your account.</p>
+      <h3 class="font-semibold text-white">40. ELECTRONIC COMMUNICATIONS</h3>
+      <p>By creating an account, you consent to receiving electronic communications from Global Amor concerning your account, transactions, security, service updates, and other matters related to the Service. Marketing communications may be subject to separate consent and opt-out requirements. You may unsubscribe from promotional communications using the available unsubscribe mechanism, while certain essential service communications may still be sent.</p>
+      <h3 class="font-semibold text-white">41. SEVERABILITY</h3>
+      <p>If any provision of these Terms is determined to be invalid, unlawful, or unenforceable, that provision will be enforced to the maximum extent permitted by law, and the remaining provisions will remain in effect.</p>
+      <h3 class="font-semibold text-white">42. NO WAIVER</h3>
+      <p>Our failure to enforce a provision of these Terms does not constitute a waiver of our right to enforce that provision later.</p>
+      <h3 class="font-semibold text-white">43. ASSIGNMENT</h3>
+      <p>You may not transfer or assign your rights or obligations under these Terms without our prior written consent. Global Amor may assign or transfer these Terms in connection with a merger, acquisition, corporate restructuring, sale of assets, or similar transaction.</p>
+      <h3 class="font-semibold text-white">44. ENTIRE AGREEMENT</h3>
+      <p>These Terms, together with the Privacy Policy and any other policies expressly incorporated into these Terms, constitute the agreement between you and Global Amor regarding your use of the Service. They supersede prior agreements relating to the same subject matter, except where expressly stated otherwise.</p>
+      <h3 class="font-semibold text-white">45. CONTACT INFORMATION</h3>
+      <p>If you have questions regarding these Terms, need to report prohibited activity, or need to contact Global Amor regarding a legal matter, you may contact us at: Global Amor Legal/Support Department Email: [INSERT EMAIL ADDRESS] Website: [INSERT WEBSITE] Business Address: [INSERT BUSINESS ADDRESS]</p>
+      <h3 class="font-semibold text-white">46. USER ACKNOWLEDGMENT</h3>
+      <p>By selecting “I Agree,” creating an account, or otherwise using Global Amor, you acknowledge that: You are at least 18 years old; You have read and understood these Terms; You agree to comply with these Terms; You understand that Global Amor is intended for adult dating and social interaction; You understand that Global Amor does not guarantee the identity or conduct of other users; You understand that you are responsible for your own decisions and interactions; You will not use Global Amor for prostitution, sexual services, scams, fraud, financial solicitation, harassment, exploitation, or other prohibited activity; You will not use Global Amor to facilitate illegal activity; You will not intentionally misrepresent your identity or age; and You understand that violation of these Terms may result in content removal, account suspension, permanent account termination, and, where appropriate or legally required, reporting to relevant authorities. IF YOU DO NOT AGREE TO THESE TERMS, YOU MUST NOT USE GLOBAL AMOR.</p>
+      <h3 class="font-semibold text-white">REGISTRATION ACKNOWLEDGMENT</h3>
+      <p>We recommend that Global Amor’s registration screen display a clear acknowledgment substantially similar to: ☐ I confirm that I am at least 18 years old, that the information I have provided is accurate, and that I agree to the Global Amor Terms of Service and Privacy Policy. [Create Account] By clicking “Create Account,” you acknowledge that you have had an opportunity to review the applicable terms and agree to be bound by them.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="mt-10 border-t border-white/[0.06] py-6 text-center text-[11px] text-zinc-500">
+  <div class="flex justify-center gap-4">
+    <button onclick="showTerms()" class="underline hover:text-white">Terms of Service</button>
+    <button onclick="showPrivacy()" class="underline hover:text-white">Privacy Policy</button>
+    <span>© 2026 Global Amor</span>
+  </div>
+</footer>
+
+</main>
+
+<div id="profileModal" class="fixed inset-0 hidden bg-black/60 z-50 grid place-items-center p-4"><div class="bg-[#151517] rounded-[20px] p-5 w-full max-w-[420px] border border-white/10"><div class="flex justify-between items-center mb-3"><h3 class="font-semibold">Create Profile</h3><button onclick="closeModal('profileModal')" class="text-zinc-400">✕</button></div><input id="pName" placeholder="Name" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="pAge" type="number" placeholder="Age" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="pCity" placeholder="City" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><select id="pCountry" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"><option value="DO">🇩🇴 Dominican Republic</option><option value="CO">🇨🇴 Colombia</option><option value="TH">🇹🇭 Thailand</option><option value="PA">🇵🇦 Panama</option><option value="CR">🇨🇷 Costa Rica</option><option value="US">🇺🇸 USA</option><option value="BR">🇧🇷 Brazil</option><option value="JM">🇯🇲 Jamaica</option><option value="JP">🇯🇵 Japan</option><option value="CH">🇨🇭 Switzerland</option><option value="EU">🇪🇺 Europe</option></select><input id="pType" placeholder="Traveler Type" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><textarea id="pBio" placeholder="Bio" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"></textarea><input id="pPhotoUrl" placeholder="Photo URL" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input type="file" id="pPhotoFile" accept="image/*" class="mb-2 text-sm"/><button id="saveProfileBtn" class="bg-white text-black rounded-full px-4 py-2 text-sm w-full font-semibold">Save Profile</button></div></div>
+
+<div id="essentialModal" class="fixed inset-0 hidden bg-black/60 z-50 grid place-items-center p-4"><div class="bg-[#151517] rounded-[20px] p-5 w-full max-w-[420px] border border-white/10"><div class="flex justify-between items-center mb-3"><h3 id="essentialModalTitle" class="font-semibold">Add Merch</h3><button onclick="closeModal('essentialModal')" class="text-zinc-400">✕</button></div><input id="eName" placeholder="Name" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><textarea id="eDesc" placeholder="Description" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"></textarea><input id="ePrice" placeholder="Price e.g. $29" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="eTag" placeholder="Tag" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><div class="mb-2"><input id="eImage" placeholder="Image URL (or upload below)" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full text-sm text-white"/><div class="mt-2 flex items-center gap-2"><button id="eUploadBtn" type="button" class="border border-white/10 rounded-full px-3 py-1 text-xs">📷 Upload Photo</button><span class="text-[11px] text-zinc-500">adds photos to merch</span></div><input type="file" id="eFile" accept="image/*" class="hidden"/><div id="ePreviewWrap" class="hidden mt-2 relative w-[120px]"><img id="ePreview" class="rounded-xl w-[120px] h-[120px] object-cover border border-white/10"/><button id="ePreviewRemove" type="button" class="absolute -top-2 -right-2 bg-white text-black rounded-full w-6 h-6 text-xs">X</button></div></div><input id="eLink" placeholder="Shop Link URL" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="eOrigin" placeholder="Origin Country" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><button id="saveEssentialBtn" class="bg-white text-black rounded-full px-4 py-2 text-sm w-full font-semibold">Save</button></div></div>
+
+<div id="joinModal" class="fixed inset-0 hidden bg-black/60 z-50 grid place-items-center p-4"><div class="bg-[#151517] rounded-[20px] p-5 w-full max-w-[420px] border border-white/10"><div class="flex justify-between items-center mb-3"><h3 class="font-semibold">Join GlobalAmor</h3><button onclick="closeModal('joinModal')" class="text-zinc-400">✕</button></div><input placeholder="Name" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><select class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"><option>English</option><option>Español</option></select><label class="flex gap-2 text-[11px] text-zinc-400 mt-2 mb-3"><input type="checkbox" id="tosCheck" class="mt-0.5"/> <span>☐ I confirm that I am at least 18 years old, that the information I have provided is accurate, and that I agree to the <button onclick="showTerms()" class="underline text-white">Terms of Service</button> and Privacy Policy.</span></label><button id="joinNowBtn" class="bg-white text-black rounded-full px-4 py-2 text-sm w-full font-semibold">Create Account</button></div></div>
+
+<div id="subModal" class="fixed inset-0 hidden bg-black/60 z-50 grid place-items-center p-4"><div class="bg-[#151517] rounded-[20px] p-5 w-full max-w-[420px] border border-white/10"><div class="flex justify-between items-center mb-3"><h3 class="font-semibold">Add Merch Editor</h3><button onclick="closeModal('subModal')" class="text-zinc-400">✕</button></div><input id="subName" placeholder="Name" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="subEmail" placeholder="Email" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="subPass" placeholder="Password for editor" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><select id="subRole" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-3 text-sm text-white"><option value="Merch Editor">Merch Editor</option><option value="Community Manager">Community Manager</option></select><button id="saveSubUserBtn" class="bg-white text-black rounded-full px-4 py-2 text-sm w-full font-semibold">Save Editor</button></div></div>
+
+<script>
+const DEMO_PROFILES=[
+{id:'1',name:'Camila',age:24,city:'Sosúa',country:'DO',flag:'🇩🇴',type:'Beach Lover',bio:'Sun, dance, and good vibes in Sosúa',photo:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop',isDemo:true},
+{id:'2',name:'Isabella',age:26,city:'Santo Domingo',country:'DO',flag:'🇩🇴',type:'City Explorer',bio:'Capital life, music and mangu',photo:'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&h=500&fit=crop',isDemo:true},
+{id:'3',name:'Valentina',age:23,city:'Medellín',country:'CO',flag:'🇨🇴',type:'Adventurer',bio:'Paisa love, coffee and mountains',photo:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop',isDemo:true},
+{id:'4',name:'Sofía',age:25,city:'Cartagena',country:'CO',flag:'🇨🇴',type:'Romantic',bio:'Walled city sunsets',photo:'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&h=500&fit=crop',isDemo:true},
+{id:'5',name:'Marlon',age:27,city:'Kingston',country:'JM',flag:'🇯🇲',type:'Traveler',bio:'Reggae and good energy',photo:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',isDemo:true},
+{id:'6',name:'Andre',age:28,city:'Montego Bay',country:'JM',flag:'🇯🇲',type:'Island Boy',bio:'Beach and vibes',photo:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=500&fit=crop',isDemo:true},
+{id:'7',name:'Maya',age:24,city:'Bangkok',country:'TH',flag:'🇹🇭',type:'Culture Lover',bio:'Temples and street food',photo:'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=500&fit=crop',isDemo:true},
+{id:'8',name:'Lina',age:26,city:'San José',country:'CR',flag:'🇨🇷',type:'Nature',bio:'Pura vida',photo:'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=500&fit=crop',isDemo:true},
+{id:'9',name:'Amara',age:25,city:'Negril',country:'JM',flag:'🇯🇲',type:'Sun Chaser',bio:'Seven mile beach',photo:'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop',isDemo:true},
+{id:'10',name:'Yuki',age:24,city:'Tokyo',country:'JP',flag:'🇯🇵',type:'Dreamer',bio:'Sushi and sakura',photo:'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=400&h=500&fit=crop',isDemo:true},
+{id:'11',name:'Heidi',age:27,city:'Zurich',country:'CH',flag:'🇨🇭',type:'Alpine',bio:'Mountains and lakes',photo:'https://images.unsplash.com/photo-1491349174775-aaafddd81942?w=400&h=500&fit=crop',isDemo:true},
+{id:'12',name:'Sofia',age:23,city:'Panama City',country:'PA',flag:'🇵🇦',type:'Explorer',bio:'Canal and city lights',photo:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop',isDemo:true},
+];
+const DEMO_MERCH=[
+{id:'e1',name:'Linen Beach Set',desc:'Breathable for DR heat',price:'$42',tag:'New',image:'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&h=800&fit=crop',link:'#',origin:'DO'},
+{id:'e2',name:'Passport Holder',desc:'Vegan leather — RFID',price:'$28',tag:'Travel',image:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=800&fit=crop',link:'#',origin:'USA'},
+{id:'e3',name:'Satin Bonnet',desc:'For travel nights',price:'$18',tag:'Mamasota Pick',image:'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=800&fit=crop',link:'#',origin:'CO'},
+{id:'e4',name:'Sun Oil',desc:'Glow oil',price:'$22',tag:'Glow',image:'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop',link:'#',origin:'JM'},
+{id:'e5',name:'Silk Scarf',desc:'Island print',price:'$35',tag:'Style',image:'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=800&h=800&fit=crop',link:'#',origin:'TH'},
+{id:'e6',name:'Beach Tote',desc:'Handwoven',price:'$48',tag:'Handmade',image:'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&h=800&fit=crop',link:'#',origin:'PA'},
+{id:'e7',name:'Global Amor Tee',desc:'Heavyweight cotton — black',price:'$32',tag:'New Drop',image:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&h=800&fit=crop',link:'#',origin:'DO'},
+{id:'e8',name:'Bucket Hat',desc:'Reversible — DR + CO',price:'$26',tag:'Community Pick',image:'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=800&h=800&fit=crop',link:'#',origin:'CO'},
+{id:'e9',name:'Gold Hoops',desc:'Lightweight',price:'$19',tag:'Accessory',image:'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&h=800&fit=crop',link:'#',origin:'JM'},
+];
+const DEMO_WALL=[
+{text:"Touch down in Sosúa 🌴 First night out — who knows the best bachata spot?",image:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*5,name:"Camila"},
+{text:"Medellín mornings hit different ☕️ Looking for hiking buddies this weekend",image:"https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*12,name:"Valentina"},
+{text:"Just posted new bucket hats in Community Merch — reversible DR/CO 🧢",image:"https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*20,name:"Mamasota"},
+{text:"Sunset in Negril never misses 🌅 7 mile beach tomorrow anyone?",image:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*26,name:"Amara"},
+{text:"Kingston tonight — Reggae + jerk chicken. Drop your fav spot 👇",image:"https://images.unsplash.com/photo-1493558103817-58b2924bce98?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*30,name:"Marlon"},
+];
+const PASSPORTS=[{id:'all',label:'All 🌎'},{id:'DO',label:'🇩🇴 DR'},{id:'TH',label:'🇹🇭 Thailand'},{id:'CO',label:'🇨🇴 Colombia'},{id:'PA',label:'🇵🇦 Panama'},{id:'CR',label:'🇨🇷 Costa Rica'},{id:'US',label:'🇺🇸 USA'},{id:'BR',label:'🇧🇷 Brazil'},{id:'EU',label:'🇪🇺 Europe'},{id:'JM',label:'🇯🇲 Jamaica'},{id:'JP',label:'🇯🇵 Japan'},{id:'CH',label:'🇨🇭 Switzerland'}];
+
+let profiles=JSON.parse(localStorage.getItem('globalamor_profiles')||'null')||DEMO_PROFILES;
+let essentials=JSON.parse(localStorage.getItem('globalamor_essentials')||'null')||DEMO_MERCH;
+let wallPosts=JSON.parse(localStorage.getItem('globalamor_wall')||'null'); if(!wallPosts||wallPosts.length===0) wallPosts=DEMO_WALL;
+let subUsers=JSON.parse(localStorage.getItem('globalamor_subusers')||'[]');
+let activePassport='all'; let isAdmin=localStorage.getItem('globalamor_admin')==='1'; let isMerchEditor=false; let currentSubUser=JSON.parse(localStorage.getItem('globalamor_sub_session')||'null'); if(currentSubUser) isMerchEditor=true;
+let wallImageData=null; let merchImageData=null; let editingEssentialId=null;
+
+function saveAll(){localStorage.setItem('globalamor_profiles',JSON.stringify(profiles));localStorage.setItem('globalamor_wall',JSON.stringify(wallPosts));localStorage.setItem('globalamor_essentials',JSON.stringify(essentials));localStorage.setItem('globalamor_subusers',JSON.stringify(subUsers));}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function openModal(id){document.getElementById(id).classList.remove('hidden');}
+function setLast(msg){const el=document.getElementById('lastAction'); if(el) el.textContent='Last action: '+msg+' at '+new Date().toLocaleTimeString();}
+function canEditMerch(){return isAdmin || isMerchEditor;}
+
+function renderPassport(){
+  const row=document.getElementById('passportRow');
+  if(!row) return;
+  row.innerHTML=PASSPORTS.map(p=>`<button data-p="${p.id}" class="${activePassport===p.id?'rounded-full bg-white px-4 py-1.5 text-[13px] font-semibold text-black':'rounded-full border border-white/[0.08] bg-[#1c1c1e] px-3.5 py-1.5 text-[13px] font-medium text-white/70'}">${p.label}</button>`).join('');
+  row.querySelectorAll('button').forEach(b=>{b.onclick=()=>{activePassport=b.dataset.p; renderPassport(); renderProfiles();};});
+}
+function renderProfiles(){
+  let list=profiles; if(activePassport!=='all') list=list.filter(p=>p.country===activePassport);
+  const showing=document.getElementById('showingText'); if(showing) showing.textContent=`Showing ${list.length} travelers • online now`;
+  const grid=document.getElementById('profilesGrid'); if(!grid) return;
+  grid.innerHTML=list.map(p=>`<div class="bg-[#151517] rounded-[20px] border border-white/[0.06] overflow-hidden"><img src="${p.photo}" class="w-full h-[260px] object-cover"/><div class="p-3"><div class="flex justify-between items-start"><div class="font-semibold">${p.name} • ${p.age}</div><div class="text-[12px]">${p.flag} ${p.city}</div></div><div class="text-[11px] text-zinc-500 mt-1">${p.type}</div><div class="text-[13px] text-zinc-400 mt-1 line-clamp-2">${p.bio}</div><div class="flex gap-2 mt-3"><button class="flex-1 border border-white/10 rounded-full py-1.5 text-xs">♡ Like</button><button class="flex-1 bg-white text-black rounded-full py-1.5 text-xs">Message</button>${isAdmin?`<button onclick="deleteProfile('${p.id}')" class="text-xs border border-white/10 rounded-full px-2">🗑️</button>`:''}</div></div></div>`).join('');
+  const total=document.getElementById('countTotal'); if(total){ total.textContent=profiles.length; document.getElementById('countDemo').textContent=profiles.filter(p=>p.isDemo).length; document.getElementById('countReal').textContent=profiles.filter(p=>!p.isDemo).length; }
+}
+function deleteProfile(id){profiles=profiles.filter(p=>p.id!==id);saveAll();renderProfiles();setLast('Deleted profile');}
+function renderEssentials(){
+  const grid=document.getElementById('essentialsGrid'); if(!grid) return;
+  grid.innerHTML=essentials.map(e=>`<div class="bg-[#151517] rounded-[20px] border border-white/[0.06] overflow-hidden relative">${canEditMerch()?`<div class="absolute top-2 right-2 flex gap-1 z-10"><button onclick="editEssential('${e.id}')" class="bg-white border rounded-full w-7 h-7 grid place-items-center text-xs">✏️</button><button onclick="deleteEssential('${e.id}')" class="bg-white border rounded-full w-7 h-7 grid place-items-center text-xs">🗑️</button></div>`:''}<img src="${e.image}" class="w-full h-[180px] object-cover"/><div class="p-3"><div class="flex justify-between"><span class="font-semibold text-sm">${e.name}</span><span class="text-xs bg-white/10 rounded-full px-2 py-0.5">${e.tag}</span></div><div class="text-xs text-zinc-500 mt-1">${e.desc} • ${e.origin}</div><div class="flex justify-between items-center mt-2"><span class="font-bold text-sm">${e.price}</span><a href="${e.link}" target="_blank" class="text-xs underline">Shop</a></div></div></div>`).join('');
+  const adminList=document.getElementById('adminEssentialsList'); if(adminList) adminList.innerHTML=essentials.map(e=>`<div class="flex justify-between border border-white/10 rounded-xl p-2"><span>${e.name} — ${e.price}</span><span class="flex gap-1"><button onclick="editEssential('${e.id}')" class="border border-white/10 rounded-full px-2">Edit</button><button onclick="deleteEssential('${e.id}')" class="border border-white/10 rounded-full px-2">Delete</button></span></div>`).join('');
+}
+function deleteEssential(id){essentials=essentials.filter(e=>e.id!==id);saveAll();renderEssentials();setLast('Deleted merch '+id);}
+function editEssential(id){const e=essentials.find(x=>x.id===id); if(!e) return; editingEssentialId=id; document.getElementById('essentialModalTitle').textContent='Edit Merch'; document.getElementById('eName').value=e.name; document.getElementById('eDesc').value=e.desc; document.getElementById('ePrice').value=e.price; document.getElementById('eTag').value=e.tag; document.getElementById('eImage').value=e.image; merchImageData=e.image; document.getElementById('eLink').value=e.link; document.getElementById('eOrigin').value=e.origin; const prev=document.getElementById('ePreview'); if(prev){prev.src=e.image; document.getElementById('ePreviewWrap').classList.remove('hidden');} openModal('essentialModal');}
+function renderWall(){
+  const feed=document.getElementById('wallFeed'); if(!feed) return;
+  if(wallPosts.length===0) feed.innerHTML='<div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] text-sm text-zinc-500">No posts yet — be first to post with photo</div>';
+  else feed.innerHTML=wallPosts.map(p=>`<div class="bg-[#151517] rounded-[20px] border border-white/[0.06] p-4"><div class="flex items-center gap-2 mb-2"><div class="w-7 h-7 rounded-full bg-white text-black grid place-items-center text-[11px] font-bold">${(p.name||'G')[0]}</div><div class="text-[13px] font-semibold">${p.name||'GlobalAmor'}</div><div class="text-[11px] text-zinc-500">• ${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div><div class="text-sm text-white whitespace-pre-wrap">${p.text}</div>${p.image?`<img src="${p.image}" class="mt-3 rounded-xl w-full max-h-[420px] object-cover border border-white/10"/>`:''}<div class="flex gap-3 mt-3 text-[12px] text-zinc-500"><button class="hover:text-white">♡ Like</button><button class="hover:text-white">💬 Comment</button></div></div>`).join('');
+}
+function renderSubUsers(){
+  const list=document.getElementById('subUsersList'); if(!list) return;
+  if(subUsers.length===0){list.innerHTML='<div class="text-xs text-zinc-500 border border-dashed border-white/10 rounded-xl p-3">No sub editors yet — click + Add Editor. They can login on Admin page with email + password and edit merch.</div>'; return;}
+  list.innerHTML=subUsers.map(u=>`<div class="flex justify-between items-center border border-white/10 rounded-xl p-2"><div><div class="font-medium text-white">${u.name}</div><div class="text-[11px] text-zinc-500">${u.email} • ${u.role}</div></div><div class="flex gap-1"><button onclick="editSubUser('${u.id}')" class="border border-white/10 rounded-full px-2 py-1 text-xs">Edit</button><button onclick="deleteSubUser('${u.id}')" class="border border-white/10 rounded-full px-2 py-1 text-xs">Remove</button></div></div>`).join('');
+}
+function deleteSubUser(id){ if(!isAdmin){alert('Only full admin can remove'); return;} if(!confirm('Remove this editor?')) return; subUsers=subUsers.filter(u=>u.id!==id); saveAll(); renderSubUsers(); setLast('Removed sub editor');}
+function editSubUser(id){ if(!isAdmin) return; const u=subUsers.find(x=>x.id===id); if(!u) return; document.getElementById('subName').value=u.name; document.getElementById('subEmail').value=u.email; document.getElementById('subPass').value=u.pass; document.getElementById('subRole').value=u.role; document.getElementById('subModal').dataset.editId=id; openModal('subModal');}
+
+document.querySelectorAll('.tabBtn').forEach(btn=>{btn.onclick=()=>{document.querySelectorAll('.tabBtn').forEach(b=>{b.className='tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]';}); btn.className='tabBtn whitespace-nowrap rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-black'; document.querySelectorAll('.tabSection').forEach(s=>s.classList.add('hidden')); document.getElementById(btn.dataset.tab).classList.remove('hidden'); if(btn.dataset.tab==='shop') document.getElementById('addEssentialBtn').classList.toggle('hidden',!canEditMerch());};});
+
+document.getElementById('addProfileBtn').onclick=()=>openModal('profileModal');
+document.getElementById('joinBtn').onclick=()=>openModal('joinModal');
+document.getElementById('wallUploadBtn').onclick=()=>document.getElementById('wallFile').click();
+document.getElementById('wallFile').onchange=(e)=>{const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=(ev)=>{wallImageData=ev.target.result; document.getElementById('wallPreview').src=wallImageData; document.getElementById('wallPreviewWrap').classList.remove('hidden');}; r.readAsDataURL(file);};
+document.getElementById('wallUrl').oninput=(e)=>{const url=e.target.value.trim(); if(url){wallImageData=url; document.getElementById('wallPreview').src=url; document.getElementById('wallPreviewWrap').classList.remove('hidden');}};
+document.getElementById('wallPreviewRemove').onclick=()=>{wallImageData=null; document.getElementById('wallPreviewWrap').classList.add('hidden'); document.getElementById('wallFile').value=''; document.getElementById('wallUrl').value='';};
+document.getElementById('wallPostBtn').onclick=()=>{const text=document.getElementById('wallText').value.trim(); if(!text && !wallImageData){alert('Add text or photo');return;} wallPosts.unshift({text,image:wallImageData,time:Date.now(),name:"You"}); saveAll(); renderWall(); document.getElementById('wallText').value=''; wallImageData=null; document.getElementById('wallPreviewWrap').classList.add('hidden'); document.getElementById('wallFile').value=''; document.getElementById('wallUrl').value='';};
+document.getElementById('addEssentialBtn').onclick=()=>{editingEssentialId=null; document.getElementById('essentialModalTitle').textContent='Add Merch'; ['eName','eDesc','ePrice','eTag','eImage','eLink','eOrigin'].forEach(id=>document.getElementById(id).value=''); merchImageData=null; document.getElementById('ePreviewWrap').classList.add('hidden'); document.getElementById('eFile').value=''; openModal('essentialModal');};
+document.getElementById('eUploadBtn').onclick=()=>document.getElementById('eFile').click();
+document.getElementById('eFile').onchange=(e)=>{const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=(ev)=>{merchImageData=ev.target.result; document.getElementById('eImage').value=merchImageData; document.getElementById('ePreview').src=merchImageData; document.getElementById('ePreviewWrap').classList.remove('hidden');}; r.readAsDataURL(file);};
+document.getElementById('eImage').addEventListener('input',(e)=>{const url=e.target.value.trim(); if(url){merchImageData=url; document.getElementById('ePreview').src=url; document.getElementById('ePreviewWrap').classList.remove('hidden');}});
+document.getElementById('ePreviewRemove').onclick=()=>{merchImageData=null; document.getElementById('ePreviewWrap').classList.add('hidden'); document.getElementById('eFile').value=''; document.getElementById('eImage').value='';};
+document.getElementById('saveEssentialBtn').onclick=()=>{const data={name:document.getElementById('eName').value.trim(),desc:document.getElementById('eDesc').value.trim(),price:document.getElementById('ePrice').value.trim(),tag:document.getElementById('eTag').value.trim(),image:(merchImageData||document.getElementById('eImage').value.trim()),link:document.getElementById('eLink').value.trim(),origin:document.getElementById('eOrigin').value.trim()}; if(!data.name){alert('Name required');return;} if(editingEssentialId){const idx=essentials.findIndex(e=>e.id===editingEssentialId); essentials[idx]={...essentials[idx],...data}; setLast('Edited merch '+data.name);} else {essentials.push({id:'e'+Date.now(),...data}); setLast('Added merch '+data.name);} saveAll(); renderEssentials(); closeModal('essentialModal');};
+document.getElementById('saveProfileBtn').onclick=()=>{const name=document.getElementById('pName').value.trim(); const age=document.getElementById('pAge').value.trim(); const city=document.getElementById('pCity').value.trim(); const country=document.getElementById('pCountry').value; const flag=document.getElementById('pCountry').selectedOptions[0].textContent.split(' ')[0]; const type=document.getElementById('pType').value.trim(); const bio=document.getElementById('pBio').value.trim(); let photo=document.getElementById('pPhotoUrl').value.trim(); const fileInput=document.getElementById('pPhotoFile'); if(fileInput.files[0] && !photo){const reader=new FileReader(); reader.onload=(ev)=>{profiles.unshift({id:'p'+Date.now(),name,age,city,country,flag,type,bio,photo:ev.target.result,isDemo:false}); saveAll(); renderProfiles(); closeModal('profileModal'); setLast('Created profile '+name);}; reader.readAsDataURL(fileInput.files[0]); return;} if(!photo) photo='https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop'; profiles.unshift({id:'p'+Date.now(),name,age,city,country,flag,type,bio,photo,isDemo:false}); saveAll(); renderProfiles(); closeModal('profileModal'); setLast('Created profile '+name);};
+document.getElementById('adminLoginBtn').onclick=()=>{
+  const pass=document.getElementById('adminPass').value.trim();
+  const emailVal=(document.getElementById('adminEmail').value||'').trim().toLowerCase();
+  if(pass==='AmorMaster2025!'){
+    isAdmin=true; isMerchEditor=true; currentSubUser=null; localStorage.setItem('globalamor_admin','1'); localStorage.removeItem('globalamor_sub_session');
+    document.getElementById('adminLoginBox').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('addEssentialBtn').classList.remove('hidden');
+    renderProfiles(); renderEssentials(); renderSubUsers(); setLast('Admin login (full)'); return;
+  }
+  let found=null;
+  if(emailVal) found=subUsers.find(u=>u.email.toLowerCase()===emailVal && u.pass===pass);
+  else found=subUsers.find(u=>u.pass===pass);
+  if(found){
+    isAdmin=false; isMerchEditor=true; currentSubUser=found; localStorage.setItem('globalamor_sub_session',JSON.stringify(found));
+    document.getElementById('adminLoginBox').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('addEssentialBtn').classList.remove('hidden');
+    document.getElementById('restoreDemoBtn').classList.add('hidden'); document.getElementById('resetAllBtn').classList.add('hidden'); document.getElementById('addSubUserBtn').classList.add('hidden');
+    renderProfiles(); renderEssentials(); renderSubUsers(); setLast('Merch editor login: '+found.name); return;
+  }
+  document.getElementById('adminLoginMsg').textContent='Wrong password — try full admin or sub editor email + password';
+};
+if(isAdmin){document.getElementById('adminLoginBox').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('addEssentialBtn').classList.remove('hidden');}
+if(currentSubUser){document.getElementById('adminLoginBox').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('addEssentialBtn').classList.remove('hidden');}
+document.getElementById('restoreDemoBtn').onclick=()=>{profiles=[...DEMO_PROFILES,...profiles.filter(p=>!p.isDemo)]; saveAll(); renderProfiles(); setLast('Restored demo profiles');};
+document.getElementById('resetAllBtn').onclick=()=>{if(!confirm('Reset all to demo?')) return; profiles=[...DEMO_PROFILES]; wallPosts=[...DEMO_WALL]; essentials=[...DEMO_MERCH]; saveAll(); renderProfiles(); renderWall(); renderEssentials(); setLast('Reset all');};
+document.getElementById('addSubUserBtn').onclick=()=>{document.getElementById('subModal').dataset.editId=''; ['subName','subEmail','subPass','subRole'].forEach(id=>document.getElementById(id).value=''); openModal('subModal');};
+document.getElementById('saveSubUserBtn').onclick=()=>{
+  const name=document.getElementById('subName').value.trim(); const email=document.getElementById('subEmail').value.trim().toLowerCase(); const pass=document.getElementById('subPass').value.trim(); const role=document.getElementById('subRole').value;
+  if(!name||!email||!pass){alert('Name, email, password required'); return;}
+  const editId=document.getElementById('subModal').dataset.editId;
+  if(editId){ const idx=subUsers.findIndex(u=>u.id===editId); if(idx>-1) subUsers[idx]={...subUsers[idx],name,email,pass,role}; setLast('Edited sub editor '+name); }
+  else { if(subUsers.find(u=>u.email===email)){alert('Email already exists'); return;} subUsers.push({id:'u'+Date.now(),name,email,pass,role}); setLast('Added sub editor '+name); }
+  saveAll(); renderSubUsers(); closeModal('subModal');
+};
+document.getElementById('langSelect').value=localStorage.getItem('globalamor_lang')||'en'; document.getElementById('langSelect').onchange=(e)=>{localStorage.setItem('globalamor_lang',e.target.value);};
+
+function showTerms(){document.querySelectorAll('.tabBtn').forEach(b=>{b.className='tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]';}); document.querySelectorAll('.tabSection').forEach(s=>s.classList.add('hidden')); document.getElementById('terms').classList.remove('hidden'); window.scrollTo(0,0);}
+function showPrivacy(){alert('Privacy Policy link: [INSERT PRIVACY POLICY LINK] - add your policy'); showTerms();}
+document.getElementById('joinNowBtn').onclick=()=>{const chk=document.getElementById('tosCheck'); if(!chk.checked){alert('You must confirm you are 18+ and agree to Terms'); return;} closeModal('joinModal'); alert('Account creation would proceed - Terms accepted');};
+
+renderPassport(); renderProfiles(); renderEssentials(); renderWall(); renderSubUsers();
+
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
