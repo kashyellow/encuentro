@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style><style>
+:where(html){font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;}
+:where(code, pre, kbd, samp){font-family: ui-monospace, monospace;}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global Amor</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{background:#0a0a0a;color:#fff;font-family:ui-sans-serif,system-ui,-apple-system}
+.scrollbar-none::-webkit-scrollbar{display:none}
+.scrollbar-none{-ms-overflow-style:none;scrollbar-width:none}
+</style>
+</head>
+<body class="bg-[#0a0a0a] min-h-screen">
+<header class="sticky top-0 z-40 bg-[#0a0a0a] border-b border-white/[0.08]">
+  <div class="mx-auto max-w-[1280px] px-4 py-4 sm:px-6 flex items-center justify-between">
+    <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-white text-black grid place-items-center font-bold text-sm">GA</div><div class="font-bold text-[18px]">GlobalAmor</div></div>
+    <div class="flex items-center gap-2">
+      <select id="langSelect" class="text-[13px] bg-[#1c1c1e] border border-white/[0.08] rounded-full px-3 py-1.5"><option value="en">🌍 English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option><option value="ht">Kreyòl</option></select>
+      <button id="joinBtn" class="rounded-full bg-[#ff2d85] px-4 py-1.5 text-[13px] font-semibold">Join</button>
+    </div>
+  </div>
+  <div class="mx-auto max-w-[1280px] px-4 pb-4 pt-1 sm:px-6">
+    <nav class="flex gap-2 overflow-x-auto scrollbar-none">
+      <button data-tab="discover" class="tabBtn whitespace-nowrap rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-black">Discover</button>
+      <button data-tab="wall" class="tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Wall</button>
+      <button data-tab="matches" class="tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Matches</button>
+      <button data-tab="admin" class="tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Admin</button>
+      <button data-tab="shop" class="tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Community Merch</button>
+    </nav>
+  </div>
+</header>
+<div id="cloudBanner" class="hidden"></div>
+
+<div id="authModal" class="fixed inset-0 hidden bg-black/80 z-[60] grid place-items-center p-4">
+  <div class="bg-[#151517] rounded-[24px] p-6 w-full max-w-[400px] border border-white/10">
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="authTitle" class="font-bold text-[20px]">Join GlobalAmor</h3>
+      <button onclick="closeModal('authModal')" class="text-zinc-400 w-8 h-8 grid place-items-center rounded-full bg-white/5">✕</button>
+    </div>
+    <div id="authError" class="hidden bg-red-500/15 border border-red-500/20 text-red-300 text-[13px] p-3 rounded-xl mb-3"></div>
+    <input id="authName" placeholder="Display name (for signup)" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-3 w-full mb-2 text-sm text-white hidden"/>
+    <input id="authEmail" type="email" placeholder="Email" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-3 w-full mb-2 text-sm text-white"/>
+    <input id="authPass" type="password" placeholder="Password (min 6 chars)" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-3 w-full mb-3 text-sm text-white"/>
+    <div id="forgotRow" class="hidden flex justify-end mb-3"><button id="forgotBtn" class="text-[12px] text-zinc-400 underline hover:text-white">Forgot password?</button></div>
+    <label id="ageCheckRow" class="flex gap-2 text-[11px] text-zinc-400 mb-4"><input type="checkbox" id="authAgeCheck" class="mt-0.5"/> <span>I confirm I am 18+ and agree to Terms & Privacy</span></label>
+    <button id="authSubmitBtn" class="bg-white text-black rounded-full px-4 py-3 text-sm w-full font-bold">Create Account</button>
+    <button id="authToggleBtn" class="text-[13px] text-zinc-400 mt-3 w-full">Already have an account? Log in</button>
+  </div>
+</div>
+
+<div id="resetModal" class="fixed inset-0 hidden bg-black/80 z-[65] grid place-items-center p-4">
+  <div class="bg-[#151517] rounded-[24px] p-6 w-full max-w-[400px] border border-white/10">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-[18px]">Reset Password</h3>
+      <button onclick="closeModal('resetModal')" class="text-zinc-400 w-8 h-8 grid place-items-center rounded-full bg-white/5">✕</button>
+    </div>
+    <div id="resetError" class="hidden text-[13px] p-3 rounded-xl mb-3"></div>
+    <input id="resetEmail" type="email" placeholder="Enter your email" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-3 w-full mb-3 text-sm text-white"/>
+    <button id="resetSendBtn" class="bg-white text-black rounded-full px-4 py-3 text-sm w-full font-bold">Send Reset Link</button>
+    <div class="text-[11px] text-zinc-500 mt-3 text-center">We'll email you a secure link to reset your password. Check spam folder.</div>
+  </div>
+</div>
+
+<div id="updatePassModal" class="fixed inset-0 hidden bg-black/80 z-[70] grid place-items-center p-4">
+  <div class="bg-[#151517] rounded-[24px] p-6 w-full max-w-[400px] border border-white/10">
+    <h3 class="font-bold text-[18px] mb-4">Set New Password</h3>
+    <div id="updatePassError" class="hidden text-[13px] p-3 rounded-xl mb-3"></div>
+    <input id="newPass" type="password" placeholder="New password (min 6 chars)" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-3 w-full mb-3 text-sm text-white"/>
+    <input id="newPass2" type="password" placeholder="Confirm new password" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-3 w-full mb-3 text-sm text-white"/>
+    <button id="updatePassBtn" class="bg-white text-black rounded-full px-4 py-3 text-sm w-full font-bold">Update Password</button>
+  </div>
+</div>
+
+
+<div id="chatModal" class="fixed inset-0 hidden bg-black/80 z-[55] grid place-items-center p-4">
+  <div class="bg-[#151517] rounded-[24px] w-full max-w-[500px] h-[70vh] border border-white/10 flex flex-col overflow-hidden">
+    <div class="p-4 border-b border-white/10 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <img id="chatAvatar" src="" class="w-9 h-9 rounded-full object-cover"/>
+        <div><div id="chatName" class="font-semibold text-[15px]">Name</div><div id="chatStatus" class="text-[11px] text-emerald-400">Online • Cloud chat</div></div>
+      </div>
+      <button onclick="closeModal('chatModal')" class="text-zinc-400">✕</button>
+    </div>
+    <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0f0f10]"></div>
+    <div class="p-3 border-t border-white/10 flex gap-2">
+      <input id="chatInput" placeholder="Type a message..." class="flex-1 bg-[#1c1c1e] border border-white/10 rounded-full px-4 py-2.5 text-sm text-white"/>
+      <button id="chatSendBtn" class="bg-white text-black rounded-full px-5 py-2.5 text-sm font-bold">Send</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="reportModal" class="fixed inset-0 hidden bg-black/80 z-[60] grid place-items-center p-4">
+  <div class="bg-[#151517] rounded-[24px] p-6 w-full max-w-[420px] border border-white/10">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-[18px]">Report</h3>
+      <button onclick="closeModal('reportModal')" class="text-zinc-400 w-8 h-8 grid place-items-center rounded-full bg-white/5">✕</button>
+    </div>
+    <div id="reportError" class="hidden text-[13px] p-3 rounded-xl mb-3"></div>
+    <div class="mb-3">
+      <div class="text-[13px] font-medium mb-2">Reason</div>
+      <select id="reportReason" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-3 w-full text-sm text-white">
+        <option value="fake">Fake profile / Catfish</option>
+        <option value="underage">Underage / Under 18</option>
+        <option value="spam">Spam / Promotion</option>
+        <option value="harassment">Harassment / Hate</option>
+        <option value="scam">Scam / Money request</option>
+        <option value="inappropriate">Inappropriate photo / Nudity</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <textarea id="reportDetails" placeholder="Add details (optional) - what happened?" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-3 w-full text-sm text-white h-[80px] mb-3"></textarea>
+    <div class="text-[11px] text-zinc-500 mb-3">Your report is anonymous to the reported user. IP is logged for abuse prevention. 18+ only community.</div>
+    <button id="reportSubmitBtn" class="bg-white text-black rounded-full px-4 py-3 text-sm w-full font-bold">Submit Report</button>
+  </div>
+</div>
+
+
+<main class="mx-auto max-w-[1280px] px-4 py-5 sm:px-6 sm:py-6">
+  <section id="discover" class="tabSection">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="text-[11px] font-bold tracking-[0.14em] text-zinc-500">PASSPORT</span>
+      <div id="passportRow" class="flex flex-wrap gap-2"></div>
+    </div>
+    <div class="mt-4 flex items-center gap-2 text-[13px] text-zinc-500"><span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span></span><span id="showingText">Showing 12 travelers • online now</span></div>
+    <div class="mt-5 flex justify-between items-center"><h2 class="font-semibold">Discover</h2><button id="addProfileBtn" class="rounded-full bg-white text-black px-3 py-1 text-xs font-semibold">+ Create Profile</button></div>
+    <div id="profilesGrid" class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+  </section>
+
+  <section id="wall" class="tabSection hidden">
+    <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+      <h2 class="font-semibold mb-3">Wall — upload single photo</h2>
+      <textarea id="wallText" placeholder="What's on your mind?" class="w-full bg-[#1c1c1e] border border-white/[0.06] rounded-xl p-3 text-sm text-white"></textarea>
+      <div class="mt-3 grid gap-2">
+        <input id="wallUrl" placeholder="Paste image URL (optional)" class="bg-[#1c1c1e] border border-white/[0.06] rounded-xl p-2.5 text-sm w-full text-white"/>
+        <div class="flex items-center gap-2">
+          <button id="wallUploadBtn" class="border border-white/[0.1] rounded-full px-3 py-1.5 text-sm">📷 Upload Photo</button>
+          <span class="text-xs text-zinc-500">single only</span>
+        </div>
+        <input type="file" id="wallFile" accept="image/*" class="hidden"/>
+        <div id="wallPreviewWrap" class="hidden relative w-[160px]"><img id="wallPreview" class="rounded-xl w-[160px] h-[160px] object-cover border border-white/10"/><button id="wallPreviewRemove" class="absolute -top-2 -right-2 bg-white text-black rounded-full w-6 h-6 text-xs">X</button></div>
+      </div>
+      <button id="wallPostBtn" class="mt-3 bg-white text-black rounded-full px-5 py-2 text-sm font-semibold">Post to Wall</button>
+    </div>
+    <div id="wallFeed" class="mt-4 grid gap-4"></div>
+  </section>
+
+  <section id="matches" class="tabSection hidden"><div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] text-sm text-zinc-400">Matches chat list — demo</div></section>
+
+  <section id="admin" class="tabSection hidden">
+    <div id="adminLoginBox" class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+      <h2 class="font-semibold mb-2">Admin Login</h2>
+      <p class="text-[12px] text-zinc-400 mb-3">Login with your admin email (in ADMIN_EMAILS list) or legacy super password. Demo: AmorMaster2025!</p>
+      <input id="adminEmail" placeholder="Email (for sub editors, leave blank for full admin)" class="bg-[#1c1c1e] border border-white/[0.06] rounded-xl p-2.5 text-sm w-full text-white mb-2"/>
+      <input id="adminPass" type="password" placeholder="Super password or sub editor password" class="bg-[#1c1c1e] border border-white/[0.06] rounded-xl p-2.5 text-sm w-full text-white"/>
+      <button id="adminLoginBtn" class="mt-2 bg-white text-black rounded-full px-4 py-1.5 text-sm font-semibold">Login</button>
+      <div id="adminLoginMsg" class="text-xs mt-2 text-red-400"></div>
+    </div>
+    <div id="adminPanel" class="hidden">
+      <!-- Stats -->
+      <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] mb-4">
+        <div class="flex flex-wrap gap-3 items-center justify-between">
+          <div class="flex gap-4 text-sm items-center flex-wrap">
+            <div id="adminBadge" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold border border-emerald-500/20">Admin ✓</div>
+            <div>Total Profiles: <span id="countTotal" class="font-bold">0</span></div>
+            <div>Real: <span id="countReal" class="font-bold text-emerald-400">0</span></div>
+            <div>Demo: <span id="countDemo" class="font-bold text-zinc-500">0</span></div>
+            <div>Wall: <span id="countWall" class="font-bold">0</span></div>
+            <div>Convos: <span id="countConvos" class="font-bold">0</span></div>
+            <div>Messages: <span id="countMsgs" class="font-bold">0</span></div>
+            <div>Banned: <span id="countBanned" class="font-bold text-red-400">0</span></div>
+          </div>
+          <div class="flex gap-2">
+            <button id="refreshAdminBtn" class="bg-white text-black rounded-full px-3 py-1.5 text-xs font-semibold">↻ Refresh</button>
+            <button id="restoreDemoBtn" class="border border-white/10 rounded-full px-3 py-1.5 text-xs">Restore Demo</button>
+            <button id="resetAllBtn" class="border border-red-500/20 text-red-400 rounded-full px-3 py-1.5 text-xs">Reset All Local</button>
+          </div>
+        </div>
+        <div id="lastAction" class="text-xs text-zinc-500 mt-2"></div>
+      </div>
+
+      <!-- Admin Tabs -->
+      <div class="flex gap-2 overflow-x-auto scrollbar-none mb-4">
+        <button data-adminTab="overview" class="adminTabBtn whitespace-nowrap rounded-full bg-white text-black px-4 py-2 text-[13px] font-semibold">Overview</button>
+        <button data-adminTab="reports" class="adminTabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">🚩 Reports <span id="reportsCountBadge" class="ml-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span></button>
+        <button data-adminTab="users" class="adminTabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Users & Profiles</button>
+        <button data-adminTab="wall" class="adminTabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Wall Posts</button>
+        <button data-adminTab="messages" class="adminTabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Messages</button>
+        <button data-adminTab="logs" class="adminTabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">IP Logs</button>
+        <button data-adminTab="banned" class="adminTabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Banned</button>
+        <button data-adminTab="merch" class="adminTabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]">Merch Editors</button>
+      </div>
+
+      <!-- Overview -->
+      <div id="adminTab-overview" class="adminTabSection">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+            <h3 class="font-semibold mb-3">Recent Activity</h3>
+            <div id="adminActivityLog" class="space-y-2 text-[13px] max-h-[400px] overflow-y-auto"></div>
+          </div>
+          <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+            <h3 class="font-semibold mb-3">Quick Actions</h3>
+            <div class="grid gap-2">
+              <button onclick="adminSeedDemoProfiles()" class="bg-emerald-500/15 border border-emerald-500/20 text-emerald-300 rounded-xl p-3 text-sm text-left"><div class="font-semibold">🌱 Seed Demo Profiles to Cloud</div><div class="text-[12px] opacity-80">Add 12 demo profiles to Supabase so site not empty</div></button>
+              <button onclick="adminRestoreDemoLocal()" class="bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-left"><div class="font-semibold">↩️ Restore Demo Locally</div><div class="text-[12px] text-zinc-400">Show demo profiles in this browser only</div></button>
+              <button onclick="adminDeleteAllDemo()" class="bg-amber-500/15 border border-amber-500/20 text-amber-300 rounded-xl p-3 text-sm text-left"><div class="font-semibold">Clean Demo Profiles</div><div class="text-[12px] opacity-80">Delete all profiles where is_demo=true</div></button>
+              <button onclick="adminPurgeOldWall()" class="bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-left"><div class="font-semibold">Purge Wall (30 days old)</div><div class="text-[12px] text-zinc-400">Delete wall posts older than 30 days</div></button>
+              <button onclick="if(confirm('Export all profiles as JSON?')){ const dataStr='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(profiles,null,2)); const a=document.createElement('a'); a.href=dataStr; a.download='globalamor_profiles_export.json'; a.click(); }" class="bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-left"><div class="font-semibold">Export Profiles JSON</div><div class="text-[12px] text-zinc-400">Download all profiles</div></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Reports Queue -->
+      <div id="adminTab-reports" class="adminTabSection hidden">
+        <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="font-semibold">🚩 Reports Queue — User Reports</h3>
+            <div class="flex gap-2">
+              <select id="reportsFilter" class="bg-[#1c1c1e] border border-white/10 rounded-full px-3 py-1.5 text-[12px]">
+                <option value="pending">Pending</option>
+                <option value="all">All</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="actioned">Actioned</option>
+              </select>
+              <button onclick="adminLoadAllData()" class="bg-white/10 rounded-full px-3 py-1.5 text-xs">Refresh</button>
+            </div>
+          </div>
+          <div id="adminReportsList" class="space-y-3 max-h-[700px] overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <!-- IP Logs -->
+      <div id="adminTab-logs" class="adminTabSection hidden">
+        <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+          <h3 class="font-semibold mb-3">IP & Activity Logs</h3>
+          <div class="flex gap-2 mb-3">
+            <input id="logsSearch" placeholder="Search IP, action, user..." class="bg-[#1c1c1e] border border-white/10 rounded-full px-3 py-1.5 text-[12px] flex-1"/>
+            <select id="logsFilter" class="bg-[#1c1c1e] border border-white/10 rounded-full px-3 py-1.5 text-[12px]">
+              <option value="all">All actions</option>
+              <option value="page_view">Page views</option>
+              <option value="create_profile">Profile creates</option>
+              <option value="report_profile">Reports</option>
+              <option value="login">Logins</option>
+            </select>
+          </div>
+          <div id="adminLogsList" class="space-y-2 max-h-[700px] overflow-y-auto font-mono text-[11px]"></div>
+        </div>
+      </div>
+
+
+      <!-- Users & Profiles -->
+      <div id="adminTab-users" class="adminTabSection hidden">
+        <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+          <div class="flex justify-between items-center mb-3 gap-2 flex-wrap">
+            <h3 class="font-semibold">All Profiles (Real Users)</h3>
+            <input id="userSearch" placeholder="Search name, city, email..." class="bg-[#1c1c1e] border border-white/10 rounded-full px-3 py-1.5 text-[12px] w-[200px]"/>
+          </div>
+          <div id="adminUsersList" class="space-y-2 max-h-[600px] overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <!-- Wall Posts -->
+      <div id="adminTab-wall" class="adminTabSection hidden">
+        <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+          <h3 class="font-semibold mb-3">Wall Posts — Moderate & Delete</h3>
+          <div id="adminWallList" class="space-y-3 max-h-[600px] overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="adminTab-messages" class="adminTabSection hidden">
+        <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+          <h3 class="font-semibold mb-3">Conversations & Messages (Read-only monitor)</h3>
+          <div id="adminMessagesList" class="space-y-3 max-h-[600px] overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <!-- Banned -->
+      <div id="adminTab-banned" class="adminTabSection hidden">
+        <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]">
+          <h3 class="font-semibold mb-3">Banned Users</h3>
+          <div id="adminBannedList" class="space-y-2 max-h-[600px] overflow-y-auto"></div>
+          <div class="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+            <div class="text-[12px] font-semibold text-amber-300 mb-1">How banning works:</div>
+            <div class="text-[11px] text-zinc-400">Banned users cannot login or create profiles. Their existing profiles are hidden from Discover. Ban is stored in banned_users table + profiles.is_banned flag.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Merch Editors -->
+      <div id="adminTab-merch" class="adminTabSection hidden">
+        <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] mb-4"><div class="flex justify-between items-center mb-2"><h3 class="font-semibold">Community Merch — Sub Users (Merch Editors)</h3><button id="addSubUserBtn" class="border border-white/10 rounded-full px-3 py-1 text-xs">+ Add Editor</button></div><p class="text-xs text-zinc-500 mb-3">Sub users can login with email + password and edit merch. Full admin (AmorMaster2025!) can add/remove them.</p><div id="subUsersList" class="grid gap-2 text-sm"></div></div>
+        <div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]"><h3 class="font-semibold mb-2">Community Merch Manager</h3><div id="adminEssentialsList" class="grid gap-2 text-sm"></div></div>
+      </div>
+
+    </div>
+  </section>
+
+
+
+  
+<section id="shop" class="tabSection hidden">
+    <div class="flex items-center justify-between mb-3"><div class="bg-white text-black rounded-full px-4 py-1.5 text-sm font-semibold">Community Merch by: ~Mamasota~</div><button id="addEssentialBtn" class="hidden bg-white text-black rounded-full px-3 py-1 text-xs font-semibold">+ Add Merch</button></div>
+
+<div id="essentialsGrid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+  </section>
+
+<section id="terms" class="tabSection hidden">
+  <div class="mx-auto max-w-[900px] bg-[#151517] rounded-[20px] border border-white/[0.06] p-6 sm:p-8">
+    <h1 class="text-2xl font-bold mb-1">GLOBAL AMOR TERMS OF SERVICE</h1>
+    <p class="text-xs text-zinc-500 mb-6">Last Updated: September 12, 2026</p>
+    <div class="prose prose-invert prose-sm max-w-none text-[13px] leading-6 text-zinc-300 space-y-4">
+      <p>Welcome to Global Amor (“Global Amor,” “we,” “us,” or “our”). These Terms of Service (“Terms”) govern your access to and use of the Global Amor website, mobile application, services, features, communications tools, and related platforms (collectively, the “Service”).</p>
+      <p>By creating an account, accessing, browsing, or using the Service, you acknowledge that you have read, understood, and agree to be legally bound by these Terms and our Privacy Policy.</p>
+      <p class="font-bold text-white">IF YOU DO NOT AGREE TO THESE TERMS, DO NOT CREATE AN ACCOUNT OR USE GLOBAL AMOR.</p>
+      <p>These Terms constitute a legally binding agreement between you and Global Amor.</p>
+      <hr class="border-white/10"/>
+      <h3 class="font-semibold text-white mt-4">1. PURPOSE OF GLOBAL AMOR</h3>
+      <p>Global Amor is an online dating and social connection platform intended to help adults discover, communicate with, and potentially develop romantic or personal relationships with other adults. Global Amor is intended for genuine dating and social interaction. You agree that you will not use Global Amor primarily for purposes unrelated to dating, meeting people, forming relationships, or legitimate social interaction. We reserve the right to determine, in our reasonable discretion, whether an account or activity is inconsistent with the intended purpose of the Service.</p>
+      <h3 class="font-semibold text-white">2. AGE REQUIREMENT — 18+ ONLY</h3>
+      <p>Global Amor is strictly limited to individuals who are 18 years of age or older. By registering for or using Global Amor, you represent and warrant that: (1) You are at least 18 years old; (2) You have the legal capacity to enter into these Terms; (3) You are not prohibited by law from using an online dating service; (4) The information you provide regarding your age is truthful and accurate; and (5) You will not allow a person under 18 to access or use your account. You may be required to confirm your age before accessing certain portions of the Service. If we discover or reasonably believe that an individual is under 18, we may immediately suspend or terminate the account and remove associated content. If you believe that a person under 18 is using Global Amor, please report the account to us immediately.</p>
+      <h3 class="font-semibold text-white">3. ACCOUNT REGISTRATION</h3>
+      <p>To use certain features of Global Amor, you may be required to create an account. You agree to provide information that is accurate, current, and complete. You agree not to: Create an account using false information; Misrepresent your age; Pretend to be another person; Use another person’s photographs without permission; Create an account for another person without authorization; Create multiple accounts for deceptive purposes; Create accounts after being banned or suspended; Use an account belonging to another person; or Provide information intended to deceive or mislead other users. You are responsible for maintaining the confidentiality of your account credentials. You are responsible for activity occurring through your account unless you can demonstrate that the activity occurred without your authorization and despite reasonable precautions. You must notify Global Amor promptly if you believe your account has been compromised.</p>
+      <h3 class="font-semibold text-white">4. AUTHENTICITY OF PROFILES</h3>
+      <p>Global Amor is designed around authentic interactions between adults. You agree that information contained in your profile should be truthful and not materially misleading. You must not intentionally misrepresent: Your identity; Your age; Your relationship status; Your location; Your occupation; Your photographs; Your intentions; Your financial circumstances; Your education; Your marital status; Your relationship history; or Other information where the misrepresentation is intended to deceive another user. Global Amor does not guarantee that every profile or statement made by a user is accurate. Users should exercise appropriate caution when interacting with people online.</p>
+      <h3 class="font-semibold text-white">5. INTENDED USE OF GLOBAL AMOR</h3>
+      <p>Global Amor may only be used for lawful purposes consistent with its purpose as an adult dating and social platform. You agree not to use the Service primarily for: Advertising unrelated products or services; Recruiting customers for businesses; Recruiting employees or independent contractors; Multi-level marketing; Affiliate marketing; Political campaigning; Religious solicitation; Fundraising; Spam; Lead generation; Data collection; Market research without authorization; Promoting unrelated websites or businesses; Recruiting for other dating services; Recruiting for escort or sexual services; Financial solicitation; Fraudulent schemes; Cryptocurrency or investment solicitation; Gambling-related solicitation; or Any other commercial or non-dating purpose that Global Amor determines to be inappropriate. You may not use Global Amor as a substitute for a general advertising platform, classified-advertising service, employment platform, or financial solicitation platform.</p>
+      <h3 class="font-semibold text-white">6. PROHIBITED COMMERCIAL AND SEXUAL SOLICITATION</h3>
+      <p>Global Amor is not a marketplace for sexual services. You may not use Global Amor to advertise, offer, arrange, promote, sell, purchase, or solicit: Prostitution; Escort services; Sexual services; Sexual performances for compensation; Sexual companionship for compensation; Paid dates; Sexual content for compensation; Sexual services in exchange for money, gifts, cryptocurrency, transportation, lodging, or other benefits; or Any substantially similar commercial sexual arrangement. You may not use profile descriptions, messages, photographs, links, usernames, or other features of Global Amor to facilitate such activity. This prohibition applies whether compensation is offered directly or indirectly. Global Amor may remove accounts or content that appear to facilitate prohibited commercial sexual activity.</p>
+      <h3 class="font-semibold text-white">7. FINANCIAL SOLICITATION, SCAMS, AND FRAUD</h3>
+      <p>Global Amor strictly prohibits scams and fraudulent activity. You may not use the Service to deceive another person for financial or personal gain. Prohibited conduct includes, without limitation: Asking another user for money; Requesting loans; Requesting gift cards; Requesting cryptocurrency; Requesting wire transfers; Requesting bank-account information; Requesting credit-card information; Asking users to invest money; Promoting fraudulent investments; Promoting fake investment opportunities; Romance scams; Impersonation scams; Fake emergencies; Fake charitable causes; Fake business opportunities; Advance-fee schemes; Ponzi or pyramid schemes; Identity theft; Account takeover attempts; Money laundering; Using another person as a money mule; or Any other fraudulent or deceptive financial activity. Global Amor may suspend or terminate accounts suspected of participating in fraudulent activity, including where we reasonably believe that additional investigation or verification is appropriate.</p>
+      <h3 class="font-semibold text-white">8. NO GUARANTEE OF USER IDENTITY</h3>
+      <p>Global Amor does not guarantee that any user is who they claim to be. Although we may implement verification, moderation, safety measures, or other safeguards, no online identity-verification system can guarantee that a person is genuine, safe, honest, or accurately represented. You are responsible for exercising your own judgment when communicating with another user. Do not assume that a profile photograph, verification indicator, telephone number, social-media account, or other information proves a person’s identity.</p>
+      <h3 class="font-semibold text-white">9. PERSONAL SAFETY</h3>
+      <p>Online dating involves inherent risks. You acknowledge that you are responsible for taking reasonable precautions when interacting with other users. You should consider: Communicating through Global Amor before sharing personal contact information; Avoiding disclosure of sensitive personal information; Not sending money to someone you met online; Meeting in public locations; Informing someone you trust about your plans; Maintaining control of your own transportation; Avoiding excessive alcohol or other substances during initial meetings; Leaving immediately if you feel unsafe; and Contacting appropriate emergency services if necessary. Global Amor does not guarantee your safety during online or offline interactions.</p>
+      <h3 class="font-semibold text-white">10. OFFLINE MEETINGS</h3>
+      <p>Global Amor is not responsible for meetings or interactions that occur outside the Service. If you choose to meet another user in person, you do so at your own risk. Global Amor does not conduct personal background investigations on every user and does not guarantee that a user has no criminal history or poses no safety risk. You are solely responsible for deciding whether, when, where, and how to meet another person.</p>
+      <h3 class="font-semibold text-white">11. HARASSMENT AND ABUSE</h3>
+      <p>You may not use Global Amor to harass, intimidate, threaten, stalk, bully, abuse, or repeatedly contact another person against their wishes. Prohibited behavior includes: Threats of violence; Stalking; Repeated unwanted contact; Sexual harassment; Intimidation; Extortion; Blackmail; Humiliation; Targeted harassment; Hate-based harassment; Encouraging another person to harm themselves; Threatening to disclose private information; Threatening to disclose intimate images; Repeatedly contacting someone after they have clearly asked you to stop; or Coordinating harassment against another person. We may take action based on reported behavior even when conduct occurs partly outside Global Amor if it materially affects the safety or integrity of the Service or its users.</p>
+      <h3 class="font-semibold text-white">12. NON-CONSENSUAL INTIMATE CONTENT</h3>
+      <p>You may not upload, send, distribute, threaten to distribute, or otherwise share intimate photographs or videos of another person without that person’s consent. You may not use intimate images to: Threaten another person; Blackmail another person; Extort money; Humiliate another person; Retaliate against another person; or Pressure another person into a relationship or sexual activity. Threatening to release intimate content may itself constitute prohibited conduct. Global Amor may remove reported content and take appropriate action against accounts involved in suspected non-consensual intimate-image activity.</p>
+      <h3 class="font-semibold text-white">13. MINORS AND CHILD SAFETY</h3>
+      <p>Global Amor has zero tolerance for sexual exploitation or abuse involving minors. You may not: Use the Service to contact minors for sexual purposes; Request sexual images from a minor; Share sexual content involving a minor; Attempt to arrange a sexual encounter with a minor; Facilitate exploitation or trafficking of minors; Misrepresent yourself to gain access to minors; or Use Global Amor for any unlawful activity involving children. Any content or activity that may involve child sexual exploitation may be reported to appropriate authorities or relevant organizations where required or appropriate.</p>
+      <h3 class="font-semibold text-white">14. ILLEGAL ACTIVITY</h3>
+      <p>You may not use Global Amor to plan, facilitate, encourage, advertise, or participate in unlawful activity. This includes, without limitation: Fraud; Theft; Extortion; Trafficking; Exploitation; Money laundering; Identity theft; Threats of violence; Distribution of illegal substances; Sale of illegal goods; Sexual exploitation; Child exploitation; Cybercrime; or Other unlawful conduct. We may cooperate with law enforcement authorities when required by law or when we reasonably believe disclosure is necessary to address an emergency, protect individuals, investigate suspected unlawful activity, or protect our rights.</p>
+      <h3 class="font-semibold text-white">15. HATE, DISCRIMINATION, AND EXTREMIST CONTENT</h3>
+      <p>You may not use Global Amor to threaten, harass, or promote violence against individuals or groups based on protected characteristics. We may remove content that promotes violence, dehumanization, or serious harassment. Global Amor may also restrict accounts associated with extremist or violent organizations where such activity conflicts with the purpose or safety of the Service.</p>
+      <h3 class="font-semibold text-white">16. CONTENT YOU MAY NOT POST</h3>
+      <p>You may not upload, transmit, publish, or send content that: Is unlawful; Is fraudulent; Is intentionally deceptive; Infringes another person’s rights; Contains another person’s private information without authorization; Contains malicious software; Facilitates criminal activity; Contains sexual exploitation material; Contains non-consensual intimate content; Threatens violence; Constitutes harassment; Attempts to scam users; Is primarily commercial spam; Impersonates another person; Infringes intellectual-property rights; or Otherwise violates these Terms. Global Amor may remove content that violates these Terms or that we reasonably believe creates a safety, legal, or operational risk.</p>
+      <h3 class="font-semibold text-white">17. PHOTOS AND PROFILE CONTENT</h3>
+      <p>You are responsible for the photographs and other content you upload. You represent that you have the necessary rights to use photographs you upload. You should not upload: Another person’s photographs without permission; Images intended to impersonate another person; Private images of another person; Images containing minors in inappropriate or prohibited circumstances; Content that violates applicable law; or Images designed primarily to facilitate prohibited commercial activity. Global Amor may remove profile photographs that violate our policies.</p>
+      <h3 class="font-semibold text-white">18. MESSAGING</h3>
+      <p>Global Amor may provide private messaging, chat, video, audio, or other communication features. You are responsible for your communications. You agree not to use messaging features to: Spam users; Send mass unsolicited messages; Harass users; Threaten users; Solicit money; Solicit prohibited services; Distribute malware; Distribute fraudulent links; Promote unrelated businesses; Conduct scams; or Engage in unlawful activity. Global Amor may use automated systems, reports, moderation tools, and human review to identify or investigate violations, subject to applicable law and our Privacy Policy.</p>
+      <h3 class="font-semibold text-white">19. BLOCKING AND REPORTING</h3>
+      <p>Global Amor may provide tools that allow users to block or report other users. You should use these tools when another user behaves inappropriately or violates these Terms. A report does not guarantee that Global Amor will take a particular action. We may investigate reports in our discretion and may consider available information when determining whether action is appropriate. We may restrict an account while investigating a report.</p>
+      <h3 class="font-semibold text-white">20. MODERATION</h3>
+      <p>Global Amor reserves the right, but does not assume an obligation, to monitor, review, moderate, restrict, remove, or investigate content and activity on the Service. We may take action when we reasonably believe that: These Terms have been violated; Our safety policies have been violated; The Service is being misused; An account poses a risk to users; Fraud may be occurring; Illegal activity may be occurring; An account may be compromised; Information appears materially deceptive; or Action is necessary to protect Global Amor, its users, or third parties. We are not required to provide advance notice before taking moderation action where immediate action is reasonably necessary.</p>
+      <h3 class="font-semibold text-white">21. SUSPENSION AND TERMINATION</h3>
+      <p>We may suspend, restrict, or terminate your account at any time where permitted by applicable law. Reasons may include, without limitation: Violation of these Terms; Violation of safety rules; Fraud; Scamming; Harassment; Impersonation; Prohibited solicitation; Commercial misuse; Threatening conduct; Abuse of other users; Circumvention of a previous ban; Providing materially false information; Activity that creates legal or safety risks; or Conduct that we reasonably believe is harmful to the Service or its community. We may also terminate accounts that remain inactive for an extended period, subject to applicable law. Termination may result in loss of access to your profile, messages, matches, subscriptions, and other account information.</p>
+      <h3 class="font-semibold text-white">22. BAN EVASION</h3>
+      <p>If your account has been suspended or terminated, you may not create another account or otherwise attempt to circumvent the restriction without our express permission. This includes using: A different email address; A different telephone number; Another person’s account; A different device; A false identity; or Other methods designed to evade enforcement. We may take additional action against accounts reasonably believed to be attempting to circumvent enforcement.</p>
+      <h3 class="font-semibold text-white">23. USER CONTENT</h3>
+      <p>You retain ownership of content that you legally own and upload to Global Amor. However, by submitting content to the Service, you grant Global Amor a non-exclusive, worldwide, royalty-free, transferable and sublicensable license to host, store, reproduce, process, display, and distribute that content as reasonably necessary to operate, maintain, improve, promote, and provide the Service. This license continues only for as long as reasonably necessary for these purposes, subject to our Privacy Policy and applicable law. You represent that you have the necessary rights to grant this license.</p>
+      <h3 class="font-semibold text-white">24. CONTENT REMOVAL</h3>
+      <p>We may remove, restrict, disable access to, or refuse to display content when we believe it violates these Terms, applicable law, safety requirements, or our policies. We are not responsible for preserving content that has been removed. You should maintain your own copies of important information.</p>
+      <h3 class="font-semibold text-white">25. PRIVACY</h3>
+      <p>Your use of Global Amor is also subject to our Privacy Policy. Our Privacy Policy explains how we collect, use, store, disclose, and otherwise process personal information. By using Global Amor, you acknowledge that you have reviewed the Privacy Policy. Privacy Policy: [INSERT PRIVACY POLICY LINK]</p>
+      <h3 class="font-semibold text-white">26. THIRD-PARTY SERVICES AND LINKS</h3>
+      <p>Global Amor may contain links to third-party websites, applications, products, or services. We do not necessarily control or endorse third-party services. Your use of third-party services is governed by the terms and policies of those third parties. Global Amor is not responsible for third-party services or their content, availability, security, or practices.</p>
+      <h3 class="font-semibold text-white">27. PAID FEATURES AND SUBSCRIPTIONS</h3>
+      <p>Certain Global Amor features may require payment. Where applicable, pricing, billing frequency, subscription terms, renewal terms, cancellation procedures, and refund policies will be presented before purchase. You authorize Global Amor or its payment provider to charge applicable fees to your selected payment method. Unless otherwise stated, subscriptions may automatically renew until cancelled. You are responsible for cancelling a subscription before the next billing period if you do not wish to renew. Additional terms may apply to purchases made through Apple, Google, or another third-party marketplace.</p>
+      <h3 class="font-semibold text-white">28. REFUNDS</h3>
+      <p>Refunds will be handled according to the applicable purchase terms and applicable law. Where a purchase is processed through a third-party app store or payment provider, that provider’s refund procedures may apply. Nothing in these Terms is intended to limit any non-waivable consumer rights you may have.</p>
+      <h3 class="font-semibold text-white">29. INTELLECTUAL PROPERTY</h3>
+      <p>Global Amor and its associated branding, designs, software, logos, trademarks, text, graphics, interfaces, and other materials are owned by or licensed to Global Amor and are protected by applicable intellectual-property laws. You may not copy, reproduce, modify, distribute, sell, reverse engineer, publicly display, or commercially exploit Global Amor’s proprietary materials without authorization. The name Global Amor and associated branding may not be used without our written permission.</p>
+      <h3 class="font-semibold text-white">30. PROHIBITED TECHNOLOGICAL ACTIVITY</h3>
+      <p>You may not: Attempt to gain unauthorized access to the Service; Circumvent security measures; Introduce malicious software; Scrape information without authorization; Use automated systems to collect user information; Reverse engineer the Service except where legally permitted; Interfere with the operation of the Service; Conduct denial-of-service attacks; Attempt to access another user’s account; Probe or test vulnerabilities without authorization; or Use the Service to develop competing databases or services using unauthorized data.</p>
+      <h3 class="font-semibold text-white">31. USER FEEDBACK</h3>
+      <p>If you provide suggestions, ideas, recommendations, or other feedback regarding Global Amor, you grant us permission to use that feedback without compensation or obligation to you. You agree that feedback does not create an ownership interest in Global Amor or its products.</p>
+      <h3 class="font-semibold text-white">32. DISCLAIMER REGARDING OTHER USERS</h3>
+      <p>GLOBAL AMOR DOES NOT GUARANTEE THE IDENTITY, AGE, CHARACTER, BACKGROUND, INTENTIONS, HONESTY, SAFETY, OR BEHAVIOR OF ANY USER. We do not guarantee that users will actually meet, communicate honestly, form relationships, or behave appropriately. You are solely responsible for your interactions with other users. You should not rely solely on information contained in another person’s profile.</p>
+      <h3 class="font-semibold text-white">33. NO GUARANTEE OF MATCHES OR RELATIONSHIPS</h3>
+      <p>Global Amor does not guarantee that you will: Receive matches; Receive messages; Meet another person; Develop a relationship; Find a romantic partner; Have a successful date; or Achieve any particular result from using the Service. Results vary between users.</p>
+      <h3 class="font-semibold text-white">34. SERVICE PROVIDED “AS IS”</h3>
+      <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, GLOBAL AMOR PROVIDES THE SERVICE ON AN “AS IS” AND “AS AVAILABLE” BASIS. WE DO NOT GUARANTEE THAT THE SERVICE WILL ALWAYS BE: AVAILABLE; ERROR-FREE; SECURE; UNINTERRUPTED; ACCURATE; COMPLETE; OR FREE OF HARMFUL CONTENT. WE MAY MODIFY, SUSPEND, OR DISCONTINUE FEATURES OR PORTIONS OF THE SERVICE.</p>
+      <h3 class="font-semibold text-white">35. LIMITATION OF LIABILITY</h3>
+      <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, GLOBAL AMOR AND ITS OWNERS, OFFICERS, DIRECTORS, EMPLOYEES, CONTRACTORS, AFFILIATES, AND SERVICE PROVIDERS WILL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES ARISING FROM OR RELATED TO YOUR USE OF THE SERVICE. THIS INCLUDES, TO THE EXTENT PERMITTED BY LAW, DAMAGES ARISING FROM: YOUR INTERACTIONS WITH OTHER USERS; OFFLINE MEETINGS; USER-GENERATED CONTENT; FRAUDULENT USER ACTIVITY; PERSONAL INJURY; EMOTIONAL DISTRESS; LOSS OF DATA; LOSS OF PROFITS; LOSS OF BUSINESS OPPORTUNITIES; OR UNAUTHORIZED CONDUCT BY OTHER USERS. Nothing in these Terms excludes liability that cannot legally be excluded.</p>
+      <h3 class="font-semibold text-white">36. INDEMNIFICATION</h3>
+      <p>To the maximum extent permitted by law, you agree to defend, indemnify, and hold harmless Global Amor and its owners, officers, directors, employees, contractors, affiliates, and service providers from claims, damages, liabilities, losses, costs, and expenses arising from: 1. Your use of the Service; 2. Your violation of these Terms; 3. Your violation of applicable law; 4. Your content; 5. Your interactions with other users; 6. Your infringement of another person’s rights; or 7. Your fraudulent, negligent, reckless, or unlawful conduct.</p>
+      <h3 class="font-semibold text-white">37. DISPUTE RESOLUTION</h3>
+      <p>Any dispute between you and Global Amor relating to these Terms or the Service will be handled in accordance with the dispute-resolution procedures required by applicable law. [INSERT CHOICE OF LAW AND DISPUTE-RESOLUTION TERMS AFTER ATTORNEY REVIEW.] If an arbitration provision, class-action waiver, or other dispute-resolution provision is used, it should be reviewed by qualified legal counsel to ensure that it is appropriate for the jurisdictions in which Global Amor operates.</p>
+      <h3 class="font-semibold text-white">38. GOVERNING LAW</h3>
+      <p>These Terms will be governed by the laws of [STATE/COUNTRY], without regard to conflict-of-law principles, except to the extent applicable law requires otherwise. Any court proceedings permitted under these Terms will take place in [COUNTY, STATE], unless applicable law requires another location.</p>
+      <h3 class="font-semibold text-white">39. CHANGES TO THESE TERMS</h3>
+      <p>We may update these Terms from time to time. When we make material changes, we may provide notice through the Service, by email, or by other reasonable means. Your continued use of Global Amor after the effective date of updated Terms constitutes acceptance of the updated Terms to the extent permitted by law. If you do not agree to updated Terms, you should stop using the Service and close your account.</p>
+      <h3 class="font-semibold text-white">40. ELECTRONIC COMMUNICATIONS</h3>
+      <p>By creating an account, you consent to receiving electronic communications from Global Amor concerning your account, transactions, security, service updates, and other matters related to the Service. Marketing communications may be subject to separate consent and opt-out requirements. You may unsubscribe from promotional communications using the available unsubscribe mechanism, while certain essential service communications may still be sent.</p>
+      <h3 class="font-semibold text-white">41. SEVERABILITY</h3>
+      <p>If any provision of these Terms is determined to be invalid, unlawful, or unenforceable, that provision will be enforced to the maximum extent permitted by law, and the remaining provisions will remain in effect.</p>
+      <h3 class="font-semibold text-white">42. NO WAIVER</h3>
+      <p>Our failure to enforce a provision of these Terms does not constitute a waiver of our right to enforce that provision later.</p>
+      <h3 class="font-semibold text-white">43. ASSIGNMENT</h3>
+      <p>You may not transfer or assign your rights or obligations under these Terms without our prior written consent. Global Amor may assign or transfer these Terms in connection with a merger, acquisition, corporate restructuring, sale of assets, or similar transaction.</p>
+      <h3 class="font-semibold text-white">44. ENTIRE AGREEMENT</h3>
+      <p>These Terms, together with the Privacy Policy and any other policies expressly incorporated into these Terms, constitute the agreement between you and Global Amor regarding your use of the Service. They supersede prior agreements relating to the same subject matter, except where expressly stated otherwise.</p>
+      <h3 class="font-semibold text-white">45. CONTACT INFORMATION</h3>
+      <p>If you have questions regarding these Terms, need to report prohibited activity, or need to contact Global Amor regarding a legal matter, you may contact us at: Global Amor Legal/Support Department Email: [INSERT EMAIL ADDRESS] Website: [INSERT WEBSITE] Business Address: [INSERT BUSINESS ADDRESS]</p>
+      <h3 class="font-semibold text-white">46. USER ACKNOWLEDGMENT</h3>
+      <p>By selecting “I Agree,” creating an account, or otherwise using Global Amor, you acknowledge that: You are at least 18 years old; You have read and understood these Terms; You agree to comply with these Terms; You understand that Global Amor is intended for adult dating and social interaction; You understand that Global Amor does not guarantee the identity or conduct of other users; You understand that you are responsible for your own decisions and interactions; You will not use Global Amor for prostitution, sexual services, scams, fraud, financial solicitation, harassment, exploitation, or other prohibited activity; You will not use Global Amor to facilitate illegal activity; You will not intentionally misrepresent your identity or age; and You understand that violation of these Terms may result in content removal, account suspension, permanent account termination, and, where appropriate or legally required, reporting to relevant authorities. IF YOU DO NOT AGREE TO THESE TERMS, YOU MUST NOT USE GLOBAL AMOR.</p>
+      <h3 class="font-semibold text-white">REGISTRATION ACKNOWLEDGMENT</h3>
+      <p>We recommend that Global Amor’s registration screen display a clear acknowledgment substantially similar to: ☐ I confirm that I am at least 18 years old, that the information I have provided is accurate, and that I agree to the Global Amor Terms of Service and Privacy Policy. [Create Account] By clicking “Create Account,” you acknowledge that you have had an opportunity to review the applicable terms and agree to be bound by them.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="mt-10 border-t border-white/[0.06] py-6 text-center text-[11px] text-zinc-500">
+  <div class="flex justify-center gap-4">
+    <button onclick="showTerms()" class="underline hover:text-white">Terms of Service</button>
+    <button onclick="showPrivacy()" class="underline hover:text-white">Privacy Policy</button>
+    <span>© 2026 Global Amor</span>
+  </div>
+</footer>
+
+</main>
+
+<div id="profileModal" class="fixed inset-0 hidden bg-black/60 z-50 grid place-items-center p-4"><div class="bg-[#151517] rounded-[20px] p-5 w-full max-w-[420px] border border-white/10"><div class="flex justify-between items-center mb-3"><h3 class="font-semibold">Create Profile</h3><button onclick="closeModal('profileModal')" class="text-zinc-400">✕</button></div><input id="pName" placeholder="Name" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="pAge" type="number" placeholder="Age" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="pCity" placeholder="City" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><select id="pCountry" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"><option value="DO">🇩🇴 Dominican Republic</option><option value="CO">🇨🇴 Colombia</option><option value="TH">🇹🇭 Thailand</option><option value="PA">🇵🇦 Panama</option><option value="CR">🇨🇷 Costa Rica</option><option value="US">🇺🇸 USA</option><option value="BR">🇧🇷 Brazil</option><option value="JM">🇯🇲 Jamaica</option><option value="JP">🇯🇵 Japan</option><option value="CH">🇨🇭 Switzerland</option><option value="EU">🇪🇺 Europe</option></select><input id="pType" placeholder="Traveler Type" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><textarea id="pBio" placeholder="Bio" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"></textarea><input id="pPhotoUrl" placeholder="Photo URL" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input type="file" id="pPhotoFile" accept="image/*" class="mb-2 text-sm"/><button id="saveProfileBtn" class="bg-white text-black rounded-full px-4 py-2 text-sm w-full font-semibold">Save Profile</button></div></div>
+
+<div id="essentialModal" class="fixed inset-0 hidden bg-black/60 z-50 grid place-items-center p-4"><div class="bg-[#151517] rounded-[20px] p-5 w-full max-w-[420px] border border-white/10"><div class="flex justify-between items-center mb-3"><h3 id="essentialModalTitle" class="font-semibold">Add Merch</h3><button onclick="closeModal('essentialModal')" class="text-zinc-400">✕</button></div><input id="eName" placeholder="Name" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><textarea id="eDesc" placeholder="Description" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"></textarea><input id="ePrice" placeholder="Price e.g. $29" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="eTag" placeholder="Tag" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><div class="mb-2"><input id="eImage" placeholder="Image URL (or upload below)" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full text-sm text-white"/><div class="mt-2 flex items-center gap-2"><button id="eUploadBtn" type="button" class="border border-white/10 rounded-full px-3 py-1 text-xs">📷 Upload Photo</button><span class="text-[11px] text-zinc-500">adds photos to merch</span></div><input type="file" id="eFile" accept="image/*" class="hidden"/><div id="ePreviewWrap" class="hidden mt-2 relative w-[120px]"><img id="ePreview" class="rounded-xl w-[120px] h-[120px] object-cover border border-white/10"/><button id="ePreviewRemove" type="button" class="absolute -top-2 -right-2 bg-white text-black rounded-full w-6 h-6 text-xs">X</button></div></div><input id="eLink" placeholder="Shop Link URL" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="eOrigin" placeholder="Origin Country" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><button id="saveEssentialBtn" class="bg-white text-black rounded-full px-4 py-2 text-sm w-full font-semibold">Save</button></div></div>
+
+<div id="joinModal" class="fixed inset-0 hidden bg-black/60 z-50 grid place-items-center p-4"><div class="bg-[#151517] rounded-[20px] p-5 w-full max-w-[420px] border border-white/10"><div class="flex justify-between items-center mb-3"><h3 class="font-semibold">Join GlobalAmor</h3><button onclick="closeModal('joinModal')" class="text-zinc-400">✕</button></div><input placeholder="Name" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><select class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"><option>English</option><option>Español</option></select><label class="flex gap-2 text-[11px] text-zinc-400 mt-2 mb-3"><input type="checkbox" id="tosCheck" class="mt-0.5"/> <span>☐ I confirm that I am at least 18 years old, that the information I have provided is accurate, and that I agree to the <button onclick="showTerms()" class="underline text-white">Terms of Service</button> and Privacy Policy.</span></label><button id="joinNowBtn" class="bg-white text-black rounded-full px-4 py-2 text-sm w-full font-semibold">Create Account</button></div></div>
+
+<div id="subModal" class="fixed inset-0 hidden bg-black/60 z-50 grid place-items-center p-4"><div class="bg-[#151517] rounded-[20px] p-5 w-full max-w-[420px] border border-white/10"><div class="flex justify-between items-center mb-3"><h3 class="font-semibold">Add Merch Editor</h3><button onclick="closeModal('subModal')" class="text-zinc-400">✕</button></div><input id="subName" placeholder="Name" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="subEmail" placeholder="Email" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><input id="subPass" placeholder="Password for editor" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-2 text-sm text-white"/><select id="subRole" class="bg-[#1c1c1e] border border-white/10 rounded-xl p-2.5 w-full mb-3 text-sm text-white"><option value="Merch Editor">Merch Editor</option><option value="Community Manager">Community Manager</option></select><button id="saveSubUserBtn" class="bg-white text-black rounded-full px-4 py-2 text-sm w-full font-semibold">Save Editor</button></div></div>
+
+<script>
+
+// ==== SUPABASE CONFIG - FILL THESE IN YOUR VERCEL ENV OR HERE ====
+const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co'; // <-- replace
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY'; // <-- replace
+const SUPABASE_BUCKET = 'globalamor-images';
+const ADMIN_EMAILS = ['admin@globalamor.com', 'shawn@globalamor.com']; // <-- ADD YOUR ADMIN EMAILS HERE (lowercase)
+
+function isAdminUser(){
+  // Check Supabase auth admin list
+  if (currentUser && ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((currentUser.email||'').toLowerCase())) return true;
+  // Check legacy local admin flag from original admin login
+  if (localStorage.getItem('globalamor_admin')==='1') return true;
+  // Check sub editor with admin role
+  if (currentSubUser && currentSubUser.role==='admin') return true;
+  return false;
+}
+
+function canDeleteProfile(profile){
+  if (!currentUser && !isAdminUser()) return false;
+  if (isAdminUser()) return true;
+  if (profile.user_id && currentUser && profile.user_id===currentUser.id) return true;
+  // allow owner of local profile (no user_id) in demo mode
+  if (!isCloudMode) return true;
+  return false;
+}
+
+async function cloudDeleteProfile(profileId){
+  if (!isCloudMode) return true;
+  if (!isAdminUser()){
+    // if not admin, ensure user owns profile
+    const { data: prof } = await sb.from('profiles').select('user_id').eq('id', profileId).single();
+    if (!prof || prof.user_id!==currentUser?.id){
+      alert('Only admin or profile owner can delete');
+      return false;
+    }
+  }
+  if (!confirm('Delete this profile? This cannot be undone.')) return false;
+  const { error } = await sb.from('profiles').delete().eq('id', profileId);
+  if (error){ alert('Delete failed: '+error.message); return false; }
+  return true;
+}
+
+async function cloudDeleteWallPost(postId){
+  if (!isCloudMode) return true;
+  if (!isAdminUser() && !currentUser){
+    alert('Login required to delete');
+    return false;
+  }
+  if (!confirm('Delete this wall post?')) return false;
+  const { error } = await sb.from('wall_posts').delete().eq('id', postId);
+  if (error){ alert('Delete failed: '+error.message); return false; }
+  return true;
+}
+
+let sb = null;
+let isCloudMode = false;
+try {
+  if (!SUPABASE_URL.includes('YOUR_PROJECT') && window.supabase) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    isCloudMode = true;
+    console.log('☁️ Supabase cloud mode enabled');
+  } else {
+    console.log('📦 Demo localStorage mode - add Supabase keys to go live');
+  }
+} catch(e){ console.warn('Supabase init failed, fallback to local', e); }
+
+// Helper: upload image to Supabase Storage or fallback to base64
+async function uploadImageToCloud(file) {
+  if (!isCloudMode || !file) return null;
+  try {
+    const ext = file.name.split('.').pop();
+    const fileName = Date.now() + '-' + Math.random().toString(36).slice(2) + '.' + ext;
+    const { data, error } = await sb.storage.from(SUPABASE_BUCKET).upload(fileName, file, { cacheControl: '3600', upsert: false });
+    if (error) { console.warn('Storage upload error', error); return null; }
+    const { data: pub } = sb.storage.from(SUPABASE_BUCKET).getPublicUrl(fileName);
+    return pub.publicUrl;
+  } catch(err){ console.warn('upload failed', err); return null; }
+}
+function toBase64(file){
+  return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); });
+}
+
+// Cloud loaders
+async function cloudLoadProfiles(){
+  if (!isCloudMode) return null;
+  const { data, error } = await sb.from('profiles').select('*').order('created_at', {ascending:false}).limit(100);
+  if (error){ console.warn('profiles load error', error); return null; }
+  return data;
+}
+async function cloudLoadWall(){
+  if (!isCloudMode) return null;
+  const { data, error } = await sb.from('wall_posts').select('*').order('created_at',{ascending:false}).limit(100);
+  if (error){ console.warn('wall load error', error); return null; }
+  return data;
+}
+async function cloudLoadEssentials(){
+  if (!isCloudMode) return null;
+  const { data } = await sb.from('essentials').select('*').order('created_at',{ascending:false});
+  return data;
+}
+
+
+const DEMO_PROFILES=[
+{id:'1',name:'Camila',age:24,city:'Sosúa',country:'DO',flag:'🇩🇴',type:'Beach Lover',bio:'Sun, dance, and good vibes in Sosúa',photo:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop',isDemo:true},
+{id:'2',name:'Isabella',age:26,city:'Santo Domingo',country:'DO',flag:'🇩🇴',type:'City Explorer',bio:'Capital life, music and mangu',photo:'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&h=500&fit=crop',isDemo:true},
+{id:'3',name:'Valentina',age:23,city:'Medellín',country:'CO',flag:'🇨🇴',type:'Adventurer',bio:'Paisa love, coffee and mountains',photo:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop',isDemo:true},
+{id:'4',name:'Sofía',age:25,city:'Cartagena',country:'CO',flag:'🇨🇴',type:'Romantic',bio:'Walled city sunsets',photo:'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&h=500&fit=crop',isDemo:true},
+{id:'5',name:'Marlon',age:27,city:'Kingston',country:'JM',flag:'🇯🇲',type:'Traveler',bio:'Reggae and good energy',photo:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',isDemo:true},
+{id:'6',name:'Andre',age:28,city:'Montego Bay',country:'JM',flag:'🇯🇲',type:'Island Boy',bio:'Beach and vibes',photo:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=500&fit=crop',isDemo:true},
+{id:'7',name:'Maya',age:24,city:'Bangkok',country:'TH',flag:'🇹🇭',type:'Culture Lover',bio:'Temples and street food',photo:'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=500&fit=crop',isDemo:true},
+{id:'8',name:'Lina',age:26,city:'San José',country:'CR',flag:'🇨🇷',type:'Nature',bio:'Pura vida',photo:'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=500&fit=crop',isDemo:true},
+{id:'9',name:'Amara',age:25,city:'Negril',country:'JM',flag:'🇯🇲',type:'Sun Chaser',bio:'Seven mile beach',photo:'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop',isDemo:true},
+{id:'10',name:'Yuki',age:24,city:'Tokyo',country:'JP',flag:'🇯🇵',type:'Dreamer',bio:'Sushi and sakura',photo:'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=400&h=500&fit=crop',isDemo:true},
+{id:'11',name:'Heidi',age:27,city:'Zurich',country:'CH',flag:'🇨🇭',type:'Alpine',bio:'Mountains and lakes',photo:'https://images.unsplash.com/photo-1491349174775-aaafddd81942?w=400&h=500&fit=crop',isDemo:true},
+{id:'12',name:'Sofia',age:23,city:'Panama City',country:'PA',flag:'🇵🇦',type:'Explorer',bio:'Canal and city lights',photo:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop',isDemo:true},
+];
+const DEMO_MERCH=[
+{id:'e1',name:'Linen Beach Set',desc:'Breathable for DR heat',price:'$42',tag:'New',image:'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&h=800&fit=crop',link:'#',origin:'DO'},
+{id:'e2',name:'Passport Holder',desc:'Vegan leather — RFID',price:'$28',tag:'Travel',image:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=800&fit=crop',link:'#',origin:'USA'},
+{id:'e3',name:'Satin Bonnet',desc:'For travel nights',price:'$18',tag:'Mamasota Pick',image:'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=800&fit=crop',link:'#',origin:'CO'},
+{id:'e4',name:'Sun Oil',desc:'Glow oil',price:'$22',tag:'Glow',image:'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop',link:'#',origin:'JM'},
+{id:'e5',name:'Silk Scarf',desc:'Island print',price:'$35',tag:'Style',image:'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=800&h=800&fit=crop',link:'#',origin:'TH'},
+{id:'e6',name:'Beach Tote',desc:'Handwoven',price:'$48',tag:'Handmade',image:'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&h=800&fit=crop',link:'#',origin:'PA'},
+{id:'e7',name:'Global Amor Tee',desc:'Heavyweight cotton — black',price:'$32',tag:'New Drop',image:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&h=800&fit=crop',link:'#',origin:'DO'},
+{id:'e8',name:'Bucket Hat',desc:'Reversible — DR + CO',price:'$26',tag:'Community Pick',image:'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=800&h=800&fit=crop',link:'#',origin:'CO'},
+{id:'e9',name:'Gold Hoops',desc:'Lightweight',price:'$19',tag:'Accessory',image:'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&h=800&fit=crop',link:'#',origin:'JM'},
+];
+const DEMO_WALL=[
+{text:"Touch down in Sosúa 🌴 First night out — who knows the best bachata spot?",image:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*5,name:"Camila"},
+{text:"Medellín mornings hit different ☕️ Looking for hiking buddies this weekend",image:"https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*12,name:"Valentina"},
+{text:"Just posted new bucket hats in Community Merch — reversible DR/CO 🧢",image:"https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*20,name:"Mamasota"},
+{text:"Sunset in Negril never misses 🌅 7 mile beach tomorrow anyone?",image:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*26,name:"Amara"},
+{text:"Kingston tonight — Reggae + jerk chicken. Drop your fav spot 👇",image:"https://images.unsplash.com/photo-1493558103817-58b2924bce98?w=800&h=600&fit=crop",time:Date.now()-1000*60*60*30,name:"Marlon"},
+];
+const PASSPORTS=[{id:'all',label:'All 🌎'},{id:'DO',label:'🇩🇴 DR'},{id:'TH',label:'🇹🇭 Thailand'},{id:'CO',label:'🇨🇴 Colombia'},{id:'PA',label:'🇵🇦 Panama'},{id:'CR',label:'🇨🇷 Costa Rica'},{id:'US',label:'🇺🇸 USA'},{id:'BR',label:'🇧🇷 Brazil'},{id:'EU',label:'🇪🇺 Europe'},{id:'JM',label:'🇯🇲 Jamaica'},{id:'JP',label:'🇯🇵 Japan'},{id:'CH',label:'🇨🇭 Switzerland'}];
+
+let profiles=JSON.parse(localStorage.getItem('globalamor_profiles')||'null')||DEMO_PROFILES;
+let essentials=JSON.parse(localStorage.getItem('globalamor_essentials')||'null')||DEMO_MERCH;
+let wallPosts=JSON.parse(localStorage.getItem('globalamor_wall')||'null'); if(!wallPosts||wallPosts.length===0) wallPosts=DEMO_WALL;
+let subUsers=JSON.parse(localStorage.getItem('globalamor_subusers')||'[]');
+let activePassport='all'; let isAdmin=localStorage.getItem('globalamor_admin')==='1'; let isMerchEditor=false; let currentSubUser=JSON.parse(localStorage.getItem('globalamor_sub_session')||'null'); if(currentSubUser) isMerchEditor=true;
+let wallImageData=null; let merchImageData=null; let editingEssentialId=null;
+
+
+function saveAll(){
+  // keep local backup always
+  try {
+    localStorage.setItem('globalamor_profiles',JSON.stringify(profiles));
+    localStorage.setItem('globalamor_wall',JSON.stringify(wallPosts));
+    localStorage.setItem('globalamor_essentials',JSON.stringify(essentials));
+    localStorage.setItem('globalamor_subusers',JSON.stringify(subUsers));
+  } catch(e){}
+}
+
+async function cloudSaveProfile(profile){
+  if (!isCloudMode) return;
+  const payload = { name: profile.name, age: profile.age, city: profile.city, country: profile.country, flag: profile.flag, type: profile.type, bio: profile.bio, photo: profile.photo };
+  const { data, error } = await sb.from('profiles').insert(payload).select().single();
+  if (error) console.warn('cloudSaveProfile error', error);
+  return data;
+}
+async function cloudSaveWallPost(post){
+  if (!isCloudMode) return;
+  const payload = { text: post.text, image_url: post.image || post.image_url || null };
+  const { data, error } = await sb.from('wall_posts').insert(payload).select().single();
+  if (error) console.warn('cloudSaveWallPost error', error);
+  return data;
+}
+async function cloudSaveEssential(item){
+  if (!isCloudMode) return;
+  const payload = { name: item.name, price: item.price, image_url: item.image || item.image_url };
+  const { data, error } = await sb.from('essentials').insert(payload).select().single();
+  if (error) console.warn('cloudSaveEssential error', error);
+  return data;
+}
+
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function openModal(id){document.getElementById(id).classList.remove('hidden');}
+function setLast(msg){const el=document.getElementById('lastAction'); if(el) el.textContent='Last action: '+msg+' at '+new Date().toLocaleTimeString();}
+function canEditMerch(){return isAdmin || isMerchEditor;}
+
+function renderPassport(){
+  const row=document.getElementById('passportRow');
+  if(!row) return;
+  row.innerHTML=PASSPORTS.map(p=>`<button data-p="${p.id}" class="${activePassport===p.id?'rounded-full bg-white px-4 py-1.5 text-[13px] font-semibold text-black':'rounded-full border border-white/[0.08] bg-[#1c1c1e] px-3.5 py-1.5 text-[13px] font-medium text-white/70'}">${p.label}</button>`).join('');
+  row.querySelectorAll('button').forEach(b=>{b.onclick=()=>{activePassport=b.dataset.p; renderPassport(); renderProfiles();};});
+}
+function renderProfiles(){
+  let list=profiles; if(activePassport!=='all') list=list.filter(p=>p.country===activePassport);
+  const showing=document.getElementById('showingText'); if(showing) showing.textContent=`Showing ${list.length} travelers • online now`;
+  const grid=document.getElementById('profilesGrid'); if(!grid) return;
+  grid.innerHTML=list.map(p=>`<div class="bg-[#151517] rounded-[20px] border border-white/[0.06] overflow-hidden"><img src="${p.photo}" class="w-full h-[260px] object-cover"/><div class="p-3"><div class="flex justify-between items-start"><div class="font-semibold">${p.name} • ${p.age}</div><div class="text-[12px]">${p.flag} ${p.city}</div></div><div class="text-[11px] text-zinc-500 mt-1">${p.type}</div><div class="text-[13px] text-zinc-400 mt-1 line-clamp-2">${p.bio}</div><div class="flex gap-2 mt-3"><button class="flex-1 border border-white/10 rounded-full py-1.5 text-xs">♡ Like</button><button class="flex-1 bg-white text-black rounded-full py-1.5 text-xs">Message</button>${isAdmin?`<button onclick="deleteProfile('${p.id}')" class="text-xs border border-white/10 rounded-full px-2">🗑️</button>`:''}</div></div></div>`).join('');
+  const total=document.getElementById('countTotal'); if(total){ total.textContent=profiles.length; document.getElementById('countDemo').textContent=profiles.filter(p=>p.isDemo).length; document.getElementById('countReal').textContent=profiles.filter(p=>!p.isDemo).length; }
+}
+function deleteProfile(id){profiles=profiles.filter(p=>p.id!==id);saveAll();renderProfiles();setLast('Deleted profile');}
+function renderEssentials(){
+  const grid=document.getElementById('essentialsGrid'); if(!grid) return;
+  grid.innerHTML=essentials.map(e=>`<div class="bg-[#151517] rounded-[20px] border border-white/[0.06] overflow-hidden relative">${canEditMerch()?`<div class="absolute top-2 right-2 flex gap-1 z-10"><button onclick="editEssential('${e.id}')" class="bg-white border rounded-full w-7 h-7 grid place-items-center text-xs">✏️</button><button onclick="deleteEssential('${e.id}')" class="bg-white border rounded-full w-7 h-7 grid place-items-center text-xs">🗑️</button></div>`:''}<img src="${e.image}" class="w-full h-[180px] object-cover"/><div class="p-3"><div class="flex justify-between"><span class="font-semibold text-sm">${e.name}</span><span class="text-xs bg-white/10 rounded-full px-2 py-0.5">${e.tag}</span></div><div class="text-xs text-zinc-500 mt-1">${e.desc} • ${e.origin}</div><div class="flex justify-between items-center mt-2"><span class="font-bold text-sm">${e.price}</span><a href="${e.link}" target="_blank" class="text-xs underline">Shop</a></div></div></div>`).join('');
+  const adminList=document.getElementById('adminEssentialsList'); if(adminList) adminList.innerHTML=essentials.map(e=>`<div class="flex justify-between border border-white/10 rounded-xl p-2"><span>${e.name} — ${e.price}</span><span class="flex gap-1"><button onclick="editEssential('${e.id}')" class="border border-white/10 rounded-full px-2">Edit</button><button onclick="deleteEssential('${e.id}')" class="border border-white/10 rounded-full px-2">Delete</button></span></div>`).join('');
+}
+function deleteEssential(id){essentials=essentials.filter(e=>e.id!==id);saveAll();renderEssentials();setLast('Deleted merch '+id);}
+function editEssential(id){const e=essentials.find(x=>x.id===id); if(!e) return; editingEssentialId=id; document.getElementById('essentialModalTitle').textContent='Edit Merch'; document.getElementById('eName').value=e.name; document.getElementById('eDesc').value=e.desc; document.getElementById('ePrice').value=e.price; document.getElementById('eTag').value=e.tag; document.getElementById('eImage').value=e.image; merchImageData=e.image; document.getElementById('eLink').value=e.link; document.getElementById('eOrigin').value=e.origin; const prev=document.getElementById('ePreview'); if(prev){prev.src=e.image; document.getElementById('ePreviewWrap').classList.remove('hidden');} openModal('essentialModal');}
+function renderWall(){
+  const feed=document.getElementById('wallFeed'); if(!feed) return;
+  if(wallPosts.length===0) feed.innerHTML='<div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] text-sm text-zinc-500">No posts yet — be first to post with photo</div>';
+  else feed.innerHTML=wallPosts.map(p=>`<div class="bg-[#151517] rounded-[20px] border border-white/[0.06] p-4"><div class="flex items-center gap-2 mb-2"><div class="w-7 h-7 rounded-full bg-white text-black grid place-items-center text-[11px] font-bold">${(p.name||'G')[0]}</div><div class="text-[13px] font-semibold">${p.name||'GlobalAmor'}</div><div class="text-[11px] text-zinc-500">• ${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div><div class="text-sm text-white whitespace-pre-wrap">${p.text}</div>${p.image?`<img src="${p.image}" class="mt-3 rounded-xl w-full max-h-[420px] object-cover border border-white/10"/>`:''}<div class="flex gap-3 mt-3 text-[12px] text-zinc-500"><button class="hover:text-white">♡ Like</button><button class="hover:text-white">💬 Comment</button></div></div>`).join('');
+}
+function renderSubUsers(){
+  const list=document.getElementById('subUsersList'); if(!list) return;
+  if(subUsers.length===0){list.innerHTML='<div class="text-xs text-zinc-500 border border-dashed border-white/10 rounded-xl p-3">No sub editors yet — click + Add Editor. They can login on Admin page with email + password and edit merch.</div>'; return;}
+  list.innerHTML=subUsers.map(u=>`<div class="flex justify-between items-center border border-white/10 rounded-xl p-2"><div><div class="font-medium text-white">${u.name}</div><div class="text-[11px] text-zinc-500">${u.email} • ${u.role}</div></div><div class="flex gap-1"><button onclick="editSubUser('${u.id}')" class="border border-white/10 rounded-full px-2 py-1 text-xs">Edit</button><button onclick="deleteSubUser('${u.id}')" class="border border-white/10 rounded-full px-2 py-1 text-xs">Remove</button></div></div>`).join('');
+}
+function deleteSubUser(id){ if(!isAdmin){alert('Only full admin can remove'); return;} if(!confirm('Remove this editor?')) return; subUsers=subUsers.filter(u=>u.id!==id); saveAll(); renderSubUsers(); setLast('Removed sub editor');}
+function editSubUser(id){ if(!isAdmin) return; const u=subUsers.find(x=>x.id===id); if(!u) return; document.getElementById('subName').value=u.name; document.getElementById('subEmail').value=u.email; document.getElementById('subPass').value=u.pass; document.getElementById('subRole').value=u.role; document.getElementById('subModal').dataset.editId=id; openModal('subModal');}
+
+document.querySelectorAll('.tabBtn').forEach(btn=>{btn.onclick=()=>{document.querySelectorAll('.tabBtn').forEach(b=>{b.className='tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]';}); btn.className='tabBtn whitespace-nowrap rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-black'; document.querySelectorAll('.tabSection').forEach(s=>s.classList.add('hidden')); document.getElementById(btn.dataset.tab).classList.remove('hidden'); if(btn.dataset.tab==='shop') document.getElementById('addEssentialBtn').classList.toggle('hidden',!canEditMerch());};});
+
+document.getElementById('addProfileBtn').onclick=()=>openModal('profileModal');
+document.getElementById('joinBtn').onclick=()=>openModal('joinModal');
+document.getElementById('wallUploadBtn').onclick=()=>document.getElementById('wallFile').click();
+document.getElementById('wallFile').onchange=(e)=>{const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=(ev)=>{wallImageData=ev.target.result; document.getElementById('wallPreview').src=wallImageData; document.getElementById('wallPreviewWrap').classList.remove('hidden');}; r.readAsDataURL(file);};
+document.getElementById('wallUrl').oninput=(e)=>{const url=e.target.value.trim(); if(url){wallImageData=url; document.getElementById('wallPreview').src=url; document.getElementById('wallPreviewWrap').classList.remove('hidden');}};
+document.getElementById('wallPreviewRemove').onclick=()=>{wallImageData=null; document.getElementById('wallPreviewWrap').classList.add('hidden'); document.getElementById('wallFile').value=''; document.getElementById('wallUrl').value='';};
+document.getElementById('wallPostBtn').onclick=()=>{const text=document.getElementById('wallText').value.trim(); if(!text && !wallImageData){alert('Add text or photo');return;} wallPosts.unshift({text,image:wallImageData,time:Date.now(),name:"You"}); saveAll(); renderWall(); document.getElementById('wallText').value=''; wallImageData=null; document.getElementById('wallPreviewWrap').classList.add('hidden'); document.getElementById('wallFile').value=''; document.getElementById('wallUrl').value='';};
+document.getElementById('addEssentialBtn').onclick=()=>{editingEssentialId=null; document.getElementById('essentialModalTitle').textContent='Add Merch'; ['eName','eDesc','ePrice','eTag','eImage','eLink','eOrigin'].forEach(id=>document.getElementById(id).value=''); merchImageData=null; document.getElementById('ePreviewWrap').classList.add('hidden'); document.getElementById('eFile').value=''; openModal('essentialModal');};
+document.getElementById('eUploadBtn').onclick=()=>document.getElementById('eFile').click();
+document.getElementById('eFile').onchange=(e)=>{const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=(ev)=>{merchImageData=ev.target.result; document.getElementById('eImage').value=merchImageData; document.getElementById('ePreview').src=merchImageData; document.getElementById('ePreviewWrap').classList.remove('hidden');}; r.readAsDataURL(file);};
+document.getElementById('eImage').addEventListener('input',(e)=>{const url=e.target.value.trim(); if(url){merchImageData=url; document.getElementById('ePreview').src=url; document.getElementById('ePreviewWrap').classList.remove('hidden');}});
+document.getElementById('ePreviewRemove').onclick=()=>{merchImageData=null; document.getElementById('ePreviewWrap').classList.add('hidden'); document.getElementById('eFile').value=''; document.getElementById('eImage').value='';};
+document.getElementById('saveEssentialBtn').onclick=()=>{const data={name:document.getElementById('eName').value.trim(),desc:document.getElementById('eDesc').value.trim(),price:document.getElementById('ePrice').value.trim(),tag:document.getElementById('eTag').value.trim(),image:(merchImageData||document.getElementById('eImage').value.trim()),link:document.getElementById('eLink').value.trim(),origin:document.getElementById('eOrigin').value.trim()}; if(!data.name){alert('Name required');return;} if(editingEssentialId){const idx=essentials.findIndex(e=>e.id===editingEssentialId); essentials[idx]={...essentials[idx],...data}; setLast('Edited merch '+data.name);} else {essentials.push({id:'e'+Date.now(),...data}); setLast('Added merch '+data.name);} saveAll(); renderEssentials(); closeModal('essentialModal');};
+document.getElementById('saveProfileBtn').onclick=()=>{const name=document.getElementById('pName').value.trim(); const age=document.getElementById('pAge').value.trim(); const city=document.getElementById('pCity').value.trim(); const country=document.getElementById('pCountry').value; const flag=document.getElementById('pCountry').selectedOptions[0].textContent.split(' ')[0]; const type=document.getElementById('pType').value.trim(); const bio=document.getElementById('pBio').value.trim(); let photo=document.getElementById('pPhotoUrl').value.trim(); const fileInput=document.getElementById('pPhotoFile'); if(fileInput.files[0] && !photo){const reader=new FileReader(); reader.onload=(ev)=>{profiles.unshift({id:'p'+Date.now(),name,age,city,country,flag,type,bio,photo:ev.target.result,isDemo:false}); saveAll(); renderProfiles(); closeModal('profileModal'); setLast('Created profile '+name);}; reader.readAsDataURL(fileInput.files[0]); return;} if(!photo) photo='https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop'; profiles.unshift({id:'p'+Date.now(),name,age,city,country,flag,type,bio,photo,isDemo:false}); saveAll(); renderProfiles(); closeModal('profileModal'); setLast('Created profile '+name);};
+document.getElementById('adminLoginBtn').onclick=()=>{
+  const pass=document.getElementById('adminPass').value.trim();
+  const emailVal=(document.getElementById('adminEmail').value||'').trim().toLowerCase();
+  if(pass==='AmorMaster2025!'){
+    isAdmin=true; isMerchEditor=true; currentSubUser=null; localStorage.setItem('globalamor_admin','1'); localStorage.removeItem('globalamor_sub_session');
+    document.getElementById('adminLoginBox').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('addEssentialBtn').classList.remove('hidden');
+    renderProfiles(); renderEssentials(); renderSubUsers(); setLast('Admin login (full)'); return;
+  }
+  let found=null;
+  if(emailVal) found=subUsers.find(u=>u.email.toLowerCase()===emailVal && u.pass===pass);
+  else found=subUsers.find(u=>u.pass===pass);
+  if(found){
+    isAdmin=false; isMerchEditor=true; currentSubUser=found; localStorage.setItem('globalamor_sub_session',JSON.stringify(found));
+    document.getElementById('adminLoginBox').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('addEssentialBtn').classList.remove('hidden');
+    document.getElementById('restoreDemoBtn').classList.add('hidden'); document.getElementById('resetAllBtn').classList.add('hidden'); document.getElementById('addSubUserBtn').classList.add('hidden');
+    renderProfiles(); renderEssentials(); renderSubUsers(); setLast('Merch editor login: '+found.name); return;
+  }
+  document.getElementById('adminLoginMsg').textContent='Wrong password — try full admin or sub editor email + password';
+};
+if(isAdmin){document.getElementById('adminLoginBox').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('addEssentialBtn').classList.remove('hidden');}
+if(currentSubUser){document.getElementById('adminLoginBox').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('addEssentialBtn').classList.remove('hidden');}
+document.getElementById('restoreDemoBtn').onclick=()=>{profiles=[...DEMO_PROFILES,...profiles.filter(p=>!p.isDemo)]; saveAll(); renderProfiles(); setLast('Restored demo profiles');};
+document.getElementById('resetAllBtn').onclick=()=>{if(!confirm('Reset all to demo?')) return; profiles=[...DEMO_PROFILES]; wallPosts=[...DEMO_WALL]; essentials=[...DEMO_MERCH]; saveAll(); renderProfiles(); renderWall(); renderEssentials(); setLast('Reset all');};
+document.getElementById('addSubUserBtn').onclick=()=>{document.getElementById('subModal').dataset.editId=''; ['subName','subEmail','subPass','subRole'].forEach(id=>document.getElementById(id).value=''); openModal('subModal');};
+document.getElementById('saveSubUserBtn').onclick=()=>{
+  const name=document.getElementById('subName').value.trim(); const email=document.getElementById('subEmail').value.trim().toLowerCase(); const pass=document.getElementById('subPass').value.trim(); const role=document.getElementById('subRole').value;
+  if(!name||!email||!pass){alert('Name, email, password required'); return;}
+  const editId=document.getElementById('subModal').dataset.editId;
+  if(editId){ const idx=subUsers.findIndex(u=>u.id===editId); if(idx>-1) subUsers[idx]={...subUsers[idx],name,email,pass,role}; setLast('Edited sub editor '+name); }
+  else { if(subUsers.find(u=>u.email===email)){alert('Email already exists'); return;} subUsers.push({id:'u'+Date.now(),name,email,pass,role}); setLast('Added sub editor '+name); }
+  saveAll(); renderSubUsers(); closeModal('subModal');
+};
+document.getElementById('langSelect').value=localStorage.getItem('globalamor_lang')||'en'; document.getElementById('langSelect').onchange=(e)=>{localStorage.setItem('globalamor_lang',e.target.value);};
+
+function showTerms(){document.querySelectorAll('.tabBtn').forEach(b=>{b.className='tabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]';}); document.querySelectorAll('.tabSection').forEach(s=>s.classList.add('hidden')); document.getElementById('terms').classList.remove('hidden'); window.scrollTo(0,0);}
+function showPrivacy(){alert('Privacy Policy link: [INSERT PRIVACY POLICY LINK] - add your policy'); showTerms();}
+document.getElementById('joinNowBtn').onclick=()=>{const chk=document.getElementById('tosCheck'); if(!chk.checked){alert('You must confirm you are 18+ and agree to Terms'); return;} closeModal('joinModal'); alert('Account creation would proceed - Terms accepted');};
+
+
+// === INIT: load cloud data if available ===
+
+// ========= AUTH & MESSAGES SYSTEM =========
+let currentUser = null;
+let authMode = 'signup'; // or 'login'
+let activeChat = { conversationId: null, targetUserId: null, targetProfile: null };
+let conversationsCache = [];
+
+async function initAuth(){
+  if (!isCloudMode) return;
+  const { data: { session } } = await sb.auth.getSession();
+  currentUser = session?.user || null;
+  updateAuthUI();
+  if (currentUser){
+    await loadConversations();
+  }
+  sb.auth.onAuthStateChange(async (event, session)=>{
+    currentUser = session?.user || null;
+    updateAuthUI();
+    if (currentUser) await loadConversations();
+    else conversationsCache = [];
+    renderMatches();
+  });
+}
+
+function updateAuthUI(){
+  // handle recovery flow detection
+  checkRecoveryFlow();
+
+  const joinBtn = document.getElementById('joinBtn');
+  const langSelect = document.getElementById('langSelect');
+  if (currentUser){
+    if (joinBtn){
+      joinBtn.textContent = (currentUser.email?.split('@')[0] || 'You') + ' • Logout';
+      joinBtn.onclick = async ()=>{ await sb.auth.signOut(); currentUser=null; updateAuthUI(); };
+      joinBtn.className = 'rounded-full bg-white/10 px-4 py-1.5 text-[13px] font-semibold border border-white/20';
+    }
+  } else {
+    if (joinBtn){
+      joinBtn.textContent = 'Join';
+      joinBtn.className = 'rounded-full bg-[#ff2d85] px-4 py-1.5 text-[13px] font-semibold';
+      joinBtn.onclick = ()=>openAuthModal('signup');
+    }
+  }
+}
+
+function openAuthModal(mode='signup'){
+  authMode = mode;
+  const modal = document.getElementById('authModal');
+  const title = document.getElementById('authTitle');
+  const submit = document.getElementById('authSubmitBtn');
+  const toggle = document.getElementById('authToggleBtn');
+  const nameField = document.getElementById('authName');
+  if (mode==='signup'){
+    title.textContent='Create account • 18+ Only';
+    submit.textContent='Create Account';
+    toggle.textContent='Already have an account? Log in';
+    nameField.classList.remove('hidden');
+  } else {
+    title.textContent='Welcome back';
+    submit.textContent='Log In';
+    toggle.textContent="Don't have an account? Sign up";
+    nameField.classList.add('hidden');
+  }
+  const errEl = document.getElementById('authError');
+  errEl.classList.add('hidden');
+  const forgotRow = document.getElementById('forgotRow');
+  const ageRow = document.getElementById('ageCheckRow');
+  if (forgotRow) forgotRow.classList.toggle('hidden', mode!=='login');
+  if (ageRow) ageRow.classList.toggle('hidden', mode==='login');
+  openModal('authModal');
+}
+
+async function handleAuthSubmit(){
+  const email = document.getElementById('authEmail').value.trim();
+  const pass = document.getElementById('authPass').value.trim();
+  const name = document.getElementById('authName').value.trim();
+  const ageCheck = document.getElementById('authAgeCheck').checked;
+  const errBox = document.getElementById('authError');
+  errBox.classList.add('hidden');
+  
+  if (!email || !pass){ errBox.textContent='Email and password required'; errBox.classList.remove('hidden'); return; }
+  if (!ageCheck){ errBox.textContent='You must confirm you are 18+ and agree to Terms'; errBox.classList.remove('hidden'); return; }
+  if (authMode==='signup' && pass.length<6){ errBox.textContent='Password must be at least 6 characters'; errBox.classList.remove('hidden'); return; }
+  
+  const btn = document.getElementById('authSubmitBtn');
+  btn.textContent='Please wait...'; btn.disabled=true;
+  
+  try {
+    if (authMode==='signup'){
+      const { data, error } = await sb.auth.signUp({ email, password: pass, options:{ data:{ display_name: name || email.split('@')[0] } } });
+      if (error) throw error;
+      // Create profile row linked to user
+      if (data.user){
+        await sb.from('profiles').insert({ 
+          name: name || email.split('@')[0], 
+          age: 24, 
+          city: 'New Member', 
+          country: 'US', 
+          flag: '🌍', 
+          type: 'New here', 
+          bio: 'Just joined GlobalAmor', 
+          photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=500&fit=crop',
+          user_id: data.user.id 
+        });
+      }
+      errBox.textContent='Account created! Check email if confirmation required, then log in.'; errBox.className='bg-emerald-500/15 border border-emerald-500/20 text-emerald-300 text-[13px] p-3 rounded-xl mb-3'; errBox.classList.remove('hidden');
+      setTimeout(()=>{ closeModal('authModal'); openAuthModal('login'); }, 1500);
+    } else {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      closeModal('authModal');
+    }
+  } catch(e){
+    errBox.textContent = e.message; 
+    errBox.className='bg-red-500/15 border border-red-500/20 text-red-300 text-[13px] p-3 rounded-xl mb-3';
+    errBox.classList.remove('hidden');
+  } finally {
+    btn.textContent = authMode==='signup' ? 'Create Account' : 'Log In';
+    btn.disabled=false;
+  }
+}
+
+// Messages system
+async function loadConversations(){
+  if (!isCloudMode || !currentUser) return [];
+  const { data, error } = await sb.from('conversations').select('*').or(`participant1.eq.${currentUser.id},participant2.eq.${currentUser.id}`).order('last_message_at',{ascending:false});
+  if (!error && data) conversationsCache = data;
+  renderMatches();
+  return conversationsCache;
+}
+
+async function startChatWithProfile(profile){
+  if (!isCloudMode){ alert('Add Supabase keys to enable cloud chat'); return; }
+  if (!currentUser){ openAuthModal('signup'); return; }
+  if (!profile.user_id){ alert('This is a demo profile — they are not a real user yet. Message only works with real signed-up members.'); return; }
+  if (profile.user_id === currentUser.id){ alert('You cannot message yourself'); return; }
+  
+  // Find or create conversation
+  let conv = conversationsCache.find(c=> (c.participant1===currentUser.id && c.participant2===profile.user_id) || (c.participant2===currentUser.id && c.participant1===profile.user_id) );
+  if (!conv){
+    const { data, error } = await sb.from('conversations').insert({ participant1: currentUser.id, participant2: profile.user_id, last_message: '', last_message_at: new Date().toISOString() }).select().single();
+    if (error){ console.warn(error); alert('Could not start chat: '+error.message); return; }
+    conv = data;
+    conversationsCache.unshift(conv);
+  }
+  openChat(conv, profile);
+}
+
+async function openChat(conversation, profile){
+  activeChat.conversationId = conversation.id;
+  activeChat.targetUserId = conversation.participant1===currentUser.id ? conversation.participant2 : conversation.participant1;
+  activeChat.targetProfile = profile;
+  document.getElementById('chatAvatar').src = profile.photo || '';
+  document.getElementById('chatName').textContent = profile.name;
+  openModal('chatModal');
+  await loadMessages(conversation.id);
+  // Realtime for this conversation
+  try {
+    sb.channel('chat-'+conversation.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+conversation.id}, payload=>{
+      appendMessage(payload.new, false);
+    }).subscribe();
+  } catch(e){}
+}
+
+async function loadMessages(conversationId){
+  const box = document.getElementById('chatMessages');
+  box.innerHTML='<div class="text-xs text-zinc-500 text-center py-4">Loading messages...</div>';
+  const { data, error } = await sb.from('messages').select('*').eq('conversation_id', conversationId).order('created_at',{ascending:true}).limit(100);
+  box.innerHTML='';
+  if (data) data.forEach(m=>appendMessage(m, m.sender_id===currentUser.id));
+  box.scrollTop = box.scrollHeight;
+}
+
+function appendMessage(msg, isMe){
+  const box = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'flex ' + (isMe ? 'justify-end' : 'justify-start');
+  div.innerHTML = `<div class="max-w-[75%] rounded-[18px] px-4 py-2.5 text-[13px] ${isMe?'bg-white text-black rounded-br-[6px]':'bg-[#1c1c1e] text-white border border-white/10 rounded-bl-[6px]'}">${escapeHtml(msg.text)}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+async function sendMessage(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || !activeChat.conversationId || !currentUser) return;
+  input.value='';
+  const temp = { text, sender_id: currentUser.id, created_at: new Date().toISOString() };
+  appendMessage(temp, true);
+  const { data, error } = await sb.from('messages').insert({ conversation_id: activeChat.conversationId, sender_id: currentUser.id, text }).select().single();
+  if (!error){
+    await sb.from('conversations').update({ last_message: text, last_message_at: new Date().toISOString() }).eq('id', activeChat.conversationId);
+  } else {
+    console.warn('send error', error);
+  }
+}
+
+// Enhanced renderMatches to show real conversations + profiles
+const originalRenderMatches = typeof renderMatches === 'function' ? renderMatches : null;
+function renderMatches(){
+  const container = document.querySelector('#matches > div');
+  if (!container) return;
+  if (!isCloudMode){
+    container.innerHTML = '<div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] text-sm text-zinc-400">Matches chat — enable Supabase Live mode to chat. Currently in demo mode.</div>';
+    return;
+  }
+  if (!currentUser){
+    container.innerHTML = `
+      <div class="bg-[#151517] rounded-[20px] p-6 border border-white/[0.06] text-center">
+        <div class="text-[16px] font-semibold mb-2">Log in to see your matches & messages</div>
+        <div class="text-[13px] text-zinc-400 mb-4">Create a free account — 18+ only — to start chatting with travelers worldwide</div>
+        <button onclick="openAuthModal('signup')" class="bg-white text-black rounded-full px-6 py-2.5 text-sm font-bold">Join GlobalAmor — Free</button>
+      </div>`;
+    return;
+  }
+  // Build UI: conversations + all profiles with Message button
+  let html = '';
+  if (conversationsCache.length>0){
+    html += '<div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06] mb-4"><h3 class="font-semibold mb-3">Your Conversations</h3><div class="space-y-2">';
+    conversationsCache.forEach(conv=>{
+      // find profile for other participant - try to match by user_id
+      const otherId = conv.participant1===currentUser.id ? conv.participant2 : conv.participant1;
+      const prof = profiles.find(p=>p.user_id===otherId) || { name: 'Traveler', photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200', flag:'🌍' };
+      html += `<button onclick="openChatById('${conv.id}')" class="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 text-left">
+        <img src="${prof.photo}" class="w-10 h-10 rounded-full object-cover"/>
+        <div class="flex-1 min-w-0"><div class="font-medium text-[14px] truncate">${prof.name}</div><div class="text-[12px] text-zinc-400 truncate">${conv.last_message||'Start the conversation'}</div></div>
+        <div class="text-[11px] text-zinc-500">${new Date(conv.last_message_at).toLocaleDateString()}</div>
+      </button>`;
+    });
+    html += '</div></div>';
+  }
+  html += '<div class="bg-[#151517] rounded-[20px] p-4 border border-white/[0.06]"><h3 class="font-semibold mb-3">Discover — Message anyone</h3><div class="grid gap-2">';
+  profiles.slice(0,12).forEach(p=>{
+    const canMessage = p.user_id && p.user_id!==currentUser.id;
+    html += `<div class="flex items-center gap-3 p-2.5 rounded-xl bg-[#1c1c1e] border border-white/5">
+      <img src="${p.photo}" class="w-10 h-10 rounded-full object-cover"/>
+      <div class="flex-1 min-w-0"><div class="font-medium text-[14px]">${p.name} ${p.flag||''}</div><div class="text-[12px] text-zinc-400 truncate">${p.city||''} • ${p.bio||''}</div></div>
+      <button ${canMessage ? `onclick='startChatWithProfile(${JSON.stringify(p).replace(/'/g,"&#39;")})'` : 'disabled'} class="rounded-full px-3 py-1.5 text-[12px] font-semibold ${canMessage?'bg-white text-black':'bg-white/10 text-zinc-500'}">${canMessage?'Message':'Demo'}</button>
+    </div>`;
+  });
+  html += '</div></div>';
+  container.innerHTML = html;
+}
+
+async function openChatById(convId){
+  const conv = conversationsCache.find(c=>c.id===convId);
+  if(!conv) return;
+  const otherId = conv.participant1===currentUser.id ? conv.participant2 : conv.participant1;
+  const prof = profiles.find(p=>p.user_id===otherId) || { name:'Traveler', photo:'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200' };
+  openChat(conv, prof);
+}
+
+// Wire auth buttons
+document.addEventListener('DOMContentLoaded', ()=>{
+  const authSubmit = document.getElementById('authSubmitBtn');
+  const authToggle = document.getElementById('authToggleBtn');
+  const chatSend = document.getElementById('chatSendBtn');
+  const chatInput = document.getElementById('chatInput');
+  if (authSubmit) authSubmit.onclick = handleAuthSubmit;
+  const forgotBtn = document.getElementById('forgotBtn');
+  const resetSend = document.getElementById('resetSendBtn');
+  const updatePassBtn = document.getElementById('updatePassBtn');
+  if (forgotBtn) forgotBtn.onclick = handleForgotPassword;
+  if (resetSend) resetSend.onclick = sendResetEmail;
+  if (updatePassBtn) updatePassBtn.onclick = handleUpdatePassword;
+  if (authToggle) authToggle.onclick = ()=>openAuthModal(authMode==='signup'?'login':'signup');
+  if (chatSend) chatSend.onclick = sendMessage;
+  if (chatInput) chatInput.addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); });
+  initAuth();
+});
+
+
+async function handleForgotPassword(){
+  const emailInput = document.getElementById('authEmail');
+  const email = (emailInput?.value?.trim() || document.getElementById('resetEmail')?.value?.trim());
+  const errBox = document.getElementById('authError');
+  const resetErr = document.getElementById('resetError');
+  if (!email){
+    if (errBox){ errBox.textContent='Enter your email first'; errBox.className='bg-amber-500/15 border border-amber-500/20 text-amber-300 text-[13px] p-3 rounded-xl mb-3'; errBox.classList.remove('hidden'); }
+    openModal('resetModal');
+    document.getElementById('resetEmail').value = emailInput?.value || '';
+    return;
+  }
+  // open reset modal
+  openModal('resetModal');
+  document.getElementById('resetEmail').value = email;
+}
+
+async function sendResetEmail(){
+  const email = document.getElementById('resetEmail').value.trim();
+  const errBox = document.getElementById('resetError');
+  const btn = document.getElementById('resetSendBtn');
+  if (!email){ errBox.textContent='Email required'; errBox.className='bg-red-500/15 border border-red-500/20 text-red-300 text-[13px] p-3 rounded-xl mb-3'; errBox.classList.remove('hidden'); return; }
+  btn.textContent='Sending...'; btn.disabled=true;
+  try {
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+    if (error) throw error;
+    errBox.textContent='✅ Reset link sent! Check your email (and spam). Link expires in 1 hour.';
+    errBox.className='bg-emerald-500/15 border border-emerald-500/20 text-emerald-300 text-[13px] p-3 rounded-xl mb-3';
+    errBox.classList.remove('hidden');
+  } catch(e){
+    errBox.textContent = e.message;
+    errBox.className='bg-red-500/15 border border-red-500/20 text-red-300 text-[13px] p-3 rounded-xl mb-3';
+    errBox.classList.remove('hidden');
+  } finally {
+    btn.textContent='Send Reset Link'; btn.disabled=false;
+  }
+}
+
+async function handleUpdatePassword(){
+  const p1 = document.getElementById('newPass').value;
+  const p2 = document.getElementById('newPass2').value;
+  const errBox = document.getElementById('updatePassError');
+  errBox.classList.add('hidden');
+  if (!p1 || p1.length<6){ errBox.textContent='Password must be at least 6 chars'; errBox.className='bg-red-500/15 border border-red-500/20 text-red-300 text-[13px] p-3 rounded-xl mb-3'; errBox.classList.remove('hidden'); return; }
+  if (p1!==p2){ errBox.textContent='Passwords do not match'; errBox.className='bg-red-500/15 border border-red-500/20 text-red-300 text-[13px] p-3 rounded-xl mb-3'; errBox.classList.remove('hidden'); return; }
+  const btn = document.getElementById('updatePassBtn');
+  btn.textContent='Updating...'; btn.disabled=true;
+  try {
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    if (error) throw error;
+    errBox.textContent='✅ Password updated! You can now log in with new password.';
+    errBox.className='bg-emerald-500/15 border border-emerald-500/20 text-emerald-300 text-[13px] p-3 rounded-xl mb-3';
+    errBox.classList.remove('hidden');
+    setTimeout(()=>{ closeModal('updatePassModal'); }, 1500);
+  } catch(e){
+    errBox.textContent=e.message;
+    errBox.className='bg-red-500/15 border border-red-500/20 text-red-300 text-[13px] p-3 rounded-xl mb-3';
+    errBox.classList.remove('hidden');
+  } finally {
+    btn.textContent='Update Password'; btn.disabled=false;
+  }
+}
+
+function checkRecoveryFlow(){
+  // Supabase sends recovery via hash fragment: #access_token=...&type=recovery
+  const hash = window.location.hash;
+  const search = window.location.search;
+  if (hash.includes('type=recovery') || search.includes('type=recovery') || hash.includes('access_token')){
+    // If we have a session, show update password modal
+    setTimeout(()=>{ openModal('updatePassModal'); }, 500);
+  }
+}
+
+
+// Patch renderProfiles to add admin-only delete
+const _originalRenderProfiles = typeof renderProfiles === 'function' ? renderProfiles : null;
+function renderProfilesPatched(){
+  if (_originalRenderProfiles) _originalRenderProfiles();
+  // Add delete buttons to each card after render
+  const grid = document.getElementById('profilesGrid');
+  if (!grid) return;
+  const cards = grid.children;
+  for (let i=0; i<cards.length; i++){
+    const profile = profiles[i];
+    if (!profile) continue;
+    if (!canDeleteProfile(profile)) continue;
+    // avoid duplicate button
+    if (cards[i].querySelector('.admin-delete-btn')) continue;
+    const delBtn = document.createElement('button');
+    delBtn.className='admin-delete-btn absolute top-2 right-2 bg-red-500/90 hover:bg-red-500 text-white rounded-full w-7 h-7 grid place-items-center text-[12px] font-bold z-10';
+    delBtn.textContent='✕';
+    delBtn.title = isAdminUser() ? 'Admin: Delete profile' : 'Delete your profile';
+    delBtn.onclick = async (e)=>{ e.stopPropagation(); 
+      const ok = await cloudDeleteProfile(profile.id);
+      if (ok){
+        profiles = profiles.filter(p=>p.id!==profile.id);
+        saveAll();
+        renderProfilesPatched();
+        if (isCloudMode){
+          const cloud = await cloudLoadProfiles();
+          if (cloud){ profiles = cloud.map(p=>({id:p.id,name:p.name,age:p.age,city:p.city,country:p.country,flag:p.flag||'🌍',type:p.type||'Explorer',bio:p.bio||'',photo:p.photo||'',user_id:p.user_id,isDemo:false})); }
+        }
+        renderProfilesPatched();
+      }
+    };
+    cards[i].style.position='relative';
+    cards[i].appendChild(delBtn);
+  }
+  addReportButtonsToDiscover();
+  // Also update admin panel counts to show admin badge
+  const adminBadge = document.getElementById('adminBadge');
+  if (adminBadge) adminBadge.textContent = isAdminUser() ? 'Admin ✓' : 'Not admin';
+}
+// Replace renderProfiles globally
+if (typeof renderProfiles !== 'undefined'){
+  const saved = renderProfiles;
+  renderProfiles = function(){ saved(); renderProfilesPatched(); };
+} else {
+  renderProfiles = renderProfilesPatched;
+}
+
+
+// ========= ADMIN DASHBOARD V4 =========
+let adminData = { profiles: [], wall: [], conversations: [], messages: [], banned: [], reports: [], logs: [] };
+
+async function adminLoadAllData(){
+  if (!isCloudMode || !isAdminUser()){
+    console.warn('Admin load requires cloud + admin');
+    return;
+  }
+  try {
+    const [profRes, wallRes, convRes, msgRes, bannedRes, reportsRes, logsRes] = await Promise.all([
+      sb.from('profiles').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from('wall_posts').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from('conversations').select('*').order('last_message_at',{ascending:false}).limit(100),
+      sb.from('messages').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from('banned_users').select('*').order('banned_at',{ascending:false}).limit(100),
+      sb.from('reports').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from('activity_logs').select('*').order('created_at',{ascending:false}).limit(200)
+    ]);
+    adminData.profiles = profRes.data || [];
+    adminData.wall = wallRes.data || [];
+    adminData.conversations = convRes.data || [];
+    adminData.messages = msgRes.data || [];
+    adminData.banned = bannedRes.data || [];
+    adminData.reports = reportsRes.data || [];
+    adminData.logs = logsRes.data || [];
+
+    const reportsBadge = document.getElementById('reportsCountBadge');
+    const pendingCount = adminData.reports.filter(r=>r.status==='pending').length;
+    if (reportsBadge){
+      if (pendingCount>0){ reportsBadge.textContent=pendingCount; reportsBadge.classList.remove('hidden'); }
+      else reportsBadge.classList.add('hidden');
+    }
+
+    // Update counts
+    const totalEl = document.getElementById('countTotal');
+    const realEl = document.getElementById('countReal');
+    const demoEl = document.getElementById('countDemo');
+    const wallEl = document.getElementById('countWall');
+    const convEl = document.getElementById('countConvos');
+    const msgEl = document.getElementById('countMsgs');
+    const bannedEl = document.getElementById('countBanned');
+    if (totalEl) totalEl.textContent = adminData.profiles.length;
+    if (realEl) realEl.textContent = adminData.profiles.filter(p=>!p.is_demo).length;
+    if (demoEl) demoEl.textContent = adminData.profiles.filter(p=>p.is_demo).length;
+    if (wallEl) wallEl.textContent = adminData.wall.length;
+    if (convEl) convEl.textContent = adminData.conversations.length;
+    if (msgEl) msgEl.textContent = adminData.messages.length;
+    if (bannedEl) bannedEl.textContent = adminData.banned.length;
+
+    renderAdminUsersList();
+    renderAdminWallList();
+    renderAdminMessagesList();
+    renderAdminBannedList();
+    renderAdminActivityLog();
+    renderAdminReportsList();
+    renderAdminLogsList();
+  } catch(e){
+    console.warn('adminLoadAllData error', e);
+  }
+}
+
+function renderAdminUsersList(){
+  const container = document.getElementById('adminUsersList');
+  if (!container) return;
+  const search = (document.getElementById('userSearch')?.value || '').toLowerCase();
+  let filtered = adminData.profiles;
+  if (search){
+    filtered = filtered.filter(p=> 
+      (p.name||'').toLowerCase().includes(search) || 
+      (p.city||'').toLowerCase().includes(search) ||
+      (p.bio||'').toLowerCase().includes(search) ||
+      (p.user_id||'').toLowerCase().includes(search)
+    );
+  }
+  if (filtered.length===0){
+    container.innerHTML = '<div class="text-[13px] text-zinc-500 text-center py-6">No profiles found</div>';
+    return;
+  }
+  container.innerHTML = filtered.map(p=>{
+    const isBanned = p.is_banned || adminData.banned.some(b=>b.user_id===p.user_id);
+    return `<div class="flex gap-3 p-3 rounded-xl ${isBanned?'bg-red-500/10 border border-red-500/20':'bg-[#1c1c1e] border border-white/5'}">
+      <img src="${p.photo||'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" class="w-12 h-12 rounded-full object-cover flex-shrink-0"/>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-[14px]">${escapeHtml(p.name)} ${p.flag||''}</span>
+          <span class="text-[11px] px-1.5 py-0.5 rounded-full ${p.is_demo?'bg-zinc-700 text-zinc-300':'bg-emerald-500/20 text-emerald-300'}">${p.is_demo?'DEMO':'REAL'}</span>
+          ${isBanned?'<span class="text-[10px] px-1.5 py-0.5 rounded-full bg-red-500 text-white">BANNED</span>':''}
+          <span class="text-[11px] text-zinc-500">${p.age||''} • ${escapeHtml(p.city||'')}</span>
+        </div>
+        <div class="text-[11px] text-zinc-400 truncate mt-0.5">${escapeHtml(p.bio||'')}</div>
+        <div class="text-[10px] text-zinc-500 mt-1 font-mono">ID: ${p.id.slice(0,8)}... | user_id: ${p.user_id ? p.user_id.slice(0,8)+'...' : 'no auth'} | ${new Date(p.created_at).toLocaleDateString()}</div>
+      </div>
+      <div class="flex flex-col gap-1 flex-shrink-0">
+        <button onclick="adminViewProfile('${p.id}')" class="bg-white/10 hover:bg-white/15 text-white rounded-full px-3 py-1 text-[11px]">View</button>
+        ${!isBanned ? `<button onclick="adminBanUser('${p.user_id}','${p.id}')" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/20 rounded-full px-3 py-1 text-[11px]">Ban</button>` : `<button onclick="adminUnbanUser('${p.user_id}')" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-full px-3 py-1 text-[11px]">Unban</button>`}
+        <button onclick="adminDeleteProfile('${p.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/20 rounded-full px-3 py-1 text-[11px]">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAdminWallList(){
+  const container = document.getElementById('adminWallList');
+  if (!container) return;
+  if (adminData.wall.length===0){
+    container.innerHTML = '<div class="text-[13px] text-zinc-500 text-center py-6">No wall posts</div>';
+    return;
+  }
+  container.innerHTML = adminData.wall.map(w=>`
+    <div class="flex gap-3 p-3 rounded-xl bg-[#1c1c1e] border border-white/5">
+      <div class="flex-1 min-w-0">
+        <div class="text-[13px] text-white line-clamp-3">${escapeHtml(w.text||'')}</div>
+        ${w.image_url ? `<img src="${w.image_url}" class="mt-2 w-full max-h-[150px] object-cover rounded-xl"/>` : ''}
+        <div class="text-[10px] text-zinc-500 mt-2 font-mono">ID: ${w.id.slice(0,8)} | user: ${w.user_id? w.user_id.slice(0,8):'anon'} | ${new Date(w.created_at).toLocaleString()}</div>
+      </div>
+      <div class="flex flex-col gap-1">
+        <button onclick="adminDeleteWallPost('${w.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/20 rounded-full px-3 py-1 text-[11px]">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminMessagesList(){
+  const container = document.getElementById('adminMessagesList');
+  if (!container) return;
+  if (adminData.conversations.length===0){
+    container.innerHTML = '<div class="text-[13px] text-zinc-500 text-center py-6">No conversations yet</div>';
+    return;
+  }
+  // Group messages by conversation
+  let html = '';
+  adminData.conversations.slice(0,20).forEach(conv=>{
+    const msgs = adminData.messages.filter(m=>m.conversation_id===conv.id).slice(0,5);
+    html += `<div class="p-3 rounded-xl bg-[#1c1c1e] border border-white/5">
+      <div class="flex justify-between items-center mb-2">
+        <div class="text-[12px] font-semibold">Conv ${conv.id.slice(0,8)}... | ${conv.participant1.slice(0,6)} ↔ ${conv.participant2.slice(0,6)}</div>
+        <div class="text-[10px] text-zinc-500">${new Date(conv.last_message_at).toLocaleString()}</div>
+      </div>
+      <div class="text-[11px] text-zinc-400 mb-2 truncate">Last: ${escapeHtml(conv.last_message||'')}</div>
+      <div class="space-y-1 max-h-[120px] overflow-y-auto">
+        ${msgs.map(m=>`<div class="text-[11px] ${m.sender_id===conv.participant1?'text-white':'text-zinc-300'}"><span class="font-mono text-[10px] text-zinc-500">${m.sender_id.slice(0,6)}:</span> ${escapeHtml(m.text)}</div>`).join('')}
+      </div>
+      <div class="flex gap-1 mt-2">
+        <button onclick="adminDeleteConversation('${conv.id}')" class="bg-red-500/10 text-red-400 rounded-full px-2 py-1 text-[10px]">Delete Convo</button>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function renderAdminBannedList(){
+  const container = document.getElementById('adminBannedList');
+  if (!container) return;
+  if (adminData.banned.length===0){
+    container.innerHTML = '<div class="text-[13px] text-zinc-500 text-center py-6">No banned users — clean community ✓</div>';
+    return;
+  }
+  container.innerHTML = adminData.banned.map(b=>`
+    <div class="flex gap-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+      <div class="flex-1">
+        <div class="text-[13px] font-semibold">User ${b.user_id ? b.user_id.slice(0,8)+'...' : 'unknown'}</div>
+        <div class="text-[11px] text-zinc-400">Reason: ${escapeHtml(b.reason||'No reason')} | ${new Date(b.banned_at).toLocaleString()}</div>
+        <div class="text-[10px] font-mono text-zinc-500 mt-1">ID: ${b.id.slice(0,8)}</div>
+      </div>
+      <button onclick="adminUnbanUser('${b.user_id}')" class="bg-emerald-500/20 text-emerald-300 rounded-full px-3 py-1 text-[11px] h-fit">Unban</button>
+    </div>
+  `).join('');
+}
+
+function renderAdminActivityLog(){
+  const container = document.getElementById('adminActivityLog');
+  if (!container) return;
+  const logs = [
+    ...adminData.profiles.slice(0,5).map(p=>({type:'profile', time:p.created_at, text:`New profile: ${p.name} from ${p.city||'?'}`})),
+    ...adminData.wall.slice(0,5).map(w=>({type:'wall', time:w.created_at, text:`Wall post: ${(w.text||'').slice(0,40)}...`})),
+    ...adminData.messages.slice(0,5).map(m=>({type:'msg', time:m.created_at, text:`Message: ${m.text.slice(0,30)}...`})),
+  ].sort((a,b)=>new Date(b.time)-new Date(a.time)).slice(0,10);
+  
+  if (logs.length===0){
+    container.innerHTML = '<div class="text-zinc-500 text-[12px]">No activity yet</div>';
+    return;
+  }
+  container.innerHTML = logs.map(l=>`
+    <div class="flex gap-2 text-[12px]">
+      <span class="text-[10px] px-1.5 py-0.5 rounded-full h-fit ${l.type==='profile'?'bg-emerald-500/20 text-emerald-300': l.type==='wall'?'bg-blue-500/20 text-blue-300':'bg-zinc-700 text-zinc-300'}">${l.type}</span>
+      <span class="text-zinc-400 flex-1">${escapeHtml(l.text)}</span>
+      <span class="text-zinc-500 text-[10px]">${new Date(l.time).toLocaleDateString()}</span>
+    </div>
+  `).join('');
+}
+
+// Admin actions
+async function adminViewProfile(profileId){
+  const p = adminData.profiles.find(x=>x.id===profileId);
+  if (!p) return alert('Not found');
+  alert(`Profile: ${p.name}\nAge: ${p.age}\nCity: ${p.city}\nBio: ${p.bio}\nUserID: ${p.user_id}\nCreated: ${p.created_at}`);
+}
+
+async function adminDeleteProfile(profileId){
+  if (!confirm('Delete this profile permanently?')) return;
+  const { error } = await sb.from('profiles').delete().eq('id', profileId);
+  if (error) alert('Failed: '+error.message);
+  else { await adminLoadAllData(); renderProfiles(); }
+}
+
+async function adminDeleteWallPost(postId){
+  if (!confirm('Delete this wall post?')) return;
+  const { error } = await sb.from('wall_posts').delete().eq('id', postId);
+  if (error) alert('Failed: '+error.message);
+  else await adminLoadAllData();
+}
+
+async function adminDeleteConversation(convId){
+  if (!confirm('Delete this conversation and all its messages?')) return;
+  await sb.from('messages').delete().eq('conversation_id', convId);
+  const { error } = await sb.from('conversations').delete().eq('id', convId);
+  if (error) alert('Failed: '+error.message);
+  else await adminLoadAllData();
+}
+
+async function adminBanUser(userId, profileId){
+  if (!userId || userId==='null' || userId==='undefined'){
+    alert('This profile has no linked auth user (demo profile). Delete it instead.');
+    return;
+  }
+  const reason = prompt('Ban reason (visible to admin only):','Violation of Terms - 18+ / spam / fake');
+  if (reason===null) return;
+  try {
+    // Insert into banned_users
+    const { error: banErr } = await sb.from('banned_users').insert({ user_id: userId, reason: reason || 'No reason', banned_by: currentUser?.id });
+    if (banErr) console.warn('banned_users insert', banErr);
+    // Mark profile as banned
+    if (profileId){
+      await sb.from('profiles').update({ is_banned: true }).eq('id', profileId);
+      // Also ban all profiles of this user
+      await sb.from('profiles').update({ is_banned: true }).eq('user_id', userId);
+    }
+    alert('User banned');
+    await adminLoadAllData();
+  } catch(e){ alert('Ban failed: '+e.message); }
+}
+
+async function adminUnbanUser(userId){
+  if (!userId) return;
+  if (!confirm('Unban this user?')) return;
+  await sb.from('banned_users').delete().eq('user_id', userId);
+  await sb.from('profiles').update({ is_banned: false }).eq('user_id', userId);
+  alert('User unbanned');
+  await adminLoadAllData();
+}
+
+
+async function adminSeedDemoProfiles(){
+  if (!isCloudMode || !isAdminUser()){
+    alert('Admin + Live mode required to seed');
+    return;
+  }
+  if (!confirm('Seed '+DEMO_PROFILES.length+' demo profiles into cloud? They will be visible to everyone as REAL profiles (is_demo=true).')) return;
+  try {
+    const toInsert = DEMO_PROFILES.map(p=>({
+      name: p.name,
+      age: p.age,
+      city: p.city,
+      country: p.country,
+      flag: p.flag,
+      type: p.type,
+      bio: p.bio,
+      photo: p.photo,
+      is_demo: true,
+      is_banned: false
+    }));
+    const { data, error } = await sb.from('profiles').insert(toInsert).select();
+    if (error) throw error;
+    alert('Seeded '+data.length+' demo profiles to cloud!');
+    await adminLoadAllData();
+    const cloud = await cloudLoadProfiles();
+    if (cloud && cloud.length>0){
+      profiles = cloud.filter(p=>!p.is_banned).map(p=>({id:p.id,name:p.name,age:p.age,city:p.city,country:p.country,flag:p.flag||'🌍',type:p.type||'Explorer',bio:p.bio||'',photo:p.photo||'',isDemo:p.is_demo||false,user_id:p.user_id,is_banned:p.is_banned}));
+      renderProfiles();
+    }
+  } catch(e){
+    alert('Seed failed: '+e.message);
+  }
+}
+
+async function adminRestoreDemoLocal(){
+  // Restore local demo without cloud
+  profiles = [...DEMO_PROFILES];
+  saveAll();
+  renderProfiles();
+  alert('Restored '+DEMO_PROFILES.length+' demo profiles locally');
+}
+
+async function adminDeleteAllDemo(){
+  if (!confirm('Delete ALL demo profiles (is_demo=true)? This cannot be undone.')) return;
+  const { error } = await sb.from('profiles').delete().eq('is_demo', true);
+  if (error) alert('Failed: '+error.message);
+  else { alert('Demo profiles deleted'); await adminLoadAllData(); renderProfiles(); }
+}
+
+async function adminPurgeOldWall(){
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-30);
+  if (!confirm(`Delete wall posts older than ${cutoff.toLocaleDateString()}?`)) return;
+  const { error } = await sb.from('wall_posts').lt('created_at', cutoff.toISOString());
+  if (error) alert('Failed: '+error.message);
+  else { alert('Old wall posts purged'); await adminLoadAllData(); }
+}
+
+// Admin tab switching
+
+function renderAdminReportsList(){
+  const container = document.getElementById('adminReportsList');
+  if (!container) return;
+  const filter = document.getElementById('reportsFilter')?.value || 'pending';
+  let filtered = adminData.reports;
+  if (filter!=='all') filtered = filtered.filter(r=>r.status===filter);
+  if (filtered.length===0){
+    container.innerHTML = '<div class="text-[13px] text-zinc-500 text-center py-8">No reports in this queue ✓</div>';
+    return;
+  }
+  container.innerHTML = filtered.map(r=>{
+    const reportedProfile = adminData.profiles.find(p=>p.id===r.reported_profile_id);
+    return `<div class="p-4 rounded-xl border ${r.status==='pending'?'bg-amber-500/10 border-amber-500/20':'bg-[#1c1c1e] border-white/5'}">
+      <div class="flex justify-between items-start gap-3">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${r.status==='pending'?'bg-amber-500 text-black': r.status==='actioned'?'bg-emerald-500 text-black':'bg-zinc-700 text-white'}">${r.status.toUpperCase()}</span>
+            <span class="text-[12px] font-semibold">${escapeHtml(r.reason)}</span>
+            <span class="text-[11px] text-zinc-500">${new Date(r.created_at).toLocaleString()}</span>
+          </div>
+          <div class="text-[13px] mt-2 text-zinc-300">${escapeHtml(r.details||'No details')}</div>
+          <div class="mt-2 flex gap-2 flex-wrap">
+            ${reportedProfile ? `<div class="flex items-center gap-2 bg-black/30 rounded-full px-2 py-1"><img src="${reportedProfile.photo}" class="w-6 h-6 rounded-full"/><span class="text-[11px]">${escapeHtml(reportedProfile.name)} ${reportedProfile.flag||''}</span></div>` : ''}
+            <span class="text-[10px] font-mono text-zinc-500">Reported: ${r.reported_profile_id ? r.reported_profile_id.slice(0,8) : r.reported_wall_post_id ? 'wall:'+r.reported_wall_post_id.slice(0,8) : 'user:'+(r.reported_user_id||'').slice(0,8)} | Reporter: ${(r.reporter_user_id||'').slice(0,8)} | IP: ${r.ip_address||'unknown'}</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1">
+          <button onclick="adminActionReport('${r.id}','reviewed')" class="bg-white/10 hover:bg-white/15 text-white rounded-full px-3 py-1 text-[11px]">Mark Reviewed</button>
+          <button onclick="adminActionReport('${r.id}','actioned')" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-full px-3 py-1 text-[11px]">Actioned ✓</button>
+          <button onclick="adminBanFromReport('${r.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-full px-3 py-1 text-[11px]">Ban User</button>
+          <button onclick="adminDeleteFromReport('${r.id}')" class="bg-zinc-700 hover:bg-zinc-600 text-white rounded-full px-3 py-1 text-[11px]">Delete Content</button>
+          <button onclick="adminDismissReport('${r.id}')" class="bg-white/5 text-zinc-400 rounded-full px-3 py-1 text-[11px]">Dismiss</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAdminLogsList(){
+  const container = document.getElementById('adminLogsList');
+  if (!container) return;
+  const search = (document.getElementById('logsSearch')?.value || '').toLowerCase();
+  const filter = document.getElementById('logsFilter')?.value || 'all';
+  let filtered = adminData.logs;
+  if (filter!=='all') filtered = filtered.filter(l=>l.action.includes(filter));
+  if (search) filtered = filtered.filter(l=> (l.ip_address||'').includes(search) || (l.action||'').includes(search) || (l.user_id||'').includes(search));
+  filtered = filtered.slice(0,100);
+  if (filtered.length===0){
+    container.innerHTML = '<div class="text-zinc-500 text-center py-6">No logs</div>';
+    return;
+  }
+  container.innerHTML = filtered.map(l=>`
+    <div class="flex gap-2 p-2 rounded-lg bg-[#1c1c1e] border border-white/5">
+      <span class="text-zinc-500">${new Date(l.created_at).toLocaleTimeString()}</span>
+      <span class="px-1.5 py-0.5 rounded bg-white/10 text-[10px]">${escapeHtml(l.action)}</span>
+      <span class="text-white truncate flex-1">${l.ip_address||'no-ip'} | ${l.user_id? l.user_id.slice(0,8):'anon'} | ${(l.metadata?.geo?.city||'')+' '+(l.metadata?.geo?.country||'')}</span>
+      <span class="text-zinc-500 truncate">${escapeHtml(JSON.stringify(l.metadata||{}).slice(0,60))}</span>
+    </div>
+  `).join('');
+}
+
+async function adminActionReport(reportId, newStatus){
+  const { error } = await sb.from('reports').update({ status: newStatus }).eq('id', reportId);
+  if (error) alert('Failed: '+error.message);
+  else await adminLoadAllData();
+}
+async function adminDismissReport(reportId){
+  if (!confirm('Dismiss report?')) return;
+  const { error } = await sb.from('reports').delete().eq('id', reportId);
+  if (error) alert('Failed: '+error.message);
+  else await adminLoadAllData();
+}
+async function adminBanFromReport(reportId){
+  const report = adminData.reports.find(r=>r.id===reportId);
+  if (!report) return;
+  const userId = report.reported_user_id;
+  const profileId = report.reported_profile_id;
+  if (!userId && !profileId){ alert('No user to ban in this report'); return; }
+  const targetUserId = userId || adminData.profiles.find(p=>p.id===profileId)?.user_id;
+  if (!targetUserId){ alert('Cannot find user_id, will delete profile instead'); if (profileId) adminDeleteProfile(profileId); return; }
+  await adminBanUser(targetUserId, profileId);
+  await adminActionReport(reportId, 'actioned');
+}
+async function adminDeleteFromReport(reportId){
+  const report = adminData.reports.find(r=>r.id===reportId);
+  if (!report) return;
+  if (report.reported_profile_id){
+    await adminDeleteProfile(report.reported_profile_id);
+  } else if (report.reported_wall_post_id){
+    await adminDeleteWallPost(report.reported_wall_post_id);
+  }
+  await adminActionReport(reportId, 'actioned');
+}
+
+function initAdminTabs(){
+  document.querySelectorAll('.adminTabBtn').forEach(btn=>{
+    btn.onclick = ()=>{
+      const tab = btn.dataset.adminTab;
+      document.querySelectorAll('.adminTabBtn').forEach(b=>{
+        b.className='adminTabBtn whitespace-nowrap rounded-full bg-[#1c1c1e] px-4 py-2 text-[13px] font-medium text-white/70 border border-white/[0.06]';
+      });
+      btn.className='adminTabBtn whitespace-nowrap rounded-full bg-white text-black px-4 py-2 text-[13px] font-semibold';
+      document.querySelectorAll('.adminTabSection').forEach(s=>s.classList.add('hidden'));
+      const sec = document.getElementById('adminTab-'+tab);
+      if (sec) sec.classList.remove('hidden');
+      if (tab!=='overview') adminLoadAllData();
+    };
+  });
+  const searchInput = document.getElementById('userSearch');
+  if (searchInput) searchInput.oninput = renderAdminUsersList;
+  const reportsFilter = document.getElementById('reportsFilter');
+  if (reportsFilter) reportsFilter.onchange = renderAdminReportsList;
+  const logsSearch = document.getElementById('logsSearch');
+  if (logsSearch) logsSearch.oninput = renderAdminLogsList;
+  const logsFilter = document.getElementById('logsFilter');
+  if (logsFilter) logsFilter.onchange = renderAdminLogsList;
+  const refreshBtn = document.getElementById('refreshAdminBtn');
+  if (refreshBtn) refreshBtn.onclick = adminLoadAllData;
+}
+
+// Hook into admin login success
+const originalAdminLogin = document.getElementById('adminLoginBtn')?.onclick;
+document.addEventListener('DOMContentLoaded', ()=>{
+  initAdminTabs();
+  // Auto-load admin data if already admin
+  setTimeout(()=>{
+    if (isAdminUser() && isCloudMode){
+      adminLoadAllData();
+    }
+  }, 1500);
+});
+
+// Override renderProfiles to refresh admin if open
+const origRenderProfilesAdmin = renderProfiles;
+if (typeof origRenderProfilesAdmin !== 'undefined'){
+  // already patched earlier, but ensure admin reload
+}
+
+
+// ========= IP LOGGING + REPORT SYSTEM V5 =========
+let clientIP = null;
+let clientGeo = null;
+
+async function fetchClientIP(){
+  if (clientIP) return clientIP;
+  try {
+    // Try ipify + ipinfo for geo
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    clientIP = data.ip || 'unknown';
+    // Try geo (optional, fails gracefully)
+    try {
+      const geoRes = await fetch(`https://ipapi.co/${clientIP}/json/`);
+      const geo = await geoRes.json();
+      clientGeo = { city: geo.city, region: geo.region, country: geo.country_name, org: geo.org };
+    } catch(e){}
+  } catch(e){
+    clientIP = 'unknown';
+  }
+  return clientIP;
+}
+fetchClientIP(); // prefetch on load
+
+async function logActivity(action, targetId=null, metadata={}){
+  if (!isCloudMode) return;
+  try {
+    const ip = await fetchClientIP();
+    const payload = {
+      user_id: currentUser?.id || null,
+      action: action,
+      target_id: targetId,
+      ip_address: ip,
+      user_agent: navigator.userAgent,
+      metadata: { ...metadata, geo: clientGeo, url: window.location.href },
+    };
+    await sb.from('activity_logs').insert(payload);
+  } catch(e){ console.warn('logActivity failed', e); }
+}
+
+// Report system
+let reportTarget = { type: null, id: null, user_id: null };
+
+function openReportModal(type, id, userId=null){
+  if (!currentUser){
+    alert('Please login to report');
+    openAuthModal('login');
+    return;
+  }
+  reportTarget = { type, id, user_id: userId };
+  document.getElementById('reportError').classList.add('hidden');
+  document.getElementById('reportDetails').value='';
+  openModal('reportModal');
+}
+
+async function submitReport(){
+  const reason = document.getElementById('reportReason').value;
+  const details = document.getElementById('reportDetails').value.trim();
+  const errBox = document.getElementById('reportError');
+  const btn = document.getElementById('reportSubmitBtn');
+  
+  if (!reportTarget.id){
+    errBox.textContent='No target selected'; errBox.className='bg-red-500/15 border border-red-500/20 text-red-300 text-[13px] p-3 rounded-xl mb-3'; errBox.classList.remove('hidden'); return;
+  }
+  
+  btn.textContent='Submitting...'; btn.disabled=true;
+  try {
+    const ip = await fetchClientIP();
+    const payload = {
+      reporter_user_id: currentUser?.id,
+      reported_profile_id: reportTarget.type==='profile' ? reportTarget.id : null,
+      reported_user_id: reportTarget.user_id || null,
+      reported_wall_post_id: reportTarget.type==='wall' ? reportTarget.id : null,
+      reason: reason,
+      details: details,
+      status: 'pending',
+      ip_address: ip,
+      user_agent: navigator.userAgent,
+      metadata: { geo: clientGeo }
+    };
+    const { data, error } = await sb.from('reports').insert(payload).select().single();
+    if (error) throw error;
+    await logActivity('report_'+reportTarget.type, reportTarget.id, { reason, details });
+    errBox.textContent='✅ Report submitted. Our admin team will review within 24h.';
+    errBox.className='bg-emerald-500/15 border border-emerald-500/20 text-emerald-300 text-[13px] p-3 rounded-xl mb-3';
+    errBox.classList.remove('hidden');
+    setTimeout(()=>{ closeModal('reportModal'); }, 1500);
+  } catch(e){
+    errBox.textContent='Failed: '+e.message;
+    errBox.className='bg-red-500/15 border border-red-500/20 text-red-300 text-[13px] p-3 rounded-xl mb-3';
+    errBox.classList.remove('hidden');
+  } finally {
+    btn.textContent='Submit Report'; btn.disabled=false;
+  }
+}
+
+// Hook logActivity into key actions
+const _origCloudSaveProfile = typeof cloudSaveProfile === 'function' ? cloudSaveProfile : null;
+async function cloudSaveProfileWithLog(profile){
+  const res = await (_origCloudSaveProfile ? _origCloudSaveProfile(profile) : null);
+  logActivity('create_profile', res?.id || profile.id, { name: profile.name });
+  return res;
+}
+if (_origCloudSaveProfile){
+  cloudSaveProfile = cloudSaveProfileWithLog;
+}
+
+// Log wall posts, messages, logins
+document.addEventListener('DOMContentLoaded', ()=>{
+  const reportBtn = document.getElementById('reportSubmitBtn');
+  if (reportBtn) reportBtn.onclick = submitReport;
+  // Log page view
+  if (isCloudMode) setTimeout(()=>logActivity('page_view', null, { path: window.location.pathname }), 2000);
+});
+
+// Enhance auth to log IP on login/signup
+const _origHandleAuth = typeof handleAuthSubmit === 'function' ? handleAuthSubmit : null;
+
+async function initCloud(){
+  const banner = document.getElementById('cloudBanner');
+  if (isCloudMode){
+    if(banner){ banner.textContent='☁️ Live mode — profiles & wall are shared for everyone'; banner.className='mx-auto max-w-[1280px] px-4 sm:px-6 py-2 text-[12px] bg-emerald-500/15 border border-emerald-500/20 text-emerald-300 rounded-full mt-3'; }
+    // Load profiles - FIXED: keep demo if cloud empty
+    const cloudProfiles = await cloudLoadProfiles();
+    if (cloudProfiles && cloudProfiles.length>0){
+      // map cloud fields to local shape - include user_id and is_banned
+      profiles = cloudProfiles.filter(p=>!p.is_banned).map(p=>({
+        id: p.id,
+        name: p.name,
+        age: p.age,
+        city: p.city,
+        country: p.country,
+        flag: p.flag || '🌍',
+        type: p.type || 'Explorer',
+        bio: p.bio || '',
+        photo: p.photo || '',
+        isDemo: p.is_demo || false,
+        user_id: p.user_id,
+        is_banned: p.is_banned
+      }));
+      console.log('Loaded', profiles.length, 'profiles from cloud');
+    } else {
+      // Cloud empty or not configured - keep DEMO_PROFILES as fallback
+      console.log('Cloud empty, keeping demo profiles:', DEMO_PROFILES.length);
+      profiles = [...DEMO_PROFILES];
+      if (isCloudMode && banner){
+        banner.textContent = '☁️ Live mode — no real profiles yet, showing demo. Create a profile or seed demo in Admin.';
+        banner.className='mx-auto max-w-[1280px] px-4 sm:px-6 py-2 text-[12px] bg-amber-500/15 border border-amber-500/20 text-amber-300 rounded-full mt-3';
+      }
+    }
+    const cloudWall = await cloudLoadWall();
+    if (cloudWall && cloudWall.length>0){
+      wallPosts = cloudWall.map(w=>({ id:w.id, text:w.text, image:w.image_url, created_at:w.created_at, user_id:w.user_id }));
+    } else {
+      // Keep DEMO_WALL as fallback
+      if (typeof DEMO_WALL !== 'undefined' && DEMO_WALL.length>0){
+        wallPosts = [...DEMO_WALL];
+      }
+    }
+    const cloudEss = await cloudLoadEssentials();
+    if (cloudEss && cloudEss.length>0){
+      essentials = cloudEss.map(e=>({ id:e.id, name:e.name, price:e.price, image:e.image_url }));
+    }
+    // Realtime subscriptions - FIXED: don't wipe demo if cloud becomes empty
+    try {
+      sb.channel('profiles-changes').on('postgres_changes',{event:'*',schema:'public',table:'profiles'}, async ()=>{
+        const updated = await cloudLoadProfiles(); 
+        if(updated && updated.length>0){ 
+          profiles = updated.filter(p=>!p.is_banned).map(p=>({id:p.id,name:p.name,age:p.age,city:p.city,country:p.country,flag:p.flag||'🌍',type:p.type||'Explorer',bio:p.bio||'',photo:p.photo||'',isDemo:p.is_demo||false,user_id:p.user_id,is_banned:p.is_banned})); 
+          renderProfiles(); 
+        } else if (updated && updated.length===0){
+          // If all deleted, show empty but keep banner - don't auto-restore demo to avoid loop
+          console.log('Realtime: profiles table now empty');
+          // Keep current profiles if they are demo, otherwise clear
+          if (profiles.every(p=>p.isDemo)){
+            // already demo, keep
+          } else {
+            // If real profiles deleted, fallback to demo
+            profiles = [...DEMO_PROFILES];
+            renderProfiles();
+          }
+        }
+      }).subscribe();
+      sb.channel('wall-changes').on('postgres_changes',{event:'*',schema:'public',table:'wall_posts'}, async ()=>{
+        const updated = await cloudLoadWall(); 
+        if(updated && updated.length>0){ 
+          wallPosts = updated.map(w=>({id:w.id,text:w.text,image:w.image_url,created_at:w.created_at,user_id:w.user_id})); 
+          renderWall(); 
+        }
+      }).subscribe();
+    } catch(e){ console.warn('realtime failed', e); }
+  } else {
+    if(banner){ banner.textContent='📦 Demo mode — data only saves in your browser. Add Supabase keys to make it shared for everyone.'; banner.className='mx-auto max-w-[1280px] px-4 sm:px-6 py-2 text-[12px] bg-amber-500/15 border border-amber-500/20 text-amber-300 rounded-full mt-3'; }
+  }
+  
+}
+initCloud();
+//  // replaced by initCloud
+
+
+
+// Override profile creation to use cloud
+(function(){
+  const origSaveBtn = document.getElementById('saveProfileBtn');
+  if(!origSaveBtn) return;
+  origSaveBtn.onclick = async () => {
+    const name = document.getElementById('pName')?.value?.trim() || 'Traveler';
+    const age = parseInt(document.getElementById('pAge')?.value) || 24;
+    const city = document.getElementById('pCity')?.value?.trim() || '';
+    const bio = document.getElementById('pBio')?.value?.trim() || '';
+    const type = document.getElementById('pType')?.value || 'Explorer';
+    const photoUrlInput = document.getElementById('pPhotoUrl')?.value?.trim();
+    const fileInput = document.getElementById('pPhotoFile');
+    let photo = photoUrlInput || '';
+    if (fileInput && fileInput.files && fileInput.files[0]){
+      if (isCloudMode){
+        const uploaded = await uploadImageToCloud(fileInput.files[0]);
+        if (uploaded) photo = uploaded; else photo = await toBase64(fileInput.files[0]);
+      } else {
+        photo = await toBase64(fileInput.files[0]);
+      }
+    }
+    if (!photo) photo = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop';
+    const newProfile = { id: 'local-'+Date.now(), name, age, city, country:'DO', flag:'🇩🇴', type, bio, photo, isDemo:false };
+    if (isCloudMode){
+      const saved = await cloudSaveProfile(newProfile);
+      if (saved){
+        newProfile.id = saved.id;
+        profiles.unshift({ id:saved.id, name:saved.name, age:saved.age, city:saved.city, country:saved.country, flag:saved.flag, type:saved.type, bio:saved.bio, photo:saved.photo, isDemo:false });
+      } else {
+        profiles.unshift(newProfile);
+      }
+    } else {
+      profiles.unshift(newProfile);
+    }
+    saveAll(); renderProfiles(); closeModal('profileModal'); setLast('Created profile '+name);
+  };
+
+  // Override wall post
+  const wallBtn = document.getElementById('wallPostBtn');
+  if(wallBtn){
+    wallBtn.onclick = async () => {
+      const text = document.getElementById('wallText')?.value?.trim();
+      const urlInput = document.getElementById('wallUrl')?.value?.trim();
+      if(!text && !urlInput && !wallImageData) return alert('Write something or add image');
+      let image = urlInput || wallImageData || '';
+      // if wallImageData is base64 and cloud mode, try upload last file
+      if (isCloudMode && wallImageData && wallImageData.startsWith('data:')){
+        // wallImageData came from file input earlier - we need file reference
+        const fileIn = document.getElementById('wallFile');
+        if (fileIn && fileIn.files[0]){
+          const uploaded = await uploadImageToCloud(fileIn.files[0]);
+          if (uploaded) image = uploaded;
+        }
+      }
+      const newPost = { id: Date.now().toString(), text: text||'', image, created_at: new Date().toISOString() };
+      if (isCloudMode){
+        const saved = await cloudSaveWallPost({ text: newPost.text, image: newPost.image });
+        if (saved){ newPost.id = saved.id; wallPosts.unshift({ id:saved.id, text:saved.text, image:saved.image_url, created_at:saved.created_at }); }
+        else { wallPosts.unshift(newPost); }
+      } else {
+        wallPosts.unshift(newPost);
+      }
+      saveAll(); renderWall(); 
+      const wt=document.getElementById('wallText'); if(wt) wt.value='';
+      const wu=document.getElementById('wallUrl'); if(wu) wu.value='';
+      const wp=document.getElementById('wallPreviewWrap'); if(wp) wp.classList.add('hidden');
+      wallImageData=null;
+      setLast('Posted to wall');
+    };
+  }
+})();
+
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script><script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
