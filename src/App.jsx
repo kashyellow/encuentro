@@ -40,14 +40,6 @@ export default function App(){
     })()
   },[])
 
-  const topTabs = [
-    {k:'discover', label:'Discover'},
-    {k:'essential', label:'Essential'},
-    {k:'wall', label:'Wall'},
-    {k:'inbox', label:'Inbox 🔒'},
-    {k:'admin', label:'Admin'},
-  ]
-
   return (
     <div className="min-h-screen bg-[#fafaf8]">
       <AgeGate />
@@ -58,31 +50,23 @@ export default function App(){
             <span className="font-bold text-[18px] tracking-tight">GlobalAmor</span>
           </div>
           <div className="flex items-center gap-2">
-            {topTabs.map(t=>(
-              <button key={t.k} onClick={()=>setTab(t.k)} className={`px-4 h-8 rounded-full text-[13px] font-medium border ${tab===t.k?'bg-black text-white border-black':'bg-white border-zinc-200'}`}>{t.label}</button>
+            {['discover','essential','wall','inbox','admin'].map(k=>(
+              <button key={k} onClick={()=>setTab(k)} className={`px-4 h-8 rounded-full text-[13px] font-medium border capitalize ${tab===k?'bg-black text-white border-black':'bg-white border-zinc-200'}`}>{k==='inbox'? 'Inbox 🔒' : k}</button>
             ))}
           </div>
         </div>
       </header>
       <div className="border-b border-zinc-200 bg-[#fafaf8] sticky top-[64px] z-20">
-        <div className="max-w-[1280px] mx-auto px-4 py-3 flex gap-2 overflow-x-auto scrollbar-none">
+        <div className="max-w-[1280px] mx-auto px-4 py-3 flex gap-2 overflow-x-auto">
           {[{label:'All Countries',flag:'🌍'},{label:'Colombia',flag:'🇨🇴'},{label:'Dominican Republic',flag:'🇩🇴'},{label:'Japan',flag:'🇯🇵'},{label:'Switzerland',flag:'🇨🇭'}].map(c=>(
             <button key={c.label} onClick={()=>setCountry(c.label)} className={`whitespace-nowrap px-4 h-8 rounded-full text-[12px] border ${country===c.label?'bg-black text-white border-black':'bg-white border-zinc-200'}`}>{c.flag} {c.label}</button>
           ))}
         </div>
       </div>
-      {tab!=='admin' && (
-        <div className="max-w-[1280px] mx-auto px-4 py-3 flex gap-2">
-          <button className="px-5 h-9 rounded-full bg-black text-white text-[13px]">Merch Items</button>
-          <button className="px-5 h-9 rounded-full bg-white border border-zinc-200 text-[13px]">Vendors</button>
-        </div>
-      )}
       <main className="max-w-[1280px] mx-auto px-4 py-6">
         {tab==='discover' && <Discover profiles={profiles} country={country} />}
-        {tab==='essential' && <div className="bg-white rounded-[20px] border p-6">Essential vendors</div>}
-        {tab==='wall' && <div className="bg-white rounded-[20px] border p-6">Wall — community posts</div>}
-        {tab==='inbox' && <div className="bg-white rounded-[20px] border p-6">Inbox 🔒</div>}
         {tab==='admin' && <AdminPage profiles={profiles} setProfiles={setProfiles} onSignOut={()=>setTab('discover')} />}
+        {tab!=='discover' && tab!=='admin' && <div className="bg-white rounded-[20px] border p-6">{tab}</div>}
       </main>
     </div>
   )
