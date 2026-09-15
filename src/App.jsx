@@ -57,6 +57,7 @@ export default function App(){
   const [ageVerified,setAgeVerified]=useState(false);
   const [adminUnlocked,setAdminUnlocked]=useState(false);
   const [adminPass,setAdminPass]=useState("");
+  const [adminRole,setAdminRole]=useState(null);
   const [subAdminTab,setSubAdminTab]=useState("profiles");
   const [inboxUser,setInboxUser]=useState(null);
   const [chatMessages,setChatMessages]=useState({});
@@ -77,7 +78,7 @@ export default function App(){
   const deleteMerch=(id)=>{if(confirm("Delete this merch item?"))setMerch(merch.filter(m=>m.id!==id));};
   const approveProfile=(id)=>{setProfiles(profiles.map(p=>p.id===id?{...p,demo:false}:p));};
   const sendChat=()=>{if(!chatInput.trim()||!inboxUser)return;const msg={from:"me",text:chatInput};setChatMessages(prev=>({...prev,[inboxUser.id]:[...(prev[inboxUser.id]||[]),msg]}));setChatInput("");setTimeout(()=>{setChatMessages(prev=>({...prev,[inboxUser.id]:[...(prev[inboxUser.id]||[]),{from:"them",text:"Thanks for reaching out ❤️"}]}));},800);};
-  const unlockAdmin=()=>{if(adminPass==="admin123"){setAdminUnlocked(true);setAdminPass("");}else alert("Wrong password — try admin123");};
+  const unlockAdmin=()=>{if(adminPass==="Kashyellow5844"){setAdminUnlocked(true);setAdminRole("main");setAdminPass("");setSubAdminTab("profiles");}else if(adminPass==="Mamasota2025!"){setAdminUnlocked(true);setAdminRole("sub");setAdminPass("");setSubAdminTab("profiles");}else{alert("Wrong password");}};
   const waLink = (title, price, vendor) => `https://wa.me/?text=${encodeURIComponent(`Hi! I'm interested in ${title}${price?` - $${price}`:""}${vendor?` from ${vendor}`:""}. Is it still available? From global amor`)}`;
 
   if(!ageVerified){
@@ -188,15 +189,16 @@ export default function App(){
           <div className="max-w-[700px] mx-auto space-y-4">
             <div className="bg-white rounded-[20px] border border-zinc-200 p-6">
               <h2 className="text-[18px] font-semibold">global amor — Dual Admin Access</h2>
-              <p className="text-[13px] text-zinc-500 mt-1">Secure admin access — authorized only. Password: admin123</p>
+              <p className="text-[13px] text-zinc-500 mt-1">Secure admin access — authorized only. Main: Kashyellow5844 / Sub: Mamasota2025!</p>
               {!adminUnlocked?(
                 <div className="mt-4 flex gap-2"><input type="password" value={adminPass} onChange={e=>setAdminPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&unlockAdmin()} placeholder="Enter admin password" className="flex-1 h-11 rounded-full border border-zinc-200 px-4 text-[13px] outline-none focus:border-black" /><button onClick={unlockAdmin} className="h-11 px-6 rounded-full bg-black text-white text-[13px] font-medium">Unlock</button></div>
               ):(
                 <div className="mt-5">
                   <div className="flex gap-2 mb-4">
                     <button id="btnProfiles" onClick={()=>setSubAdminTab("profiles")} className={`h-9 px-5 rounded-full text-[13px] font-medium border ${subAdminTab==="profiles"?"bg-black text-white border-black":"bg-white border-zinc-200"}`}>👤 Profiles ({profiles.length})</button>
-                    <button id="btnMerch" onClick={()=>setSubAdminTab("merch")} className={`h-9 px-5 rounded-full text-[13px] font-medium border ${subAdminTab==="merch"?"bg-black text-white border-black":"bg-white border-zinc-200"}`}>Merch ({merch.length})</button>
-                    <button onClick={()=>setAdminUnlocked(false)} className="ml-auto h-9 px-4 rounded-full bg-zinc-100 text-[12px]">Lock</button>
+                    {adminRole==="main"&&<button id="btnMerch" onClick={()=>setSubAdminTab("merch")} className={`h-9 px-5 rounded-full text-[13px] font-medium border ${subAdminTab==="merch"?"bg-black text-white border-black":"bg-white border-zinc-200"}`}>Merch ({merch.length})</button>}
+                    {adminRole==="sub"&&<span className="h-9 px-3 rounded-full bg-amber-100 border border-amber-200 text-[11px] flex items-center">Sub Access — Profiles Only</span>}
+                    <button onClick={()=>{setAdminUnlocked(false);setAdminRole(null);}} className="ml-auto h-9 px-4 rounded-full bg-zinc-100 text-[12px]">Lock ({adminRole})</button>
                   </div>
                   <div id="separatedContent">
                     {subAdminTab==="profiles"&&(
@@ -219,7 +221,7 @@ export default function App(){
                         <button onClick={()=>setShowAddProfile(true)} className="mt-4 w-full h-10 rounded-full bg-black text-white text-[13px]">+ Add New Profile to global amor</button>
                       </div>
                     )}
-                    {subAdminTab==="merch"&&(
+                    {subAdminTab==="merch"&&adminRole==="main"&&(
                       <div id="originalMerchWindow" className="bg-white rounded-[20px] border border-zinc-200 p-4">
                         <div className="flex items-center gap-2"><h3 className="font-bold text-[15px]">Merch — Full Management — global amor</h3><span className="text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 border">{merch.length} items • WhatsApp enabled</span></div>
                         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
