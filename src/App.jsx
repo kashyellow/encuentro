@@ -46,7 +46,7 @@ export default function App(){
         <div>encuentro / Global Amor</div>
         <div style={{display:"flex", gap:14}}>
           {["Discover","Wall","Matches","Admin","Shop"].map(t=>(
-            <span key={t} onClick={()=>setTab(t)} style={{cursor:"pointer", borderBottom: tab===t? "2px solid #FFD60A" : "none"}}>{t}</span>
+            <span key={t} onClick={()=>setTab(t)} style={{cursor:"pointer", borderBottom: tab===t ? "2px solid #FFD60A" : "none"}}>{t}</span>
           ))}
         </div>
       </nav>
@@ -58,7 +58,7 @@ export default function App(){
           <p style={{maxWidth:520, opacity:.7}}>Curated by Mamasota for Sosua sunsets, Medellin hikes, and Kingston nights. Tap the pill to preview the collection.</p>
           <div style={{display:"flex", gap:10, margin:"18px 0", flexWrap:"wrap"}}>
             {Object.keys(FLAGS).slice(0,6).map(c=>(
-              <button key={c} onClick={()=>setCountryFilter(c)} style={{padding:"8px 14px", borderRadius:99, border:"1.5px solid #111", background: countryFilter===c? "#111" : "white", color: countryFilter===c? "white" : "#111", fontWeight:600, cursor:"pointer"}}>
+              <button key={c} onClick={()=>setCountryFilter(c)} style={{padding:"8px 14px", borderRadius:99, border:"1.5px solid #111", background: countryFilter===c ? "#111" : "white", color: countryFilter===c ? "white" : "#111", fontWeight:600, cursor:"pointer"}}>
                 {getFlag(c)} {c}
               </button>
             ))}
@@ -97,7 +97,7 @@ export default function App(){
         </div>
       )}
 
-      {tab!== "Shop" && tab!== "Discover" && (
+      {tab !== "Shop" && tab !== "Discover" && (
         <div style={{padding:40, opacity:.6}}> {tab} view — coming from your Vercel build. Switch to Shop or Discover to see restored data.</div>
       )}
     </div>
