@@ -99,13 +99,7 @@ export default function App(){
     <div className="min-h-screen bg-[#fafafa] text-zinc-900">
       <style>{`.scrollbar-none::-webkit-scrollbar{display:none}.scrollbar-none{-ms-overflow-style:none;scrollbar-width:none}`}</style>
       
-      {/* Top black bar - global amor */}
-      <div className="bg-black text-white text-[11px] tracking-wide">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 min-h-[36px] py-2 flex items-center justify-between">
-          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span><span>global-amor.vercel.app • {profiles.length} members • community-owned marketplace</span></div>
-          <div className="text-zinc-300">EN / ES • Supabase synced</div>
-        </div>
-      </div>
+      {/* Top bar removed per user request - keep layout exactly same */}
 
       {/* Countries banner with flags - across top like before */}
       <div className="bg-zinc-900 text-white text-[11px] border-b border-zinc-800 overflow-hidden">
@@ -123,8 +117,7 @@ export default function App(){
       <div className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-zinc-200">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-[64px] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-bold">g</div>
-            <div><div className="font-bold tracking-tight leading-none">global amor</div><div className="text-[11px] text-zinc-500 -mt-0.5">{profiles.length} members • global</div></div>
+            <div><div className="font-bold tracking-tight leading-none">global amor</div></div>
           </div>
           <nav className="flex items-center gap-1.5 overflow-x-auto scrollbar-none max-w-full">
             {[{k:"discover",label:"Discover"},{k:"merch",label:"Community Merch"},{k:"wall",label:"Wall"},{k:"inbox",label:inboxUser?`Inbox (${Object.keys(chatMessages).length})`:"Inbox 🔒"},{k:"admin",label:"Admin"}].map(tab=>(
