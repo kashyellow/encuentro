@@ -99,9 +99,7 @@ export default function App(){
     <div className="min-h-screen bg-[#fafafa] text-zinc-900">
       <style>{`.scrollbar-none::-webkit-scrollbar{display:none}.scrollbar-none{-ms-overflow-style:none;scrollbar-width:none}`}</style>
       
-      {/* Top bar removed per user request - keep layout exactly same */}
-
-      {/* Countries banner with flags - across top like before */}
+      {/* Countries banner with flags - across top like before (yellow bar removed) */}
       <div className="bg-zinc-900 text-white text-[11px] border-b border-zinc-800 overflow-hidden">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-10 flex items-center gap-5 overflow-x-auto whitespace-nowrap scrollbar-none">
           {COUNTRIES.filter(c=>c!=="All Countries").map(c=>(
@@ -113,7 +111,7 @@ export default function App(){
         </div>
       </div>
 
-      {/* Header - global amor not encuentro */}
+      {/* Header - global amor (g + members removed per yellow request) */}
       <div className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-zinc-200">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-[64px] flex items-center justify-between">
           <div className="flex items-center gap-3">
