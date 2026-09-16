@@ -16,4 +16,4 @@ src/
     merch/MerchGrid.jsx
     wall/WallFeed.jsx
     inbox/InboxView.jsx
-    admin/AdminView.jsx
+    admin/Ad
