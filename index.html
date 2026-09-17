@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLOBAL AMOR - Travel Connect Belong - Premium Travel Dating</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<style>body{font-family:Inter,system-ui,sans-serif;background:#f6f6f6}</style>
+</head>
+<body class="min-h-screen text-black">
+<!-- Header - SAME LAYOUT -->
+<div class="bg-black text-white px-4 py-3 flex justify-between items-center sticky top-0 z-40">
+  <div>
+    <h1 class="font-extrabold text-[22px] tracking-tight leading-none">GLOBAL AMOR</h1>
+    <p class="text-[9px] tracking-[0.28em] opacity-70 mt-0.5">TRAVEL CONNECT BELONG</p>
+  </div>
+  <div class="flex gap-2 items-center">
+    <button id="btnEN" onclick="setLang('EN')" class="px-3 py-1 rounded-full text-xs border bg-white text-black border-white">EN</button>
+    <button id="btnES" onclick="setLang('ES')" class="px-3 py-1 rounded-full text-xs border border-white/30 text-white/70">ES</button>
+    <button id="btnSignOutHeader" onclick="handleSignOutClick()" class="text-xs ml-1 opacity-70 hidden sm:inline hover:opacity-100">Sign Out</button>
+  </div>
+</div>
+
+<!-- Tabs - SAME LOOK + Admin + Sign Out -->
+<div class="flex gap-2 px-3 py-3 overflow-x-auto bg-white border-b sticky top-[52px] z-30">
+  <button data-tab="Discover" onclick="switchTab('Discover')" class="tab px-4 py-2 rounded-full text-sm font-bold border bg-black text-white border-black whitespace-nowrap">Discover</button>
+  <button data-tab="Live" onclick="switchTab('Live')" class="tab px-4 py-2 rounded-full text-sm font-medium border bg-white text-black/60 whitespace-nowrap">Live</button>
+  <button data-tab="Community Merch" onclick="switchTab('Community Merch')" class="tab px-4 py-2 rounded-full text-sm font-medium border bg-white text-black/60 whitespace-nowrap">Community Merch</button>
+  <button data-tab="Inbox" onclick="switchTab('Inbox')" class="tab px-4 py-2 rounded-full text-sm font-medium border bg-white text-black/60 whitespace-nowrap">Inbox / Profile</button>
+  <button data-tab="Admin" id="tabAdminBtn" onclick="switchTab('Admin')" class="tab px-4 py-2 rounded-full text-sm font-medium border bg-white text-black/60 whitespace-nowrap">Admin</button>
+  <button onclick="handleSignOutClick()" class="tab px-4 py-2 rounded-full text-sm font-medium border bg-white text-black/60 whitespace-nowrap">Sign Out</button>
+</div>
+
+<!-- DISCOVER -->
+<div id="view-Discover" class="view p-3 space-y-3">
+  <div class="bg-white rounded-[20px] p-4">
+    <h2 id="discoverTitle" class="font-extrabold text-[18px]">Discover — Community Dating</h2>
+    <p id="discoverSub" class="text-sm opacity-60 mt-1">Connect with locals. Chat safely via WhatsApp.</p>
+    <div class="mt-3">
+      <div class="text-[11px] font-bold opacity-60 mb-1 tracking-widest">COUNTRIES</div>
+      <div class="flex gap-2 overflow-x-auto pb-2" id="countriesBanner"></div>
+    </div>
+    <!-- city filters removed per request -->
+  </div>
+  <div id="profilesGrid" class="space-y-3"></div>
+  <button onclick="switchTab('Live')" class="w-full text-center text-xs text-blue-600 mt-2" id="seeLiveBtn">→ See Live feed</button>
+</div>
+
+<!-- LIVE -->
+<div id="view-Live" class="view hidden p-3">
+  <h3 id="liveTitle" class="font-extrabold mb-2">Live — Community Feed with Photos</h3>
+  <div class="bg-white rounded-[20px] p-3 space-y-3">
+    <textarea id="liveText" placeholder="Share... what are you doing in Comuna 13?" class="w-full bg-[#f5f5f5] rounded-[14px] px-4 py-3 text-sm outline-none min-h-[48px] resize-none"></textarea>
+    <div class="flex items-center gap-2">
+      <label class="bg-[#eeeeee] rounded-full px-4 py-2 text-xs cursor-pointer">Choose File<input id="fileInput" type="file" multiple accept="image/*" class="hidden"></label>
+      <span id="fileCount" class="text-xs opacity-60"></span>
+    </div>
+    <div id="previewArea" class="hidden">
+      <div class="text-xs opacity-60 mb-1">Photos (<span id="previewCount">0</span>) — drag to reorder</div>
+      <div id="previewGrid" class="grid grid-cols-3 gap-2"></div>
+    </div>
+    <button onclick="postToLive()" class="w-full bg-black text-white rounded-full py-3 text-sm font-bold" id="postLiveBtn">Post to Live</button>
+  </div>
+  <div id="liveFeed" class="mt-3 space-y-3"></div>
+</div>
+
+<!-- COMMUNITY MERCH -->
+<div id="view-Community Merch" class="view hidden p-3">
+  <div class="bg-[#fff7d6] border border-[#f0d88a] rounded-xl p-3 text-xs mb-3">Disclaimer: Sales are directly between sellers and purchasers via WhatsApp. GLOBAL AMOR is not responsible.</div>
+  <div class="bg-white rounded-[20px] p-4 flex justify-between items-center">
+    <div><h2 class="font-extrabold text-lg" id="merchTitle">Community Merch</h2><p class="text-xs opacity-60" id="merchSub">WhatsApp checkout — community-owned.</p></div>
+    <button id="addMerchBtn" onclick="openMerchModal()" class="bg-black text-white rounded-full px-4 py-2 text-sm font-bold hidden">+ Add Merch</button>
+  </div>
+  <div id="merchGrid" class="grid grid-cols-2 gap-3 mt-3"></div>
+</div>
+
+<!-- INBOX / PROFILE -->
+<div id="view-Inbox" class="view hidden p-3">
+  <div class="bg-white rounded-[20px] p-6 text-center">
+    <h3 class="font-bold" id="inboxTitle">Inbox / Profile</h3>
+    <p class="text-xs opacity-60 mt-2">Verified check will be added later — selfie pose verification, no ID stored.</p>
+    <div id="roleBadge" class="mt-3 text-xs"></div>
+    <button onclick="alert('Verification flow coming later')" class="mt-4 border rounded-full px-4 py-2 text-xs">Get Verified (later)</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="view-Admin" class="view hidden p-3 space-y-3">
+  <div class="bg-white rounded-[20px] p-4">
+    <h2 class="font-extrabold text-lg">Admin Panel</h2>
+    <p class="text-xs opacity-60" id="adminSub">Admin: full access. Sub-Admin: merch + approve profiles only.</p>
+    <div id="adminLoginArea" class="mt-4 space-y-2">
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="loginAs('admin')" class="bg-black text-white rounded-full py-2 text-sm font-bold">Login as Admin</button>
+        <button onclick="loginAs('subadmin')" class="bg-white border border-black text-black rounded-full py-2 text-sm font-bold">Login as Sub-Admin</button>
+      </div>
+      <p class="text-[11px] opacity-50 text-center">Demo logins - no password needed for now. Replace with real auth later.</p>
+      <div class="text-xs mt-2 p-2 bg-gray-50 rounded">Current role: <span id="currentRoleText" class="font-bold">Guest</span></div>
+    </div>
+    <div id="adminActions" class="hidden mt-4">
+      <div class="text-xs p-2 bg-green-50 rounded">Logged in as <span id="loggedRole" class="font-bold"></span> <button onclick="signOut()" class="ml-2 underline">Sign Out</button></div>
+    </div>
+  </div>
+  <div class="bg-white rounded-[20px] p-4">
+    <h3 class="font-bold text-sm">Pending Profiles (approve / deny)</h3>
+    <p class="text-xs opacity-60">Only Admin & Sub-Admin can see this.</p>
+    <div id="pendingGrid" class="mt-3 space-y-3"></div>
+  </div>
+  <div class="bg-white rounded-[20px] p-4">
+    <h3 class="font-bold text-sm">Merch Management</h3>
+    <p class="text-xs opacity-60">Edit / delete only visible to Admin & Sub-Admin.</p>
+    <div id="adminMerchGrid" class="grid grid-cols-2 gap-3 mt-3"></div>
+  </div>
+</div>
+
+<!-- MERCH MODAL -->
+<div id="merchModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-[20px] w-full max-w-sm p-4 space-y-3 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center"><h3 id="modalTitle" class="font-bold">Add New Merch</h3><button onclick="closeMerchModal()" class="text-xl">×</button></div>
+    <input id="mTitle" placeholder="Product Title" class="w-full border rounded-full px-3 py-2 text-sm">
+    <input id="mPrice" placeholder="Price ($)" type="number" class="w-full border rounded-full px-3 py-2 text-sm">
+    <input id="mStock" placeholder="Stock Quantity - e.g. 15 units" type="number" class="w-full border rounded-full px-3 py-2 text-sm">
+    <input id="mSeller" placeholder="Seller Name" class="w-full border rounded-full px-3 py-2 text-sm">
+    <select id="mCity" class="w-full border rounded-full px-3 py-2 text-sm"><option>Medellín</option><option>Cartagena</option><option>Bogotá</option><option>Playa Blanca</option><option>Comuna 13</option></select>
+    <textarea id="mDesc" placeholder="Description" class="w-full border rounded-xl px-3 py-2 text-sm"></textarea>
+    <input id="mImage" type="file" accept="image/*" class="w-full text-xs">
+    <div id="mImagePreview" class="hidden w-full h-32 bg-gray-100 rounded-xl overflow-hidden"><img class="w-full h-full object-cover"></div>
+    <input id="mWhatsapp" placeholder="WhatsApp +57 300..." class="w-full border rounded-full px-3 py-2 text-sm">
+    <button onclick="saveMerch()" id="mSaveBtn" class="w-full bg-black text-white rounded-full py-3 text-sm font-bold">Save Merch</button>
+    <button onclick="closeMerchModal()" class="w-full text-xs opacity-60">Cancel</button>
+    <button id="mDeleteBtn" onclick="confirmDeleteMerch()" class="hidden w-full text-xs text-red-600 border border-red-200 rounded-full py-2">Delete this merch?</button>
+  </div>
+</div>
+
+<script>
+// --- Global Amor v15 - same layout, roles fixed ---
+const APP_VERSION='v15-global-amor-roles';
+if(localStorage.getItem('enc_version')!==APP_VERSION){localStorage.setItem('enc_version',APP_VERSION);}
+
+// --- ROLES ---
+let currentRole = localStorage.getItem('ga_role') || null; // 'admin' | 'subadmin' | null
+let currentLang = localStorage.getItem('ga_lang') || 'EN';
+let cityFilter='All', editingMerchId=null, pendingFiles=[]
+
+const cities=['All','Medellín','Cartagena','Bogotá','Playa Blanca','Comuna 13']
+
+let countryFilter='All';
+const countriesList=[
+  {name:'All', flag:'🌍'},
+  {name:'Switzerland', flag:'🇨🇭'},
+  {name:'Europe', flag:'🇪🇺'},
+  {name:'Dominican Republic', flag:'🇩🇴', label:'Jamaican Republic'},
+  {name:'Jamaica', flag:'🇯🇲'},
+  {name:'Panamá', flag:'🇵🇦'},
+  {name:'Costa Rica', flag:'🇨🇷'},
+  {name:'Brazil', flag:'🇧🇷'},
+  {name:'Venezuela', flag:'🇻🇪'},
+  {name:'Mexico', flag:'🇲🇽'},
+  {name:'El Salvador', flag:'🇸🇻'}
+];
+
+function renderCountries(){
+  const c=document.getElementById('countriesBanner'); if(!c) return; c.innerHTML='';
+  countriesList.forEach(ct=>{
+    const displayName = ct.label || ct.name;
+    const b=document.createElement('button');
+    b.innerHTML = `${ct.flag} ${displayName}`;
+    b.className = countryFilter===ct.name ? 'px-3 py-1.5 rounded-full text-xs border bg-black text-white whitespace-nowrap flex items-center gap-1' : 'px-3 py-1.5 rounded-full text-xs border bg-white whitespace-nowrap flex items-center gap-1';
+    b.onclick=()=>{countryFilter=ct.name; renderCountries(); renderProfiles();};
+    c.appendChild(b);
+  });
+}
+
+
+// Translations
+const I18N = {
+  EN: {
+    discoverTitle: "Discover — Community Dating",
+    discoverSub: "Connect with locals. Chat safely via WhatsApp.",
+    seeLive: "→ See Live feed",
+    liveTitle: "Live — Community Feed with Photos",
+    livePlaceholder: "Share... what are you doing in Comuna 13?",
+    postLive: "Post to Live",
+    merchTitle: "Community Merch",
+    merchSub: "WhatsApp checkout — community-owned.",
+    inboxTitle: "Inbox / Profile",
+    signOut: "Sign Out",
+    admin: "Admin",
+    signIn: "Sign In"
+  },
+  ES: {
+    discoverTitle: "Descubrir — Citas Comunitarias",
+    discoverSub: "Conéctate con locales. Chatea seguro por WhatsApp.",
+    seeLive: "→ Ver feed en vivo",
+    liveTitle: "En Vivo — Feed Comunitario con Fotos",
+    livePlaceholder: "Comparte... ¿qué haces en la Comuna 13?",
+    postLive: "Publicar",
+    merchTitle: "Merch Comunitario",
+    merchSub: "Compra por WhatsApp — de la comunidad.",
+    inboxTitle: "Bandeja / Perfil",
+    signOut: "Cerrar sesión",
+    admin: "Admin",
+    signIn: "Iniciar sesión"
+  }
+};
+
+function isAdmin(){ return currentRole==='admin'; }
+function isSubAdmin(){ return currentRole==='subadmin'; }
+function canEditMerch(){ return isAdmin() || isSubAdmin(); }
+function canApproveProfiles(){ return isAdmin() || isSubAdmin(); }
+
+function loginAs(role){
+  currentRole = role;
+  localStorage.setItem('ga_role', role);
+  updateAuthUI();
+  renderMerch();
+  renderAdmin();
+  renderProfiles();
+  alert('Logged in as ' + role);
+  switchTab('Admin');
+}
+function signOut(){
+  try{
+    currentRole = null;
+    localStorage.removeItem('ga_role');
+    updateAuthUI();
+    renderMerch();
+    renderAdmin();
+    renderProfiles();
+    // stay on same page - do NOT go to Discover
+  } catch(e){
+    console.error(e);
+    localStorage.clear();
+    location.reload();
+  }
+}
+
+function handleSignOutClick(){
+  if(!currentRole){
+    alert('You are already signed out');
+    return;
+  }
+  if(confirm('Sign out?')){
+    signOut();
+  }
+}
+
+function updateAuthUI(){
+  const roleText = currentRole ? currentRole.toUpperCase() : 'Guest';
+  document.getElementById('currentRoleText').textContent = roleText;
+  const badge = document.getElementById('roleBadge');
+  if(badge) badge.innerHTML = currentRole ? `<span class="bg-black text-white px-2 py-1 rounded-full">Role: ${roleText}</span>` : `<span class="opacity-60">Guest - no edit rights</span>`;
+  const loggedRole = document.getElementById('loggedRole');
+  if(loggedRole) loggedRole.textContent = roleText;
+  document.getElementById('adminLoginArea').classList.toggle('hidden', !!currentRole);
+  document.getElementById('adminActions').classList.toggle('hidden', !currentRole);
+  const addBtn = document.getElementById('addMerchBtn');
+  if(addBtn) addBtn.classList.toggle('hidden', !canEditMerch());
+  // header signout
+  const hdr = document.getElementById('btnSignOutHeader');
+  if(hdr) hdr.textContent = currentRole ? (I18N[currentLang].signOut + ' ('+roleText+')') : I18N[currentLang].signOut;
+}
+
+const profiles=[
+  {id:1,name:'Sofia',age:28,city:'Medellín',country:'Colombia',bio:'Walking tour in Comuna 13! Loves coffee and dancing ☕💃',photo:'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400',verified:true, whatsapp:'+57 300 123 4567'},
+  {id:2,name:'Maria L.',age:26,city:'Playa Blanca',country:'Colombia',bio:'Sunset lover, yoga 🧘‍♀️🌅',photo:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400',verified:true, whatsapp:'+57 301 222 3333'},
+  {id:3,name:'Carlos R.',age:30,city:'Comuna 13',country:'Colombia',bio:'Morning walks, mural art 🎨',photo:'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400',verified:false, whatsapp:'+57 302 444 5555'},
+  {id:4,name:'Isabella',age:27,city:'Cartagena',country:'Colombia',bio:'Beach, books & arepas',photo:'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400',verified:false, whatsapp:'+57 303 666 7777'},
+  {id:5,name:'Elena',age:26,city:'Zurich',country:'Switzerland',bio:'Love mountains & travel 🇨🇭',photo:'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400',verified:true, whatsapp:'+41 79 123 4567'},
+  {id:6,name:'Sophie',age:28,city:'Paris',country:'Europe',bio:'Exploring Europe, coffee lover 🇪🇺',photo:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',verified:true, whatsapp:'+33 6 12 34 56 78'},
+  {id:7,name:'Camila',age:25,city:'Santo Domingo',country:'Dominican Republic',bio:'Island vibes & beach sunsets 🇩🇴',photo:'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400',verified:true, whatsapp:'+1 809 123 4567'},
+  {id:8,name:'Shanice',age:24,city:'Kingston',country:'Jamaica',bio:'Reggae & good vibes 🇯🇲',photo:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400',verified:false, whatsapp:'+1 876 123 4567'},
+  {id:9,name:'Valeria',age:27,city:'Panama City',country:'Panamá',bio:'City life & casco viejo 🇵🇦',photo:'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400',verified:true, whatsapp:'+507 6123 4567'},
+  {id:10,name:'Lucia',age:26,city:'San José',country:'Costa Rica',bio:'Pura vida & nature 🇨🇷',photo:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',verified:true, whatsapp:'+506 6123 4567'},
+  {id:11,name:'Isabela B.',age:28,city:'Rio',country:'Brazil',bio:'Beach & samba 🇧🇷',photo:'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400',verified:false, whatsapp:'+55 11 91234 5678'},
+  {id:12,name:'Mariana',age:25,city:'Caracas',country:'Venezuela',bio:'Arepas & Avila 🇻🇪',photo:'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400',verified:true, whatsapp:'+58 412 123 4567'},
+  {id:13,name:'Sofia M.',age:27,city:'CDMX',country:'Mexico',bio:'Tacos & travel 🇲🇽',photo:'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400',verified:true, whatsapp:'+52 55 1234 5678'},
+  {id:14,name:'Gabriela',age:24,city:'San Salvador',country:'El Salvador',bio:'Volcanes & pupusas 🇸🇻',photo:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',verified:false, whatsapp:'+503 6123 4567'},
+]
+
+let pendingProfiles = JSON.parse(localStorage.getItem('ga_pending')||'null') || [
+  {id:101,name:'Valentina',age:24,city:'Bogotá',bio:'New in town, loves coffee tours',photo:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400', whatsapp:'+57 304 888 9999'},
+  {id:102,name:'Diego',age:29,city:'Medellín',bio:'Photographer exploring Comuna 13',photo:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400', whatsapp:'+57 305 000 1111'}
+];
+
+let livePosts=JSON.parse(localStorage.getItem('enc_live')||'null')||[
+  {id:'a',name:'Maria L.',time:'15m ago',text:'Sunset at Playa Blanca, stunning view today 🌊',textES:'Puesta de sol en Playa Blanca, vista impresionante hoy 🌊',images:['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600']},
+  {id:'b',name:'Carlos R.',time:'1h ago',text:'Morning walk in Comuna 13 - murals are amazing!',textES:'Caminata matutina en Comuna 13 - ¡los murales son increíbles!',images:['https://images.unsplash.com/photo-1514924013411-cbf25faa35bb?w=600']}
+]
+let merchItems=JSON.parse(localStorage.getItem('enc_merch')||'null')||[
+  {id:'m1',title:'Global amor',price:28,seller:'Sofia',city:'Medellín',desc:'Organic cotton tee - Global amor edition.',image:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500',whatsapp:'+57 300 123 4567',stock:15},
+  {id:'m2',title:'Community Tote',price:22,seller:'Isabella',city:'Cartagena',desc:'Hand-woven tote.',image:'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=500',whatsapp:'+57 301 111 2222',stock:8},
+  {id:'m3',title:'GLOBAL AMOR Hoodie - Black',price:32,seller:'Mateo',city:'Bogotá',desc:'Heavyweight hoodie.',image:'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500',whatsapp:'+57 302 333 4444',stock:12},
+]
+
+function saveLocal(){localStorage.setItem('enc_live',JSON.stringify(livePosts));localStorage.setItem('enc_merch',JSON.stringify(merchItems));localStorage.setItem('ga_pending',JSON.stringify(pendingProfiles))}
+
+function setLang(l){
+  currentLang=l;
+  localStorage.setItem('ga_lang', l);
+  // update buttons
+  document.getElementById('btnEN').className = l==='EN' ? 'px-3 py-1 rounded-full text-xs border bg-white text-black border-white' : 'px-3 py-1 rounded-full text-xs border border-white/30 text-white/70';
+  document.getElementById('btnES').className = l==='ES' ? 'px-3 py-1 rounded-full text-xs border bg-white text-black border-white' : 'px-3 py-1 rounded-full text-xs border border-white/30 text-white/70';
+  // translate static texts
+  const t = I18N[l];
+  document.getElementById('discoverTitle').textContent = t.discoverTitle;
+  document.getElementById('discoverSub').textContent = t.discoverSub;
+  document.getElementById('seeLiveBtn').textContent = t.seeLive;
+  document.getElementById('liveTitle').textContent = t.liveTitle;
+  document.getElementById('liveText').placeholder = t.livePlaceholder;
+  document.getElementById('postLiveBtn').textContent = t.postLive;
+  document.getElementById('merchTitle').textContent = t.merchTitle;
+  document.getElementById('merchSub').textContent = t.merchSub;
+  document.getElementById('inboxTitle').textContent = t.inboxTitle;
+  // re-render dynamic lists
+  renderCountries(); renderProfiles();
+  renderLive();
+  renderMerch();
+  renderAdmin();
+  updateAuthUI();
+}
+
+function switchTab(t){
+  // hide all views
+  document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'))
+  const view = document.getElementById('view-'+t);
+  if(view) view.classList.remove('hidden');
+  // reset all tabs
+  document.querySelectorAll('.tab').forEach(b=>{
+    b.className='tab px-4 py-2 rounded-full text-sm font-medium border bg-white text-black/60 whitespace-nowrap'
+  })
+  // set active
+  const activeBtn = document.querySelector(`[data-tab="${t}"]`);
+  if(activeBtn) activeBtn.className='tab px-4 py-2 rounded-full text-sm font-bold border bg-black text-white border-black whitespace-nowrap';
+}
+
+function handleSignOutClick(){
+  // direct sign out - does not try to open a view
+  signOut();
+}
+
+function switchTabAndCleanup(t){
+  switchTab(t);
+}
+
+
+function renderCities(){
+  const c=document.getElementById('cityFilters'); if(!c) return; c.innerHTML='';
+  cities.forEach(city=>{
+    const b=document.createElement('button'); b.textContent=city; b.className=cityFilter===city?'px-3 py-1 rounded-full text-xs border bg-black text-white whitespace-nowrap':'px-3 py-1 rounded-full text-xs border bg-white whitespace-nowrap'; b.onclick=()=>{cityFilter=city; renderProfiles(); renderCities()}; c.appendChild(b)
+  })
+}
+
+function renderProfiles(){
+  const g=document.getElementById('profilesGrid'); if(!g) return; g.innerHTML='';
+  profiles.filter(p=>{
+    const cityMatch = cityFilter==='All'||p.city===cityFilter;
+    const countryMatch = countryFilter==='All'||p.country===countryFilter|| (countryFilter==='Dominican Republic' && p.country==='Dominican Republic');
+    return cityMatch && countryMatch;
+  }).forEach(p=>{
+    g.innerHTML+=`<div class="bg-white rounded-[20px] p-4 flex gap-4 items-center">
+      <img src="${p.photo}" class="w-20 h-20 rounded-full object-cover">
+      <div class="flex-1">
+        <div class="font-bold flex items-center gap-1">${p.name} ${p.verified?'<span class="text-blue-500 text-[14px]">✔️</span>':''} <span class="font-normal text-sm opacity-60">${p.age} · ${p.city}</span></div>
+        <div class="text-sm mt-1">${p.bio}</div>
+        <div class="flex gap-2 mt-3">
+          <button class="w-full border border-pink-300 text-pink-600 rounded-full py-2 text-sm">♡ Heart</button>
+        </div>
+      </div></div>`
+  })
+  if(g.innerHTML===''){
+    g.innerHTML='<div class="bg-white rounded-[20px] p-4 text-center text-sm opacity-60">No profiles for this country yet.</div>';
+  }
+}
+
+function chatWith(whatsapp){
+  const num = (whatsapp||'').replace(/[^0-9]/g,'');
+  if(num) window.open('https://wa.me/'+num,'_blank');
+  else alert('WhatsApp not available');
+}
+
+function renderPending(){
+  const g=document.getElementById('pendingGrid'); if(!g) return; g.innerHTML='';
+  if(!canApproveProfiles()){
+    g.innerHTML='<div class="text-xs opacity-60 p-3 border rounded-xl">Login as Admin or Sub-Admin to approve profiles.</div>';
+    return;
+  }
+  if(pendingProfiles.length===0){
+    g.innerHTML='<div class="text-xs opacity-60">No pending profiles.</div>';
+    return;
+  }
+  pendingProfiles.forEach(p=>{
+    g.innerHTML+=`<div class="border rounded-xl p-3 flex gap-3 items-center">
+      <img src="${p.photo}" class="w-14 h-14 rounded-full object-cover">
+      <div class="flex-1"><div class="font-bold text-sm">${p.name} · ${p.age} · ${p.city}</div><div class="text-xs opacity-60">${p.bio}</div></div>
+      <div class="flex flex-col gap-1">
+        <button onclick="approveProfile(${p.id})" class="bg-black text-white rounded-full px-3 py-1 text-xs">Approve</button>
+        <button onclick="denyProfile(${p.id})" class="bg-white border rounded-full px-3 py-1 text-xs">Deny</button>
+      </div>
+    </div>`
+  })
+}
+
+function approveProfile(id){
+  if(!canApproveProfiles()) return alert('Not authorized');
+  const idx = pendingProfiles.findIndex(p=>p.id===id);
+  if(idx>-1){
+    const p = pendingProfiles[idx];
+    profiles.unshift({...p, verified:false});
+    pendingProfiles.splice(idx,1);
+    saveLocal(); renderProfiles(); renderPending();
+  }
+}
+function denyProfile(id){
+  if(!canApproveProfiles()) return alert('Not authorized');
+  pendingProfiles = pendingProfiles.filter(p=>p.id!==id);
+  saveLocal(); renderPending();
+}
+
+// Live
+const fileInput=document.getElementById('fileInput')
+if(fileInput){
+  fileInput.addEventListener('change',e=>{
+    pendingFiles=[...pendingFiles, ...Array.from(e.target.files)]
+    renderPreviews()
+  })
+}
+function renderPreviews(){
+  const area=document.getElementById('previewArea'), grid=document.getElementById('previewGrid'), count=document.getElementById('previewCount'), fcount=document.getElementById('fileCount')
+  if(!area) return;
+  if(pendingFiles.length===0){area.classList.add('hidden'); if(fcount) fcount.textContent=''; return}
+  area.classList.remove('hidden'); if(count) count.textContent=pendingFiles.length; if(fcount) fcount.textContent=pendingFiles.length+' selected'; grid.innerHTML=''
+  pendingFiles.forEach((file,i)=>{
+    const url=URL.createObjectURL(file)
+    const div=document.createElement('div'); div.className='relative w-full h-20 bg-gray-100 rounded-xl overflow-hidden'; div.draggable=true; div.dataset.index=i
+    div.innerHTML=`<img src="${url}" class="w-full h-full object-cover"><button onclick="removeFile(${i})" class="absolute top-1 right-1 bg-black text-white rounded-full w-5 h-5 text-[10px]">×</button><span class="absolute bottom-1 left-1/2 -translate-x-1/2 bg-black/60 text-white text-[8px] px-1 rounded">⋮⋮ drag</span>`
+    div.addEventListener('dragstart',e=>e.dataTransfer.setData('i',i))
+    div.addEventListener('dragover',e=>e.preventDefault())
+    div.addEventListener('drop',e=>{const from=e.dataTransfer.getData('i'), to=i; const arr=[...pendingFiles]; const [m]=arr.splice(from,1); arr.splice(to,0,m); pendingFiles=arr; renderPreviews()})
+    grid.appendChild(div)
+  })
+}
+function removeFile(i){pendingFiles.splice(i,1); renderPreviews()}
+function postToLive(){
+  const text=document.getElementById('liveText').value.trim()
+  if(!text && pendingFiles.length===0) return alert('Add text or photo')
+  const images=pendingFiles.map(f=>URL.createObjectURL(f))
+  livePosts.unshift({id:Date.now(),name:'You',time:'now',text:text||'Hi',textES:text||'Hola',images})
+  saveLocal(); document.getElementById('liveText').value=''; pendingFiles=[]; renderPreviews(); renderLive()
+}
+function renderLive(){
+  const feed=document.getElementById('liveFeed'); if(!feed) return; feed.innerHTML=''
+  livePosts.forEach(p=>{
+    feed.innerHTML+=`<div class="bg-white rounded-[20px] p-3">
+      <div class="font-bold text-sm">${p.name} · ${p.time}</div>
+      <div class="text-sm mt-1">${currentLang==='EN'?p.text:p.textES||p.text}</div>
+      ${currentLang==='EN'&&p.textES?`<div class="text-[11px] opacity-50 italic mt-1">ES: ${p.textES}</div>`:''}
+      ${p.images?`<div class="grid grid-cols-3 gap-2 mt-2">${p.images.map(im=>`<img src="${im}" class="rounded-xl w-full h-20 object-cover">`).join('')}</div>`:''}
+    </div>`
+  })
+}
+
+function renderMerch(){
+  const g=document.getElementById('merchGrid'); if(g){
+    g.innerHTML=''
+    merchItems.forEach(item=>{
+      const canEdit = canEditMerch();
+      g.innerHTML+=`<div class="bg-white rounded-[20px] overflow-hidden">
+        <div class="relative"><img src="${item.image}" class="w-full h-40 object-cover">${canEdit?`<button onclick="editMerch('${item.id}')" class="absolute top-2 right-2 bg-white rounded-full w-7 h-7 text-xs shadow">✏️</button><button onclick="deleteMerch('${item.id}')" class="absolute top-10 right-2 bg-white rounded-full w-7 h-7 text-xs shadow">🗑️</button>`:''}</div>
+        <div class="p-3"><div class="font-bold text-sm">${item.title}</div><div class="text-xs opacity-60">$${item.price} · ${item.seller} · ${item.city} · ${item.stock||0} units</div><div class="text-xs mt-1">${item.desc}</div><a href="https://wa.me/${(item.whatsapp||'').replace(/[^0-9]/g,'')}" target="_blank" class="block text-center w-full mt-2 bg-green-500 text-white rounded-full py-2 text-xs">Buy via WhatsApp</a></div>
+      </div>`
+    })
+  }
+  // admin merch grid (always shows edit if authorized)
+  const ag=document.getElementById('adminMerchGrid');
+  if(ag){
+    ag.innerHTML='';
+    if(!canEditMerch()){
+      ag.innerHTML='<div class="text-xs opacity-60 p-2 border rounded">Login as Admin/Sub-Admin to edit merch.</div>';
+    } else {
+      merchItems.forEach(item=>{
+        ag.innerHTML+=`<div class="bg-white border rounded-[16px] overflow-hidden"><img src="${item.image}" class="w-full h-28 object-cover"><div class="p-2"><div class="font-bold text-xs">${item.title}</div><div class="flex gap-1 mt-2"><button onclick="editMerch('${item.id}')" class="flex-1 bg-black text-white rounded-full py-1 text-[11px]">Edit</button><button onclick="deleteMerch('${item.id}')" class="flex-1 border rounded-full py-1 text-[11px]">Delete</button></div></div></div>`
+      })
+    }
+  }
+}
+
+function renderAdmin(){
+  renderPending();
+}
+
+function openMerchModal(id=null){
+  if(!canEditMerch()){ alert('Only Admin / Sub-Admin can add/edit merch. Go to Admin tab and login.'); switchTab('Admin'); return; }
+  editingMerchId=id; const modal=document.getElementById('merchModal'); modal.classList.remove('hidden'); modal.classList.add('flex')
+  if(id){
+    const it=merchItems.find(m=>m.id===id); document.getElementById('modalTitle').textContent='Edit Merch'; document.getElementById('mTitle').value=it.title; document.getElementById('mPrice').value=it.price; document.getElementById('mStock').value=it.stock||''; document.getElementById('mSeller').value=it.seller; document.getElementById('mCity').value=it.city; document.getElementById('mDesc').value=it.desc; document.getElementById('mWhatsapp').value=it.whatsapp; document.getElementById('mSaveBtn').textContent='Update Merch'; document.getElementById('mDeleteBtn').classList.remove('hidden')
+  } else {document.getElementById('modalTitle').textContent='Add New Merch'; ['mTitle','mPrice','mStock','mSeller','mDesc','mWhatsapp'].forEach(id=>document.getElementById(id).value=''); document.getElementById('mSaveBtn').textContent='Save Merch'; document.getElementById('mDeleteBtn').classList.add('hidden'); document.getElementById('mImagePreview').classList.add('hidden')}
+}
+function closeMerchModal(){document.getElementById('merchModal').classList.add('hidden'); editingMerchId=null}
+function saveMerch(){
+  if(!canEditMerch()) return alert('Not authorized');
+  const title=document.getElementById('mTitle').value.trim(), price=parseFloat(document.getElementById('mPrice').value), stock=parseInt(document.getElementById('mStock').value)||0, seller=document.getElementById('mSeller').value.trim(), city=document.getElementById('mCity').value, desc=document.getElementById('mDesc').value.trim(), whatsapp=document.getElementById('mWhatsapp').value.trim()
+  const file=document.getElementById('mImage').files[0]; let imageUrl=null
+  if(file) imageUrl=URL.createObjectURL(file)
+  if(!title||!price) return alert('Title and price required')
+  if(editingMerchId){
+    const it=merchItems.find(m=>m.id===editingMerchId); it.title=title; it.price=price; it.stock=stock; it.seller=seller; it.city=city; it.desc=desc; it.whatsapp=whatsapp; if(imageUrl) it.image=imageUrl
+  } else {
+    merchItems.unshift({id:Date.now().toString(),title,price,stock,seller,city,desc,image:imageUrl||'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500',whatsapp})
+  }
+  saveLocal(); renderMerch(); closeMerchModal()
+}
+function editMerch(id){openMerchModal(id)}
+function deleteMerch(id){if(!canEditMerch()) return; if(confirm('Delete this merch? This cannot be undone.')){merchItems=merchItems.filter(m=>m.id!==id); saveLocal(); renderMerch()}}
+function confirmDeleteMerch(){if(editingMerchId){ if(confirm('Delete this merch?')){merchItems=merchItems.filter(m=>m.id!==editingMerchId); saveLocal(); renderMerch(); closeMerchModal()}}}
+
+// Init
+setLang(currentLang);
+updateAuthUI();
+renderCountries(); renderProfiles(); renderLive(); renderMerch(); renderAdmin();
+document.getElementById('mImage').addEventListener('change',e=>{const f=e.target.files[0]; if(!f) return; const p=document.getElementById('mImagePreview'); p.classList.remove('hidden'); p.querySelector('img').src=URL.createObjectURL(f)})
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
