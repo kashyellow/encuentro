@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Global Amor - Travel. Connect. Belong.</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial}
+body{background:#fff;color:#111}
+header{background:#000;color:#fff;padding:14px 16px;position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:18px;letter-spacing:.5px}
+nav{display:flex;gap:8px;overflow-x:auto;padding:10px;background:#f5f5f5;border-bottom:1px solid #ddd}
+nav button{border:1px solid #000;background:#fff;padding:8px 14px;border-radius:999px;white-space:nowrap;cursor:pointer}
+nav button.active{background:#000;color:#fff}
+section{padding:16px;max-width:900px;margin:0 auto}
+.card{border:1px solid #ddd;border-radius:14px;padding:12px;margin-bottom:12px}
+.card img{width:100%;border-radius:10px;max-height:320px;object-fit:cover}
+.btn{width:100%;background:#000;color:#fff;border:0;padding:12px;border-radius:10px;margin-top:8px;cursor:pointer}
+input,textarea,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;margin:6px 0}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
+.filters button{padding:6px 12px;border-radius:999px;border:1px solid #ccc;background:#fff;white-space:nowrap}
+.filters button.active{background:#000;color:#fff;border-color:#000}
+#status{padding:8px;background:#fff3cd;border:1px solid #ffe69c;border-radius:8px;margin-bottom:12px;font-size:13px;display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>Global Amor</h1>
+  <span style="font-size:12px;opacity:.8">Travel. Connect. Belong.</span>
+</header>
+<nav>
+  <button id="tab-discover" class="active" onclick="showTab('discover')">Discover</button>
+  <button id="tab-live" onclick="showTab('live')">Live</button>
+  <button id="tab-merch" onclick="showTab('merch')">Community Merch</button>
+  <button id="tab-wall" onclick="showTab('wall')">Wall</button>
+  <button id="tab-inbox" onclick="showTab('inbox')">Inbox</button>
+  <button id="tab-admin" onclick="showTab('admin')">Admin</button>
+</nav>
+
+<section id="view-discover">
+  <div id="status"></div>
+  <h3>Discover</h3>
+  <div class="filters" id="countryFilters"></div>
+  <div id="profiles"></div>
+  <hr style="margin:18px 0"/>
+  <h4>Create Profile (no email needed)</h4>
+  <input id="pName" placeholder="Name"/>
+  <input id="pAge" placeholder="Age" type="number"/>
+  <select id="pCountry"></select>
+  <input id="pCity" placeholder="City"/>
+  <textarea id="pBio" placeholder="Bio"></textarea>
+  <input id="pPhoto" placeholder="Photo URL (or leave blank)"/>
+  <input id="pPass" placeholder="Create inbox password" type="password"/>
+  <button class="btn" onclick="createProfile()">Create & Log In</button>
+  <p style="font-size:12px;color:#666;margin-top:6px">New profiles go to Pending until admin approves with kashyellow5844</p>
+</section>
+
+<section id="view-live" style="display:none">
+  <h2>Global Amor - Live</h2>
+  <div style="margin-top:12px">
+    <input type="file" id="liveFile" accept="image/*,video/*"/>
+    <textarea id="liveText" placeholder="Write something..."></textarea>
+    <button class="btn" onclick="postLive()">Post Live For Everyone</button>
+  </div>
+  <hr style="margin:16px 0"/>
+  <div id="liveFeed">Loading...</div>
+</section>
+
+<section id="view-merch" style="display:none"><h3>Community Merch</h3><div id="merchList">Loading merch...</div></section>
+<section id="view-wall" style="display:none"><h3>Wall</h3><div id="wallFeed">Loading...</div></section>
+<section id="view-inbox" style="display:none"><h3>Inbox</h3><div id="inboxList">Login to see messages. Create profile first.</div></section>
+<section id="view-admin" style="display:none">
+  <h3>Admin</h3>
+  <input id="adminPass" placeholder="Admin password" type="password"/>
+  <button class="btn" onclick="adminLogin()">Unlock</button>
+  <div id="adminPanel" style="display:none;margin-top:12px">
+    <h4>Pending Profiles</h4><div id="pending"></div>
+    <h4 style="margin-top:12px">All Profiles</h4><div id="allProfilesAdmin"></div>
+  </div>
+</section>
+
+<script>
+const SUPABASE_URL = "https://tnraadzmmexdbcpzyajwf.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRucmFhZHptbWVxZGJjcHp5andmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyOTA1MzAsImV4cCI6MjEwNDg2NjUzMH0.N8QeAG3I08Sn-93Oqg0MCY9TUaehwND0kNjPHOBMu-o";
+const ADMIN_PASSWORDS = ["kashyellow5844","shawn123","merch2024","community2024"];
+
+let supabaseClient = null;
+let isSupabase = false;
+let currentUser = JSON.parse(localStorage.getItem('ga_user')||'null');
+let activeCountry = 'All';
+const COUNTRIES = ["All Countries","Colombia","Dominican Republic","Japan","Switzerland","Europe","Panama","Thailand","Brazil","Costa Rica","Mexico"];
+
+function init(){
+  document.getElementById('pCountry').innerHTML = COUNTRIES.filter(c=>c!=='All Countries').map(c=>`<option>${c}</option>`).join('');
+  document.getElementById('countryFilters').innerHTML = COUNTRIES.map(c=>`<button class="${c===activeCountry?'active':''}" onclick="filterCountry('${c}')">${c}</button>`).join('');
+  try{
+    if(SUPABASE_URL.includes("YOUR_PROJECT")){
+      showStatus("Supabase not configured yet - using local mode.",true);
+      isSupabase = false;
+    } else {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      isSupabase = true;
+      showStatus("Connected to Supabase - data saves for everyone.",false);
+    }
+  }catch(e){ showStatus("Supabase init failed, using local mode: "+e.message,true); isSupabase=false; }
+  loadProfiles(); loadLive(); loadWall(); loadMerch();
+}
+function showStatus(msg,isWarn){
+  const el=document.getElementById('status'); el.style.display='block'; el.textContent=msg;
+  el.style.background=isWarn?'#fff3cd':'#d1e7dd'; el.style.borderColor=isWarn?'#ffe69c':'#a3cfbb';
+}
+function showTab(t){
+  document.querySelectorAll('section').forEach(s=>s.style.display='none');
+  document.getElementById('view-'+t).style.display='block';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='live') loadLive(); if(t==='discover') loadProfiles(); if(t==='wall') loadWall();
+}
+function filterCountry(c){ activeCountry=c; document.getElementById('countryFilters').innerHTML = COUNTRIES.map(x=>`<button class="${x===activeCountry?'active':''}" onclick="filterCountry('${x}')">${x}</button>`).join(''); loadProfiles(); }
+
+async function loadProfiles(){
+  const container=document.getElementById('profiles'); container.innerHTML='Loading profiles...';
+  let data=[];
+  if(isSupabase){
+    const {data:d, error} = await supabaseClient.from('profiles').select('*').eq('status','approved').order('created_at',{ascending:false});
+    if(error){ container.innerHTML='Supabase error: '+error.message+'<br>Check RLS policies.'; return; }
+    data=d;
+  } else {
+    data=JSON.parse(localStorage.getItem('ga_profiles')||'[]').filter(p=>p.status==='approved');
+    if(data.length===0){ data=[{name:"Sofia, 27",country:"Colombia",city:"Medellin",bio:"Love travel and coffee",photo:"",status:"approved"},{name:"Isabella, 25",country:"Brazil",city:"Rio",bio:"Beach and culture",photo:"",status:"approved"}]; }
+  }
+  let filtered = activeCountry==='All' || activeCountry==='All Countries' ? data : data.filter(p=>p.country===activeCountry || (activeCountry==='Europe' && ["Switzerland"].includes(p.country)));
+  container.innerHTML = filtered.map(p=>`
+    <div class="card">
+      ${p.photo?`<img src="${p.photo}"/>`:''}
+      <b>${p.name}</b> - ${p.country||''} ${p.city?','+p.city:''}<br/>
+      <small>${p.bio||''}</small><br/>
+      <button class="btn" onclick="messageUser('${p.id||p.name}')">Message</button>
+    </div>
+  `).join('') || 'No profiles in this country yet.';
+}
+async function createProfile(){
+  const name=document.getElementById('pName').value.trim();
+  const age=document.getElementById('pAge').value.trim();
+  const country=document.getElementById('pCountry').value;
+  const city=document.getElementById('pCity').value.trim();
+  const bio=document.getElementById('pBio').value.trim();
+  const photo=document.getElementById('pPhoto').value.trim();
+  const pass=document.getElementById('pPass').value.trim();
+  if(!name||!pass){ alert('Add name + inbox password'); return; }
+  const profile={name: age? `${name}, ${age}`: name, country, city, bio, photo, status:'pending', password:pass};
+  if(isSupabase){
+    const {data,error}=await supabaseClient.from('profiles').insert(profile).select().single();
+    if(error){ alert('Supabase insert failed: '+error.message); return; }
+    alert('Profile created! Status: pending. Admin will approve with kashyellow5844. ID: '+data.id);
+    localStorage.setItem('ga_user', JSON.stringify(data));
+  } else {
+    profile.id=Date.now().toString(); let arr=JSON.parse(localStorage.getItem('ga_profiles')||'[]'); arr.push(profile); localStorage.setItem('ga_profiles', JSON.stringify(arr)); localStorage.setItem('ga_user', JSON.stringify(profile));
+    alert('Created (local mode) - pending approval');
+  }
+  showTab('discover'); loadProfiles();
+}
+function messageUser(id){ alert('Inbox - login with your inbox password. Message to: '+id); showTab('inbox'); }
+
+async function loadLive(){
+  const feed=document.getElementById('liveFeed'); feed.innerHTML='Loading...';
+  if(isSupabase){
+    const {data,error}=await supabaseClient.from('wall_posts').select('*').order('created_at',{ascending:false}).limit(20);
+    if(error){ feed.innerHTML='Supabase error: '+error.message+' - check you created wall_posts table + RLS allow all policy.'; return; }
+    feed.innerHTML = (data||[]).map(p=>`<div class="card"><b>Live</b><br/>${p.text||''}<br/><small>${new Date(p.created_at).toLocaleString()}</small></div>`).join('') || 'No live posts yet. Be first!';
+  } else {
+    let posts=JSON.parse(localStorage.getItem('ga_live')||'[]'); feed.innerHTML = posts.map(p=>`<div class="card">${p.text}<br/><small>${p.time}</small></div>`).join('') || 'No live posts yet (local mode).';
+  }
+}
+async function postLive(){
+  const text=document.getElementById('liveText').value.trim(); if(!text){ alert('Write something'); return; }
+  if(isSupabase){
+    const user=JSON.parse(localStorage.getItem('ga_user')||'null');
+    const {error}=await supabaseClient.from('wall_posts').insert({text, profile_id:user?.id||null});
+    if(error){ alert('Post failed: '+error.message); return; }
+  } else {
+    let arr=JSON.parse(localStorage.getItem('ga_live')||'[]'); arr.unshift({text,time:new Date().toLocaleString()}); localStorage.setItem('ga_live', JSON.stringify(arr));
+  }
+  document.getElementById('liveText').value=''; loadLive();
+}
+
+async function loadWall(){ 
+  const el=document.getElementById('wallFeed'); if(isSupabase){ const {data}=await supabaseClient.from('wall_posts').select('*').order('created_at',{ascending:false}).limit(20); el.innerHTML=(data||[]).map(p=>`<div class="card">${p.text}</div>`).join('')||'No wall posts'; } else el.innerHTML='Wall (local mode)';
+}
+async function loadMerch(){ document.getElementById('merchList').innerHTML='Merch coming soon - add merch table in Supabase'; }
+async function adminLogin(){
+  const pw=document.getElementById('adminPass').value.trim();
+  if(!ADMIN_PASSWORDS.includes(pw)){ alert('Incorrect password'); return; }
+  document.getElementById('adminPanel').style.display='block';
+  if(isSupabase){
+    const {data:pending}=await supabaseClient.from('profiles').select('*').eq('status','pending');
+    const {data:all}=await supabaseClient.from('profiles').select('*');
+    document.getElementById('pending').innerHTML=(pending||[]).map(p=>`<div class="card">${p.name} - ${p.country} <button onclick="approveProfile('${p.id}')">Approve</button></div>`).join('')||'No pending';
+    document.getElementById('allProfilesAdmin').innerHTML=(all||[]).map(p=>`<div class="card">${p.name} (${p.status})</div>`).join('');
+  } else {
+    let arr=JSON.parse(localStorage.getItem('ga_profiles')||'[]'); document.getElementById('pending').innerHTML=arr.filter(p=>p.status==='pending').map(p=>`<div class="card">${p.name} <button onclick="approveLocal('${p.id}')">Approve</button></div>`).join('')||'No pending (local)';
+    document.getElementById('allProfilesAdmin').innerHTML=arr.map(p=>`<div class="card">${p.name}</div>`).join('');
+  }
+}
+async function approveProfile(id){ const {error}=await supabaseClient.from('profiles').update({status:'approved'}).eq('id',id); if(error) alert(error.message); else { alert('Approved'); adminLogin(); loadProfiles(); } }
+function approveLocal(id){ let arr=JSON.parse(localStorage.getItem('ga_profiles')||'[]'); arr=arr.map(p=>p.id===id?{...p,status:'approved'}:p); localStorage.setItem('ga_profiles', JSON.stringify(arr)); adminLogin(); loadProfiles(); }
+
+init();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
