@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global Amor - Real Connections</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="importmap">{"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/+esm"}}</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+ body{font-family:Inter,system-ui,sans-serif}
+ .serif{font-family:'Playfair Display',serif}
+ .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+</style>
+
+<style>
+/* MOBILE FIX - prevent horizontal clipping seen in screenshots */
+@media (max-width: 640px){
+  body{ overflow-x:hidden; }
+  #discover-grid{ grid-template-columns: 1fr !important; padding-left:0; padding-right:0; }
+  .flag-btn{ flex-shrink:0; }
+  #country-filter{ padding-left:16px; padding-right:16px; margin-left:-16px; margin-right:-16px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .max-w-\[1100px\]{ padding-left:16px !important; padding-right:16px !important; }
+  /* Fix the banner card that was cut off */
+  .bg-\[\#ffe4e6\], .bg-pink-50, .bg-\[\#fff0f3\]{ margin-left:0 !important; margin-right:0 !important; max-width:100% !important; }
+}
+#discover-grid{ gap:20px; }
+#country-filter{ scrollbar-width:none; -ms-overflow-style:none; }
+#country-filter::-webkit-scrollbar{ display:none; }
+</style>
+
+</head>
+<body class="bg-[#fafaf9] text-zinc-900 min-h-screen">
+<!-- 18+ GATE - from proper layout -->
+<div id="gate" class="fixed inset-0 z-[100] bg-[#fafaf9] flex items-center justify-center p-4">
+  <div class="max-w-[440px] w-full bg-white rounded-[24px] border border-zinc-200 p-8 text-center">
+    <div class="h-12 w-12 rounded-full bg-black text-white flex items-center justify-center font-bold mx-auto mb-4">G</div>
+    <h1 class="serif text-[26px] font-bold tracking-tight leading-[0.95]">Global Amor</h1>
+    <p class="text-[12px] tracking-widest uppercase text-zinc-500 mt-2">18+ Verified • Community Marketplace • Private Inbox</p>
+    <div class="mt-6 text-left bg-zinc-50 rounded-[16px] p-4 text-[12px] leading-5 text-zinc-600">
+      <p class="font-semibold text-zinc-900">Global Amor is 18+ only.</p>
+      <p class="mt-1">By using Global Amor you agree to Terms and Privacy. No WhatsApp for Discover users. Chat 1on1 inside Inbox. WhatsApp only for merch sellers.</p>
+      <p class="mt-2 text-[11px] text-zinc-500">You can read full Terms anytime in the Terms tab after entering</p>
+    </div>
+    <div class="mt-4 flex gap-2">
+      <button id="lang-en" class="flex-1 h-9 rounded-full border text-[12px] font-medium bg-black text-white">EN</button>
+      <button id="lang-es" class="flex-1 h-9 rounded-full border text-[12px] font-medium">ES</button>
+    </div>
+    <button id="enter-btn" class="mt-5 w-full h-[52px] rounded-full bg-black text-white text-[14px] font-semibold tracking-wide">I am 18+ — Enter Global Amor</button>
+    <p class="mt-3 text-[11px] text-zinc-500">Section 25 + full note • Last Updated: Sep 17, 2026</p>
+  </div>
+</div>
+
+<header class="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-zinc-200">
+<div class="max-w-[1200px] mx-auto px-4 h-[64px] flex items-center justify-between">
+<div class="flex items-center gap-2"><div class="h-8 w-8 rounded-full bg-black text-white flex items-center justify-center font-bold">G</div><span class="font-bold tracking-tight">Global Amor</span><span class="hidden sm:inline-flex ml-2 text-[10px] tracking-widest uppercase bg-yellow-200 px-2 py-0.5 rounded-full">Community Marketplace</span></div>
+<div class="flex items-center gap-2">
+<nav id="tabs" class="flex gap-1 bg-zinc-100 p-1 rounded-full text-[12px] overflow-x-auto">
+<button data-tab="discover" class="tab active whitespace-nowrap px-4 py-1.5 rounded-full bg-black text-white">Discover</button>
+<button data-tab="live" class="tab whitespace-nowrap px-4 py-1.5 rounded-full">Live</button>
+<button data-tab="merch" class="tab whitespace-nowrap px-4 py-1.5 rounded-full">Community Merch</button>
+<button data-tab="inbox" class="tab whitespace-nowrap px-4 py-1.5 rounded-full">Inbox / Private</button>
+<button data-tab="terms" class="tab whitespace-nowrap px-4 py-1.5 rounded-full">Terms</button>
+<button data-tab="admin" class="tab whitespace-nowrap px-4 py-1.5 rounded-full">Admin</button>
+</nav>
+<button id="open-add-header" class="hidden sm:inline-flex h-9 px-4 rounded-full bg-black text-white text-[12px] font-bold hover:bg-zinc-800">+ Add Profile</button>
+</div>
+</div>
+</header>
+
+<div class="bg-black text-white text-[11px] tracking-wide text-center py-2">GlobalAmor COMMUNITY MARKETPLACE • Travel • Connect • Belong</div>
+
+<main class="max-w-[1200px] mx-auto px-4 py-6">
+<div id="view-discover" class="view">
+<div class="mb-6 rounded-[20px] bg-gradient-to-br from-rose-50 to-fuchsia-50 border border-rose-100 p-5 flex flex-col sm:flex-row justify-between gap-4">
+<div><h2 class="font-bold text-[18px]">Add Your Profile — Free for Everyone</h2></div>
+<button id="open-add" class="h-11 px-6 rounded-full bg-black text-white font-semibold">+ Add Profile</button>
+</div>
+
+<div id="country-filter" class="mb-5 flex gap-2 overflow-x-auto pb-2" style="scrollbar-width:none">
+  <button data-country="all" class="flag-btn active whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-black text-white">🌎 All</button>
+  <button data-country="Jamaica" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇯🇲 Jamaica</button>
+  <button data-country="Dominican Republic" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇩🇴 DR</button>
+  <button data-country="Panama" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇵🇦 Panama</button>
+  <button data-country="Brazil" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇧🇷 Brazil</button>
+  <button data-country="Costa Rica" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇨🇷 Costa Rica</button>
+  <button data-country="Thailand" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇹🇭 Thailand</button>
+  <button data-country="Mexico" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇲🇽 Mexico</button>
+  <button data-country="Europe" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇪🇺 Europe</button>
+  <button data-country="Colombia" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇨🇴 Colombia</button>
+  <button data-country="Switzerland" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇨🇭 Switzerland</button>
+  <button data-country="USA" class="flag-btn whitespace-nowrap h-9 px-3.5 rounded-full text-[12px] font-medium flex items-center gap-1.5 bg-white border border-zinc-200">🇺🇸 USA</button>
+</div>
+<div id="discover-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+
+</div>
+
+<div id="view-live" class="view hidden"><div class="max-w-[640px] mx-auto">
+<div class="rounded-[20px] border bg-white p-4 mb-6">
+<textarea id="live-msg" placeholder="Share your vibe..." class="w-full min-h-[80px] bg-transparent outline-none text-[14px]"></textarea>
+<div class="flex justify-between items-center mt-3">
+<label class="text-[12px] px-3 py-1.5 rounded-full bg-zinc-100 cursor-pointer"><input type="file" id="live-file" accept="image/*" class="hidden">📷 Photo</label>
+<button id="live-post-btn" class="h-9 px-5 rounded-full bg-black text-white text-[13px]">Post</button>
+</div>
+<img id="live-preview" class="hidden mt-3 h-24 w-24 rounded-[12px] object-cover">
+</div>
+<div id="live-feed" class="space-y-4"></div>
+</div></div>
+
+<div id="view-merch" class="view hidden">
+<p class="text-[11px] text-zinc-500 mb-4 text-center">Sales are directly between sellers and purchasers via WhatsApp. Global Amor is not responsible for transactions, quality, shipping or disputes.</p>
+<div id="merch-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</div>
+
+<div id="view-inbox" class="view hidden">
+<div id="inbox-login" class="max-w-[380px] mx-auto border rounded-[20px] p-6 bg-white">
+<h2 class="font-bold text-[18px]">Private Access</h2><p class="text-[11px] text-zinc-500 mb-4">Your private space is locked. Enter your name and inbox password to unlock.</p>
+<input id="in-name" placeholder="Name" class="w-full h-11 rounded-[12px] border px-3 text-[14px] mb-3">
+<input id="in-pass" type="password" placeholder="Inbox Password" class="w-full h-11 rounded-[12px] border px-3 text-[14px] mb-3">
+<button id="in-login" class="w-full h-11 rounded-full bg-black text-white font-semibold">Unlock Private</button>
+<p id="in-err" class="hidden text-[12px] text-red-500 mt-2"></p>
+</div>
+<div id="inbox-main" class="hidden max-w-5xl mx-auto border rounded-[20px] overflow-hidden flex h-[70vh] bg-white">
+<div class="w-[35%] border-r flex flex-col"><div class="p-4 font-semibold border-b">Private Inbox • 3 messages</div><div id="conv-list" class="flex-1 overflow-y-auto"></div></div>
+<div class="flex-1 flex flex-col"><div id="chat-head" class="p-4 border-b font-medium">Select a conversation</div><div id="chat-msgs" class="flex-1 overflow-y-auto p-4 space-y-2 bg-zinc-50"></div><div class="p-3 border-t flex gap-2"><input id="chat-input" placeholder="Type message..." class="flex-1 h-10 rounded-full border px-4 text-[13px]"><button id="chat-send" class="h-10 px-5 rounded-full bg-black text-white text-[13px]">Send</button></div></div>
+</div>
+</div>
+
+<div id="view-terms" class="view hidden max-w-[900px] mx-auto">
+<div class="bg-white rounded-[20px] border p-6 sm:p-8">
+<h1 class="serif text-[30px] font-bold">GLOBAL AMOR TERMS OF SERVICE</h1>
+<p class="text-[11px] text-zinc-500 mt-1">Last Updated: September 17, 2026 • Global Amor • 46 sections • 18+ Only</p>
+<div class="mt-6 space-y-3 text-[13px] leading-6 text-zinc-700">
+<p><strong>Welcome to Global Amor.</strong> These Terms govern your use. By creating an account you confirm you are at least 18 years old and agree to Terms and Privacy Policy.</p>
+<div class="bg-yellow-50 border border-yellow-200 p-4 rounded-[12px] text-[12px]">Your use is also subject to our Privacy Policy. This is Section 25 expanded + placeholder notice. Email: [INSERT EMAIL ADDRESS] Website: [INSERT WEBSITE]</div>
+</div>
+<div id="terms-list" class="mt-8 divide-y"></div>
+</div>
+</div>
+
+<div id="view-profile" class="view hidden max-w-[600px] mx-auto"><div id="my-profile-box"></div></div>
+
+<div id="view-admin" class="view hidden max-w-[900px] mx-auto space-y-6">
+<div class="border rounded-[20px] p-6 bg-white"><h2 class="font-bold mb-3">Admin Access</h2>
+<div class="grid grid-cols-2 gap-3 text-[11px] mb-4">
+<div class="bg-zinc-50 border rounded-[12px] p-3"><p class="font-bold">Main Admin</p><p>Full access (profiles + merch + delete)</p></div>
+<div class="bg-orange-50 border border-orange-200 rounded-[12px] p-3"><p class="font-bold">Sub Admin</p><p>Limited (approve/deny + edit merch only)</p></div>
+</div>
+<div class="flex gap-2"><input id="admin-pass" type="password" placeholder="Enter admin password" class="flex-1 h-11 rounded-[12px] border px-4"><button id="admin-login" class="h-11 px-6 rounded-full bg-black text-white whitespace-nowrap">Login as Admin</button></div>
+<div id="admin-role" class="hidden mt-3 text-[11px] px-3 py-1.5 rounded-full bg-black text-white inline-flex"></div>
+</div>
+<div id="admin-panel" class="hidden"></div>
+</div>
+</main>
+
+<!-- Add Profile Modal - from proper layout -->
+<div id="modal" class="fixed inset-0 z-50 hidden"><div id="modal-bg" class="absolute inset-0 bg-black/40"></div><div class="relative max-w-[520px] mx-auto mt-[8vh] bg-white rounded-[24px] border overflow-hidden">
+<div class="p-5 border-b flex justify-between items-center"><div><h3 class="font-bold">Add Your Profile</h3><p class="text-[11px] text-zinc-500">Password for inbox. No WhatsApp for users.</p></div><button id="modal-close" class="h-8 w-8 rounded-full bg-zinc-100">✕</button></div>
+<form id="add-form" class="p-5 space-y-3">
+<div class="grid grid-cols-2 gap-3"><div><label class="text-[11px] font-medium">Name *</label><input id="f-name" required class="mt-1 w-full h-11 rounded-[12px] border px-3 text-[14px]"></div><div><label class="text-[11px] font-medium">Age</label><input id="f-age" type="number" class="mt-1 w-full h-11 rounded-[12px] border px-3 text-[14px]"></div></div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="text-[11px] font-medium">City</label><input id="f-location" placeholder="e.g. Kingston" class="mt-1 w-full h-11 rounded-[12px] border px-3 text-[14px]"></div>
+<div><label class="text-[11px] font-medium">Country</label><select id="f-country" class="mt-1 w-full h-11 rounded-[12px] border px-3 text-[14px] bg-white">
+<option value="">Select</option>
+<option value="Jamaica">🇯🇲 Jamaica</option>
+<option value="Dominican Republic">🇩🇴 Dominican Republic</option>
+<option value="Panama">🇵🇦 Panama</option>
+<option value="Brazil">🇧🇷 Brazil</option>
+<option value="Costa Rica">🇨🇷 Costa Rica</option>
+<option value="Thailand">🇹🇭 Thailand</option>
+<option value="Mexico">🇲🇽 Mexico</option>
+<option value="Europe">🇪🇺 Europe</option>
+<option value="Colombia">🇨🇴 Colombia</option>
+<option value="Switzerland">🇨🇭 Switzerland</option>
+<option value="USA">🇺🇸 USA</option>
+</select></div>
+</div>
+<div><label class="text-[11px] font-medium">Bio</label><textarea id="f-bio" class="mt-1 w-full h-20 rounded-[12px] border px-3 py-2 text-[14px]"></textarea></div>
+<div><label class="text-[11px] font-medium">Password * (for inbox)</label><input id="f-pass" type="password" required class="mt-1 w-full h-11 rounded-[12px] border px-3 text-[14px]"></div>
+<div><label class="text-[11px] font-medium">Photo</label><div class="mt-1 flex gap-2"><label class="h-11 px-4 rounded-[12px] border bg-zinc-50 flex items-center text-[12px] cursor-pointer"><input type="file" id="f-photo" accept="image/*" class="hidden">📷 Choose</label><span id="f-photo-name" class="text-[11px] text-zinc-500"></span></div><img id="f-preview" class="hidden mt-2 w-full max-h-[300px] object-contain rounded-[12px]"></div>
+<button type="submit" id="f-submit" class="w-full h-12 rounded-full bg-black text-white font-semibold">Create Profile</button>
+</form>
+</div></div>
+
+<footer class="mt-10 border-t py-6 text-center text-[11px] text-zinc-500">Global Amor • Travel • Connect • Belong • Marketplace demo • encuentro repo → Vercel • Supabase live
+<!-- Floating Add Profile for mobile - always visible -->
+<button id="open-add-float" class="sm:hidden fixed bottom-6 right-6 z-30 h-14 w-14 rounded-full bg-black text-white shadow-[0_8px_24px_rgba(0,0,0,0.3)] flex items-center justify-center text-[22px] font-bold">+</button>
+
+</footer>
+
+<script type="module">
+import { createClient } from '@supabase/supabase-js'
+const SUPA_URL = 'https://tnraadzmmeqdbcpzyjwf.supabase.co'
+const SUPA_KEY = 'sb_publishable_ED87E0LOcR-LwOS3xy97gQ_wrd4DYAy'
+const supabase = createClient(SUPA_URL, SUPA_KEY)
+
+// === 7-DAY AUTO-DELETE - PROFILES PERMANENT, WALL 7-DAY ===
+const AUTO_DELETE_DAYS = 7
+const AUTO_DELETE_ENABLED = true // Wall posts auto-delete after 7 days, profiles permanent
+function isOlderThanDays(dateStr, days){
+  if(!dateStr) return false
+  try{ const created=new Date(dateStr); const now=new Date(); return (now-created)/(1000*60*60*24) > days }catch{return false}
+}
+async function cleanupOldPosts(){
+  if(!AUTO_DELETE_ENABLED || AUTO_DELETE_DAYS<=0) return
+  const old = livePosts.filter(p=> isOlderThanDays(p.created_at, AUTO_DELETE_DAYS))
+  if(old.length===0) return
+  if(role==='main'){
+    for(let p of old){ try{ await supabase.from('live_posts').delete().eq('id', p.id) }catch(e){} }
+    livePosts = livePosts.filter(p=> !isOlderThanDays(p.created_at, AUTO_DELETE_DAYS))
+    renderLive()
+  }
+}
+
+console.log('✅ Supabase wired', SUPA_URL)
+
+// State
+let profiles=[], livePosts=[], msgs=[], merch=[], myId=localStorage.getItem('my_profile_id'), role=localStorage.getItem('amor_role'), selectedChat=null, currentLang='en'
+
+// Terms data (46 sections placeholder from proper layout)
+const termsData = [
+{ id:1, title:"1. PURPOSE OF GLOBAL AMOR", desc:"Global Amor is an online dating and social connection platform for adults to discover and communicate."},
+{ id:2, title:"2. AGE REQUIREMENT — 18+ ONLY", desc:"Strictly 18+. You represent you are at least 18 years old."},
+{ id:3, title:"3. ACCOUNT REGISTRATION", desc:"Provide accurate info. Notify if compromised."},
+{ id:4, title:"4. AUTHENTICITY OF PROFILES", desc:"Designed around authentic interactions."},
+{ id:5, title:"5. INTENDED USE", desc:"Only lawful purposes consistent with dating/social."},
+{ id:25, title:"25. PRIVACY", desc:"Your use subject to Privacy Policy. Collect: name, age, city, bio, photos, WhatsApp for merch only.", isPrivacy:true}
+]
+
+// Gate
+const gate = document.getElementById('gate')
+if(localStorage.getItem('amor_entered')) gate.classList.add('hidden')
+document.getElementById('enter-btn').onclick = ()=>{ localStorage.setItem('amor_entered','1'); gate.classList.add('hidden') }
+document.getElementById('lang-en').onclick = ()=>{ currentLang='en'; document.getElementById('enter-btn').textContent='I am 18+ — Enter Global Amor' }
+document.getElementById('lang-es').onclick = ()=>{ currentLang='es'; document.getElementById('enter-btn').textContent='Soy mayor de 18+ — Entrar a Global Amor' }
+
+// Tabs
+// Country filter handlers
+setTimeout(()=>{
+ document.querySelectorAll('.flag-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.flag-btn').forEach(b=>{ b.classList.remove('bg-black','text-white','active'); b.classList.add('bg-white','border'); })
+    btn.classList.remove('bg-white','border'); btn.classList.add('bg-black','text-white','active')
+    activeCountry = btn.dataset.country
+    renderDiscover()
+  }
+ })
+},500)
+
+// Tabs
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('bg-black','text-white','active'))
+    btn.classList.add('bg-black','text-white','active')
+    document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'))
+    document.getElementById('view-'+btn.dataset.tab).classList.remove('hidden')
+  }
+})
+
+// Terms render
+const termsList = document.getElementById('terms-list')
+termsList.innerHTML = termsData.map(t=>`<div class="py-4"><h3 class="font-bold text-[14px]">${t.title}</h3><p class="text-[12px] mt-1 text-zinc-600">${t.desc}</p></div>`).join('')
+
+// Supabase helpers
+async function fetchTable(table){
+  try{
+    const { data, error } = await supabase.from(table).select('*').order('created_at',{ascending:false}).limit(100)
+    if(error) throw error
+    return data
+  }catch(e){
+    console.warn(table, e.message)
+    // fallback mock from proper layout
+    if(table==='profiles') return [
+      {id:'1', name:'Sofia', age:24, location:'Medellin', bio:'Travel lover', photo:'https://images.unsplash.com/photo-1509460913899-515f1df34fea?q=80&w=400', status:'approved'},
+      {id:'2', name:'Luna', age:26, location:'CDMX', bio:'Artist', photo:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400', status:'approved'}
+    ]
+    if(table==='live_posts') return [{id:'1', author:'Admin 👑', text:'Welcome to Global Amor Live!', time:'now'}]
+    if(table==='merch') return [
+      {id:'m1', title:'Global Amor Tee', price:28, vendor:'Sofia', vendorCity:'Medellin', country:'Colombia', flag:'🇨🇴', desc:'Soft cotton tee', photo:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=600'},
+      {id:'m2', title:'Amor Tote', price:22, vendor:'Luna', vendorCity:'CDMX', country:'Mexico', flag:'🇲🇽', desc:'Canvas tote hand stamped', photo:'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=600'}
+    ]
+    return []
+  }
+}
+
+function compressImage(file){
+  return new Promise(resolve=>{
+    const img=new Image()
+    img.onload=()=>{
+      const canvas=document.createElement('canvas')
+      const max=800
+      let w=img.width, h=img.height
+      if(w>h){ if(w>max){ h*=max/w; w=max } } else { if(h>max){ w*=max/h; h=max } }
+      canvas.width=w; canvas.height=h
+      canvas.getContext('2d').drawImage(img,0,0,w,h)
+      canvas.toBlob(b=>resolve(b), 'image/jpeg', 0.6)
+    }
+    img.src=URL.createObjectURL(file)
+  })
+}
+
+async function loadAll(){
+  profiles = await fetchTable('profiles')
+  livePosts = await fetchTable('live_posts')
+  merch = await fetchTable('merch')
+  renderDiscover(); renderLive(); renderMerch(); renderMy(); setTimeout(cleanupOldPosts, 2000); setInterval(cleanupOldPosts, 3600000)
+}
+
+let activeCountry='all'
+const flagMap = {"Jamaica":"🇯🇲","Dominican Republic":"🇩🇴","Panama":"🇵🇦","Brazil":"🇧🇷","Costa Rica":"🇨🇷","Thailand":"🇹🇭","Mexico":"🇲🇽","Europe":"🇪🇺","Colombia":"🇨🇴","Switzerland":"🇨🇭","USA":"🇺🇸"}
+
+function renderDiscover(){
+  const grid=document.getElementById('discover-grid')
+  let approved = profiles.filter(p=>p.status!=='pending' || role==='main')
+  if(activeCountry!=='all'){
+    approved = approved.filter(p=> (p.country||'').toLowerCase() === activeCountry.toLowerCase() || (p.location||'').toLowerCase().includes(activeCountry.toLowerCase()) )
+  }
+  grid.innerHTML = approved.map(p=>`
+    <div class="bg-white rounded-[20px] overflow-hidden border border-zinc-200 hover:border-zinc-300 transition group">
+      <div class="h-[320px] relative"><img src="${p.photo||'https://images.unsplash.com/photo-1509460913899-515f1df34fea?q=80&w=400'}" class="w-full h-full object-cover group-hover:scale-[1.02] transition duration-500"><div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div><div class="absolute bottom-3 left-3 right-3 text-white"><p class="font-bold text-[16px]">${p.name} • ${p.age||''}</p><p class="text-[11px] opacity-80">${p.location||''}</p></div></div>
+      <div class="p-4"><p class="text-[13px] leading-5 line-clamp-2">${p.bio||''}</p><div class="mt-3 flex gap-2"><button onclick="startChat('${p.id}')" class="flex-1 h-9 rounded-full bg-black text-white text-[12px] font-bold">Message</button>${role==='main'?`<button onclick="delProfile('${p.id}')" class="h-9 px-3 rounded-full border text-[11px]">Delete</button>`:''}</div></div>
+    </div>
+  `).join('') || '<p class="text-[12px] text-zinc-500">No profiles yet. Add one!</p>'
+}
+
+function renderLive(){
+  const feed=document.getElementById('live-feed')
+  feed.innerHTML = livePosts.map(p=>`
+    <div class="bg-white rounded-[20px] border p-4"><div class="flex justify-between"><p class="font-bold text-[13px]">${p.author||'You'}</p><p class="text-[11px] text-zinc-500">${p.time||'now'}</p></div><p class="text-[14px] mt-2">${p.text||p.message||''}</p>${p.photo?`<img src="${p.photo}" class="mt-3 rounded-[12px] max-h-[360px] w-full object-cover">`:''}${(role || (myId && p.author_id===myId))?`<button onclick="delLive('${p.id}')" class="mt-2 text-[11px] px-3 py-1 rounded-full bg-zinc-100" class="mt-2 text-[11px] px-3 py-1 rounded-full ${role?'bg-zinc-900 text-white':'bg-white border'}">${role?'Delete (Admin)':'Delete My Post'}</button>`:''}</div>
+  `).join('')
+}
+
+function renderMerch(){
+  const grid=document.getElementById('merch-grid')
+  grid.innerHTML = merch.map(m=>`
+    <div class="bg-white rounded-[20px] overflow-hidden border">
+      <img src="${m.photo}" class="h-[260px] w-full object-cover">
+      <div class="p-4"><h3 class="serif font-bold text-[16px]">${m.title} ${m.flag||''}</h3><p class="text-[12px] text-zinc-500">${m.vendor} • ${m.vendorCity}, ${m.country||''} • $${m.price}</p><p class="text-[12px] mt-2 leading-5">${m.desc||''}</p><button class="mt-3 w-full h-9 rounded-full bg-[#25D366] text-white text-[12px] font-bold">Buy via WhatsApp</button>${role?`<button class="mt-2 w-full h-9 rounded-full bg-zinc-100 text-[11px]">✏️ Edit (Admin)</button>`:''}</div>
+    </div>
+  `).join('')
+}
+
+function renderMy(){
+  const box=document.getElementById('my-profile-box')
+  if(!myId){ box.innerHTML='<p class="text-[13px] text-zinc-500">Create a profile to see it here. Your private profile is locked until inbox unlock.</p>'; return }
+  const me=profiles.find(p=>p.id===myId)
+  if(!me){ box.innerHTML='<p>Profile not found</p>'; return }
+  box.innerHTML=`<div class="bg-white rounded-[20px] border p-6"><img src="${me.photo}" class="h-[180px] w-full object-cover rounded-[16px]"><h2 class="font-bold mt-4">${me.name}</h2><p class="text-[12px] text-zinc-500">${me.location}</p><p class="text-[13px] mt-2">${me.bio}</p><button onclick="delProfile('${me.id}')" class="mt-4 w-full h-10 rounded-full border text-[12px]">Delete My Profile</button></div>`
+}
+
+// Modal
+const openModal=()=>document.getElementById('modal').classList.remove('hidden');
+ document.getElementById('open-add').onclick=openModal;
+ const hdr=document.getElementById('open-add-header'); if(hdr) hdr.onclick=openModal;
+ const flt=document.getElementById('open-add-float'); if(flt) flt.onclick=openModal;
+document.getElementById('modal-close').onclick=()=>document.getElementById('modal').classList.add('hidden')
+document.getElementById('modal-bg').onclick=()=>document.getElementById('modal').classList.add('hidden')
+document.getElementById('f-photo').onchange=e=>{
+  const file=e.target.files[0]; if(!file) return
+  document.getElementById('f-photo-name').textContent=file.name
+  const url=URL.createObjectURL(file); const img=document.getElementById('f-preview'); img.src=url; img.classList.remove('hidden')
+}
+
+// Add profile
+document.getElementById('add-form').onsubmit=async(e)=>{
+  e.preventDefault()
+  const name=document.getElementById('f-name').value.trim()
+  const age=document.getElementById('f-age').value
+  const location=document.getElementById('f-location').value
+  const bio=document.getElementById('f-bio').value
+  const pass=document.getElementById('f-pass').value
+  const file=document.getElementById('f-photo').files[0]
+  let photoUrl=''
+  if(file){
+    const compressed=await compressImage(file)
+    // Try upload to supabase storage
+    try{
+      const filename=Date.now()+'_'+file.name.replace(/[^a-z0-9.]/gi,'')
+      const { error } = await supabase.storage.from('profile-photos').upload(filename, compressed)
+      if(error) throw error
+      const { data } = supabase.storage.from('profile-photos').getPublicUrl(filename)
+      photoUrl=data.publicUrl
+    }catch(err){
+      console.warn('Storage upload failed, using base64 fallback', err)
+      photoUrl=document.getElementById('f-preview').src
+    }
+  }
+  const country=document.getElementById('f-country').value
+  const newProfile={ name, age: age?parseInt(age):null, location, country, bio, password:pass, photo:photoUrl, status:'approved', created_at:new Date().toISOString() }
+  try{
+    const { data, error } = await supabase.from('profiles').insert(newProfile).select()
+    if(error) throw error
+    profiles.unshift(data[0]); myId=data[0].id; localStorage.setItem('my_profile_id', myId)
+  }catch(err){
+    console.warn('Supabase insert failed, local fallback', err)
+    newProfile.id=Date.now().toString()
+    profiles.unshift(newProfile); myId=newProfile.id; localStorage.setItem('my_profile_id', myId)
+  }
+  document.getElementById('modal').classList.add('hidden')
+  renderDiscover(); renderMy()
+  alert('Profile added! Live in Discover instantly if admin.')
+}
+
+// Live post
+document.getElementById('live-file').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return
+  const url=URL.createObjectURL(f); const img=document.getElementById('live-preview'); img.src=url; img.classList.remove('hidden')
+}
+document.getElementById('live-post-btn').onclick=async()=>{
+  const text=document.getElementById('live-msg').value.trim()
+  const file=document.getElementById('live-file').files[0]
+  if(!text && !file) return
+  let photo=''
+  if(file){
+    const comp=await compressImage(file)
+    try{
+      const fn=Date.now()+'_live_'+file.name
+      await supabase.storage.from('live-photos').upload(fn, comp)
+      const { data } = supabase.storage.from('live-photos').getPublicUrl(fn)
+      photo=data.publicUrl
+    }catch{ photo=document.getElementById('live-preview').src }
+  }
+  const myProfile = myId ? profiles.find(p=>p.id===myId) : null
+  const post={ author: myProfile?.name||'You', author_id: myId||null, text, photo, time:'now', created_at:new Date().toISOString() }
+  try{
+    const { data } = await supabase.from('live_posts').insert(post).select()
+    livePosts.unshift(data[0])
+  }catch{ livePosts.unshift({id:Date.now().toString(), ...post}) }
+  document.getElementById('live-msg').value=''; document.getElementById('live-preview').classList.add('hidden')
+  renderLive()
+}
+
+// Inbox login
+document.getElementById('in-login').onclick=async()=>{
+  const name=document.getElementById('in-name').value.trim()
+  const pass=document.getElementById('in-pass').value.trim()
+  const err=document.getElementById('in-err')
+  if(!name||!pass){ err.textContent='Enter name and password'; err.classList.remove('hidden'); return }
+  try{
+    const { data, error } = await supabase.from('profiles').select('*').eq('name', name).eq('password', pass).limit(1)
+    if(error) throw error
+    if(!data.length) throw new Error('Invalid name or password')
+    myId=data[0].id; localStorage.setItem('my_profile_id', myId); loadInbox()
+  }catch(e){ err.textContent=e.message; err.classList.remove('hidden') }
+}
+
+async function loadInbox(){
+  document.getElementById('inbox-login').classList.add('hidden')
+  document.getElementById('inbox-main').classList.remove('hidden')
+  // fetch messages
+  try{
+    const { data } = await supabase.from('messages').select('*').or(`sender_id.eq.${myId},receiver_id.eq.${myId}`).order('created_at',{ascending:true})
+    msgs=data||[]
+  }catch{}
+  renderConvs(); renderChat()
+}
+function renderConvs(){
+  const list=document.getElementById('conv-list')
+  const others=[...new Set(msgs.map(m=>m.sender_id===myId?m.receiver_id:m.sender_id))]
+  list.innerHTML=others.map(id=>{
+    const p=profiles.find(x=>x.id===id)
+    return `<div onclick="openChat('${id}')" class="p-3 border-b hover:bg-zinc-50 cursor-pointer flex justify-between"><span class="text-[13px] font-medium">${p?.name||id}</span><span class="text-[10px] text-zinc-500">2h ago</span></div>`
+  }).join('') || '<p class="p-3 text-[11px] text-zinc-500">No conversations yet</p>'
+}
+function renderChat(){
+  const chat=document.getElementById('chat-msgs')
+  if(!selectedChat){ chat.innerHTML='<p class="text-[12px] text-zinc-500">Select a conversation</p>'; return }
+  const filtered=msgs.filter(m=>(m.sender_id===myId&&m.receiver_id===selectedChat)||(m.sender_id===selectedChat&&m.receiver_id===myId))
+  chat.innerHTML=filtered.map(m=>{
+    const isMe=m.sender_id===myId
+    return `<div class="flex ${isMe?'justify-end':''}"><div class="${isMe?'bg-black text-white':'bg-white border'} rounded-[16px] px-3 py-2 max-w-[75%] text-[13px]">${m.message||m.text}<div class="text-[10px] opacity-60 mt-1">${new Date(m.created_at).toLocaleTimeString()}</div></div></div>`
+  }).join('')
+  chat.scrollTop=chat.scrollHeight
+}
+window.openChat=(id)=>{ selectedChat=id; renderConvs(); renderChat(); document.getElementById('chat-head').textContent=profiles.find(p=>p.id===id)?.name||id }
+window.startChat=(id)=>{ if(!myId){ alert('Create profile first!'); document.querySelector('[data-tab="inbox"]').click(); return } if(id===myId) return; selectedChat=id; document.querySelector('[data-tab="inbox"]').click(); loadInbox() }
+async function sendMsg(){
+  const input=document.getElementById('chat-input'); const txt=input.value.trim(); if(!txt||!selectedChat||!myId) return
+  const newMsg={ sender_id:myId, receiver_id:selectedChat, message:txt, created_at:new Date().toISOString() }
+  try{
+    const { data } = await supabase.from('messages').insert(newMsg).select()
+    msgs.push(data[0])
+  }catch{ msgs.push({...newMsg, id:Date.now().toString()}) }
+  input.value=''; renderConvs(); renderChat()
+}
+document.getElementById('chat-send').onclick=sendMsg
+document.getElementById('chat-input').onkeydown=e=>{ if(e.key==='Enter') sendMsg() }
+
+// Admin
+document.getElementById('admin-login').onclick=()=>{
+  const pw=document.getElementById('admin-pass').value
+  const roleEl=document.getElementById('admin-role')
+  if(pw==='kashyellow5844'){ localStorage.setItem('amor_role','main'); role='main'; roleEl.textContent='Logged as Main Admin • Full Access'; roleEl.classList.remove('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); location.reload() }
+  else if(pw==='amorstaff2024'){ localStorage.setItem('amor_role','sub'); role='sub'; roleEl.textContent='Logged as Sub Admin • Approve/Deny + Edit Merch'; roleEl.classList.remove('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); location.reload() }
+  else alert('Wrong password')
+}
+window.delProfile=async(id)=>{ if(!confirm('Delete '+id+'?')) return; try{ await supabase.from('profiles').delete().eq('id',id) }catch{}; profiles=profiles.filter(p=>p.id!==id); if(myId===id){localStorage.removeItem('my_profile_id'); myId=null} renderDiscover(); renderMy() }
+window.delLive=async(id)=>{ if(!confirm('Delete post?')) return; try{ await supabase.from('live_posts').delete().eq('id',id) }catch{}; livePosts=livePosts.filter(p=>p.id!==id); renderLive() }
+
+loadAll()
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
