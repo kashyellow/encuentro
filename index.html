@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Amor - Real Connections</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+body{font-family:'Inter',system-ui,-apple-system,sans-serif}
+</style>
+</head>
+<body class="bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+<div id="app" class="min-h-screen flex flex-col">
+<header class="sticky top-0 z-40 backdrop-blur-xl bg-white/80 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800">
+  <div class="max-w-6xl mx-auto px-4 h-[64px] flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="h-8 w-8 rounded-full bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold">G</div>
+      <span class="font-bold text-[18px]">Global Amor</span>
+    </div>
+    <nav id="tabs" class="flex gap-1 bg-zinc-100 dark:bg-zinc-900 p-1 rounded-full">
+      <button data-tab="discover" class="tab-btn active px-4 py-1.5 rounded-full text-[13px] font-medium bg-black text-white dark:bg-white dark:text-black">Discover</button>
+      <button data-tab="live" class="tab-btn px-4 py-1.5 rounded-full text-[13px] font-medium text-zinc-600 dark:text-zinc-400">Live Wall</button>
+      <button data-tab="merch" class="tab-btn px-4 py-1.5 rounded-full text-[13px] font-medium text-zinc-600 dark:text-zinc-400">Merch</button>
+      <button data-tab="inbox" class="tab-btn px-4 py-1.5 rounded-full text-[13px] font-medium text-zinc-600 dark:text-zinc-400">Inbox <span id="inbox-count" class="ml-1 hidden bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span></button>
+      <button data-tab="profile" class="tab-btn px-4 py-1.5 rounded-full text-[13px] font-medium text-zinc-600 dark:text-zinc-400">My Profile</button>
+      <button data-tab="admin" class="tab-btn px-4 py-1.5 rounded-full text-[13px] font-medium text-zinc-600 dark:text-zinc-400">Admin</button>
+    </nav>
+  </div>
+</header>
+
+<main class="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
+  <!-- Discover -->
+  <div id="view-discover" class="view">
+    <div class="mb-6 rounded-[20px] bg-gradient-to-br from-rose-50 to-fuchsia-50 dark:from-zinc-900 dark:to-zinc-900 border border-rose-100 dark:border-zinc-800 p-5 sm:p-7 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div>
+        <h2 class="font-bold text-[20px]">Add Your Profile — Free for Everyone</h2>
+        <p class="text-[13px] text-zinc-500 mt-1 max-w-[520px]">Submit your photo and story. Full photo display, no crop. Chat 1on1 inside the app — no WhatsApp needed for users.</p>
+      </div>
+      <button id="open-add-profile" class="h-11 px-6 rounded-full bg-black text-white dark:bg-white dark:text-black font-semibold text-[14px]">+ Add Your Profile</button>
+    </div>
+    <div id="discover-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
+  </div>
+
+  <!-- Live Wall -->
+  <div id="view-live" class="view hidden">
+    <div class="max-w-[640px] mx-auto">
+      <div class="rounded-[20px] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 mb-6">
+        <textarea id="live-message" placeholder="Share something... your vibe, location, invitation" class="w-full min-h-[80px] resize-none border-0 focus:ring-0 text-[14px] bg-transparent outline-none"></textarea>
+        <div class="flex items-center justify-between mt-3">
+          <label class="text-[12px] px-3 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 cursor-pointer"><input type="file" id="live-photo" accept="image/*" class="hidden">📷 Add Photo</label>
+          <button id="post-live" class="h-9 px-5 rounded-full bg-black text-white dark:bg-white dark:text-black text-[13px] font-medium">Post to Wall</button>
+        </div>
+        <div id="live-preview" class="hidden mt-3"><img id="live-preview-img" class="h-20 w-20 rounded-[12px] object-cover"></div>
+      </div>
+      <div id="live-feed" class="space-y-4"></div>
+    </div>
+  </div>
+
+  <!-- Merch -->
+  <div id="view-merch" class="view hidden">
+    <div id="merch-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </div>
+
+  <!-- Inbox -->
+  <div id="view-inbox" class="view hidden">
+    <div id="inbox-login" class="max-w-[400px] mx-auto rounded-[20px] border border-zinc-200 dark:border-zinc-800 p-6">
+      <h2 class="font-bold text-[18px] mb-2">Login to Inbox</h2>
+      <p class="text-[12px] text-zinc-500 mb-4">Use the name + password you created with your profile.</p>
+      <input id="login-name" placeholder="Your Name" class="w-full h-11 rounded-[12px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3 text-[14px] mb-3">
+      <input id="login-pass" type="password" placeholder="Password" class="w-full h-11 rounded-[12px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3 text-[14px] mb-3">
+      <button id="login-btn" class="w-full h-11 rounded-full bg-black text-white dark:bg-white dark:text-black font-semibold">Login</button>
+      <p id="login-error" class="text-[12px] text-red-500 mt-2 hidden"></p>
+    </div>
+    <div id="inbox-main" class="hidden max-w-5xl mx-auto rounded-[20px] border border-zinc-200 dark:border-zinc-800 overflow-hidden flex h-[70vh]">
+      <div class="w-[35%] border-r border-zinc-200 dark:border-zinc-800 flex flex-col">
+        <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 font-semibold text-[14px]">Conversations</div>
+        <div id="conv-list" class="flex-1 overflow-y-auto"></div>
+      </div>
+      <div class="flex-1 flex flex-col">
+        <div id="chat-header" class="p-4 border-b border-zinc-200 dark:border-zinc-800 font-medium text-[14px]">Select a conversation</div>
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-2 bg-zinc-50 dark:bg-zinc-900/50"></div>
+        <div class="p-3 border-t border-zinc-200 dark:border-zinc-800 flex gap-2">
+          <input id="chat-input" placeholder="Type a message..." class="flex-1 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 text-[13px]">
+          <button id="chat-send" class="h-10 px-5 rounded-full bg-black text-white dark:bg-white dark:text-black text-[13px] font-medium">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Profile -->
+  <div id="view-profile" class="view hidden max-w-[600px] mx-auto">
+    <div id="my-profile-content"></div>
+  </div>
+
+  <!-- Admin -->
+  <div id="view-admin" class="view hidden max-w-[600px] mx-auto">
+    <div id="admin-login" class="rounded-[20px] border border-zinc-200 dark:border-zinc-800 p-6">
+      <h2 class="font-bold mb-3">Admin Access</h2>
+      <div class="flex gap-2">
+        <input id="admin-pass" type="password" placeholder="Enter admin password" class="flex-1 h-11 rounded-[12px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-4">
+        <button id="admin-login-btn" class="h-11 px-5 rounded-full bg-black text-white dark:bg-white dark:text-black">Login</button>
+      </div>
+    </div>
+    <div id="admin-panel" class="hidden mt-6 space-y-6"></div>
+  </div>
+</main>
+
+<!-- Add Profile Modal -->
+<div id="add-profile-modal" class="fixed inset-0 z-50 hidden">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="close-modal-bg"></div>
+  <div class="relative max-w-[520px] mx-auto mt-[10vh] bg-white dark:bg-zinc-900 rounded-[24px] border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+    <div class="p-5 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+      <div><h3 class="font-bold">Add Your Profile</h3><p class="text-[11px] text-zinc-500">No WhatsApp for users — 1on1 chat inside inbox</p></div>
+      <button id="close-modal" class="h-9 w-9 rounded-full bg-zinc-100 dark:bg-zinc-800">✕</button>
+    </div>
+    <form id="add-profile-form" class="p-5 space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="text-[12px] font-medium">Name *</label><input id="f-name" required placeholder="Sofia" class="mt-1 w-full h-11 rounded-[12px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 text-[14px]"></div>
+        <div><label class="text-[12px] font-medium">Age</label><input id="f-age" type="number" placeholder="24" class="mt-1 w-full h-11 rounded-[12px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 text-[14px]"></div>
+      </div>
+      <div><label class="text-[12px] font-medium">Location</label><input id="f-location" placeholder="Medellín, Colombia" class="mt-1 w-full h-11 rounded-[12px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 text-[14px]"></div>
+      <div><label class="text-[12px] font-medium">Bio</label><textarea id="f-bio" placeholder="Tell your story..." class="mt-1 w-full min-h-[80px] rounded-[12px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-[14px]"></textarea></div>
+      <div><label class="text-[12px] font-medium">Password * (for inbox login)</label><input id="f-password" type="password" required placeholder="Create a password" class="mt-1 w-full h-11 rounded-[12px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 text-[14px]"></div>
+      <div>
+        <label class="text-[12px] font-medium">Photo</label>
+        <div class="mt-1 flex gap-2">
+          <label class="h-11 px-4 rounded-[12px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 flex items-center text-[13px] cursor-pointer"><input type="file" id="f-photo" accept="image/*" class="hidden">📷 Choose Photo</label>
+          <span id="f-photo-name" class="text-[12px] text-zinc-500 self-center"></span>
+        </div>
+        <div id="f-preview-wrap" class="hidden mt-2"><img id="f-preview" class="w-full max-h-[300px] object-contain rounded-[12px] bg-zinc-50"></div>
+      </div>
+      <button type="submit" id="f-submit" class="w-full h-12 rounded-full bg-black text-white dark:bg-white dark:text-black font-semibold">Create Profile & Login to Inbox</button>
+      <p class="text-[11px] text-zinc-500 text-center">Your profile will be visible instantly. Use name + password to login to inbox.</p>
+    </form>
+  </div>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://tnraadzmmeqdbcpzyjwf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ED87E0LOcR-LwOS3xy97gQ_wrd4DYAy";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false }
+});
+
+let profiles = [];
+let livePosts = [];
+let merch = [];
+let myProfileId = localStorage.getItem("my_profile_id");
+let amorRole = localStorage.getItem("amor_role");
+let selectedChatUser = null;
+let messages = [];
+
+// Compress image to JPEG 800px 0.7
+function compressImage(file){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      let w=img.width, h=img.height, max=800;
+      if(w>max||h>max){
+        if(w>h){h=h*max/w;w=max}else{w=w*max/h;h=max}
+      }
+      const canvas=document.createElement("canvas");
+      canvas.width=w;canvas.height=h;
+      const ctx=canvas.getContext("2d");
+      ctx.fillStyle="#ffffff";
+      ctx.fillRect(0,0,w,h);
+      ctx.drawImage(img,0,0,w,h);
+      canvas.toBlob(blob=>{
+        const reader=new FileReader();
+        reader.onload=()=>{resolve({blob, dataUrl: reader.result}); URL.revokeObjectURL(url);};
+        reader.onerror=reject;
+        reader.readAsDataURL(blob);
+      },"image/jpeg",0.7);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url); reject(new Error("image load failed"))};
+    img.src=url;
+  });
+}
+
+async function fetchAll(){
+  try{
+    const {data: p} = await supabase.from("profiles").select("*").order("created_at",{ascending:false});
+    if(p) profiles = p.filter(x=>x.approved!==false);
+  }catch(e){console.warn(e)}
+  try{
+    const {data: l} = await supabase.from("live_posts").select("*").order("created_at",{ascending:false}).limit(50);
+    if(l) livePosts = l;
+  }catch(e){console.warn(e)}
+  try{
+    const {data: m} = await supabase.from("merch").select("*").order("created_at",{ascending:false});
+    if(m) merch = m;
+  }catch(e){console.warn(e)}
+  renderDiscover();
+  renderLive();
+  renderMerch();
+  renderMyProfile();
+  if(myProfileId) loadInbox();
+}
+
+function renderDiscover(){
+  const grid=document.getElementById("discover-grid");
+  if(!profiles.length){
+    grid.innerHTML='<p class="col-span-3 text-center text-[14px] text-zinc-500 py-12">No profiles yet. Be first!</p>';
+    return;
+  }
+  grid.innerHTML = profiles.map(p=>{
+    const photo = p.photo_url || "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&q=80";
+    const isMe = p.id===myProfileId;
+    return `<div class="group rounded-[22px] overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="relative bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center"><img src="${photo}" class="w-full h-[380px] object-cover" onerror="this.style.display='none'"></div>
+      <div class="p-4">
+        <div class="flex items-center justify-between"><h3 class="font-bold text-[16px]">${p.name||"Unknown"} ${p.age?`, ${p.age}`:""}</h3>${isMe?'<span class="text-[10px] px-2 py-1 rounded-full bg-black text-white">You</span>':""}</div>
+        ${p.location?`<p class="text-[12px] text-zinc-500 mt-1">${p.location}</p>`:""}
+        ${p.bio?`<p class="mt-2 text-[14px] leading-[1.5] text-zinc-700 dark:text-zinc-300 line-clamp-3">${p.bio}</p>`:""}
+        <div class="mt-3 flex gap-2">
+          ${!isMe?`<button onclick="startChat('${p.id}')" class="flex-1 h-9 rounded-full bg-black text-white dark:bg-white dark:text-black text-[12px] font-medium">💬 Message</button>`:`<span class="text-[11px] text-zinc-400">Your profile</span>`}
+          ${amorRole==='main'?`<button onclick="deleteProfile('${p.id}')" class="text-[11px] px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800">Delete</button>`:""}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderLive(){
+  const feed=document.getElementById("live-feed");
+  if(!livePosts.length){feed.innerHTML='<p class="text-center text-[13px] text-zinc-500 py-8">No posts yet. Be first!</p>';return;}
+  feed.innerHTML = livePosts.map(post=>{
+    const photo = post.photo_url || post.image_url || "";
+    return `<div class="rounded-[20px] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+      <div class="p-4 sm:p-5">
+        <p class="text-[14px] whitespace-pre-wrap">${post.message||""}</p>
+        ${photo?`<div class="mt-3 rounded-[14px] overflow-hidden bg-zinc-50 dark:bg-zinc-800/50"><img src="${photo}" class="w-full max-h-[400px] object-contain"></div>`:""}
+        <div class="mt-3 flex gap-2">
+          ${post.user_name?`<span class="text-[11px] text-zinc-500">${post.user_name}</span>`:""}
+          ${amorRole==='main'?`<button onclick="deleteLive('${post.id}')" class="ml-auto text-[10px] px-3 py-1 rounded-full bg-black text-white">Delete</button>`:""}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderMerch(){
+  const grid=document.getElementById("merch-grid");
+  const items = merch.length? merch : [
+    {id:"m1", title:"GlobalAmor Tee", price:29, image_url:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80", description:"Premium cotton", whatsapp:"+573001234567", vendor:"GlobalAmor Store"},
+    {id:"m2", title:"Passport Holder", price:18, image_url:"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80", description:"For your next adventure", whatsapp:"+573001234567", vendor:"GlobalAmor Store"}
+  ];
+  grid.innerHTML = items.map(s=>{
+    const img = s.image_url || s.photo_url || "";
+    const wa = s.whatsapp || "+573001234567";
+    const vendor = s.vendor || "GlobalAmor";
+    const msg = `Hi ${vendor} - I want ${s.title}`;
+    const waLink = `https://wa.me/${wa.replace(/\D/g,"")}?text=${encodeURIComponent(msg)}`;
+    return `<div class="rounded-[20px] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+      ${img?`<img src="${img}" class="w-full h-[260px] object-cover">`:"<div class='h-[200px] bg-zinc-100'></div>"}
+      <div class="p-4">
+        <h3 class="font-semibold text-[15px]">${s.title}</h3>
+        <p class="text-[13px] text-zinc-500 mt-1 line-clamp-2">${s.description||""}</p>
+        <p class="mt-2 font-bold">$${s.price||29}</p>
+        <a href="${waLink}" target="_blank" class="mt-3 flex h-11 items-center justify-center gap-2 rounded-full bg-[#25D366] text-white font-bold text-[13px]">Buy via WhatsApp - Seller Only</a>
+        ${amorRole==='main'?`<button onclick="deleteMerch('${s.id}')" class="mt-2 w-full h-8 rounded-full border text-[11px]">Delete (Admin)</button>`:""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderMyProfile(){
+  const el=document.getElementById("my-profile-content");
+  if(!myProfileId){el.innerHTML='<div class="rounded-[20px] border border-dashed border-zinc-300 p-8 text-center"><p class="text-[14px] text-zinc-500">No profile yet. Add your profile from Discover.</p></div>';return;}
+  const p = profiles.find(x=>x.id===myProfileId);
+  if(!p){el.innerHTML=`<div class="rounded-[20px] border p-6"><p class="text-[13px]">Profile ID: ${myProfileId} not found (maybe deleted). <button onclick="localStorage.removeItem('my_profile_id');location.reload()" class="underline">Clear</button></p></div>`;return;}
+  el.innerHTML=`<div class="rounded-[22px] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+    <img src="${p.photo_url}" class="w-full h-[420px] object-cover">
+    <div class="p-5">
+      <h2 class="font-bold text-[20px]">${p.name} ${p.age?`, ${p.age}`:""}</h2>
+      <p class="text-[13px] text-zinc-500">${p.location||""}</p>
+      <p class="mt-3 text-[14px]">${p.bio||""}</p>
+      <div class="mt-4 flex gap-2"><button onclick="deleteProfile('${p.id}')" class="h-9 px-4 rounded-full bg-black text-white text-[12px]">Delete My Profile</button><button onclick="localStorage.removeItem('my_profile_id');location.reload()" class="h-9 px-4 rounded-full border text-[12px]">Logout</button></div>
+    </div>
+  </div>`;
+}
+
+// Tabs
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active","bg-black","text-white","dark:bg-white","dark:text-black"));
+    btn.classList.add("active","bg-black","text-white","dark:bg-white","dark:text-black");
+    const tab=btn.dataset.tab;
+    document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
+    document.getElementById("view-"+tab).classList.remove("hidden");
+    if(tab==="inbox" && myProfileId) loadInbox();
+  });
+});
+
+// Add profile modal
+document.getElementById("open-add-profile").addEventListener("click",()=>document.getElementById("add-profile-modal").classList.remove("hidden"));
+document.getElementById("close-modal").addEventListener("click",()=>document.getElementById("add-profile-modal").classList.add("hidden"));
+document.getElementById("close-modal-bg").addEventListener("click",()=>document.getElementById("add-profile-modal").classList.add("hidden"));
+document.getElementById("f-photo").addEventListener("change", async (e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  document.getElementById("f-photo-name").textContent=file.name;
+  const {dataUrl} = await compressImage(file);
+  document.getElementById("f-preview").src=dataUrl;
+  document.getElementById("f-preview-wrap").classList.remove("hidden");
+});
+document.getElementById("live-photo").addEventListener("change", async (e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  const {dataUrl} = await compressImage(file);
+  document.getElementById("live-preview-img").src=dataUrl;
+  document.getElementById("live-preview").classList.remove("hidden");
+  document.getElementById("live-preview").dataset.url=dataUrl;
+});
+
+document.getElementById("add-profile-form").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const btn=document.getElementById("f-submit");
+  btn.textContent="Creating..."; btn.disabled=true;
+  try{
+    let photoUrl="";
+    const file=document.getElementById("f-photo").files[0];
+    if(file){
+      const {dataUrl}=await compressImage(file);
+      photoUrl=dataUrl;
+    } else {
+      photoUrl="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&q=80";
+    }
+    const name=document.getElementById("f-name").value.trim();
+    const age=parseInt(document.getElementById("f-age").value)||null;
+    const location=document.getElementById("f-location").value.trim();
+    const bio=document.getElementById("f-bio").value.trim();
+    const password=document.getElementById("f-password").value.trim();
+    if(!name||!password){alert("Name and password required"); return;}
+    const {data, error} = await supabase.from("profiles").insert({name, age, location, bio, photo_url: photoUrl, password, approved:true, status:"approved"}).select().single();
+    if(error) throw error;
+    myProfileId=data.id;
+    localStorage.setItem("my_profile_id", data.id);
+    profiles.unshift(data);
+    renderDiscover();
+    renderMyProfile();
+    document.getElementById("add-profile-modal").classList.add("hidden");
+    // auto go to inbox
+    document.querySelector('[data-tab="inbox"]').click();
+    alert("Profile created! You are now logged in to inbox.");
+  }catch(err){alert("Failed: "+err.message); console.error(err);}
+  finally{btn.textContent="Create Profile & Login to Inbox"; btn.disabled=false;}
+});
+
+document.getElementById("post-live").addEventListener("click", async ()=>{
+  const msg=document.getElementById("live-message").value.trim();
+  const photo=document.getElementById("live-preview").dataset.url||"";
+  if(!msg && !photo) return;
+  try{
+    const {data, error}=await supabase.from("live_posts").insert({message:msg, photo_url:photo, image_url:photo}).select().single();
+    if(error) throw error;
+    livePosts.unshift(data);
+    document.getElementById("live-message").value="";
+    document.getElementById("live-preview").classList.add("hidden");
+    document.getElementById("live-preview").dataset.url="";
+    renderLive();
+  }catch(e){alert(e.message)}
+});
+
+// Inbox functions
+async function loadInbox(){
+  if(!myProfileId) return;
+  document.getElementById("inbox-login").classList.add("hidden");
+  document.getElementById("inbox-main").classList.remove("hidden");
+  try{
+    const {data} = await supabase.from("messages").select("*").or(`sender_id.eq.${myProfileId},receiver_id.eq.${myProfileId}`).order("created_at",{ascending:true});
+    messages = data||[];
+    renderConversations();
+    if(selectedChatUser) renderChat();
+  }catch(e){console.warn(e)}
+}
+
+function renderConversations(){
+  const list=document.getElementById("conv-list");
+  const convMap={};
+  messages.forEach(m=>{
+    const other = m.sender_id===myProfileId? m.receiver_id : m.sender_id;
+    if(!convMap[other]) convMap[other]=[];
+    convMap[other].push(m);
+  });
+  // also include profiles that user clicked Message but no messages yet
+  if(selectedChatUser && !convMap[selectedChatUser]){
+    const p=profiles.find(x=>x.id===selectedChatUser);
+    if(p) convMap[selectedChatUser]=[];
+  }
+  const entries=Object.entries(convMap);
+  if(!entries.length){list.innerHTML='<p class="p-4 text-[12px] text-zinc-500">No conversations yet. Go to Discover and click Message.</p>';return;}
+  list.innerHTML=entries.map(([otherId, msgs])=>{
+    const p=profiles.find(x=>x.id===otherId);
+    const name=p? p.name : otherId.slice(0,8);
+    const last=msgs[msgs.length-1];
+    const unread = msgs.filter(m=>m.receiver_id===myProfileId && !m.read).length;
+    return `<button onclick="openChat('${otherId}')" class="w-full text-left p-3 flex gap-3 hover:bg-zinc-50 dark:hover:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 ${selectedChatUser===otherId?'bg-zinc-100 dark:bg-zinc-800':''}">
+      <img src="${p?.photo_url||''}" class="h-10 w-10 rounded-full object-cover bg-zinc-200">
+      <div class="flex-1 min-w-0"><div class="flex justify-between"><span class="font-medium text-[13px] truncate">${name}</span>${unread?`<span class="bg-red-500 text-white text-[10px] px-1.5 rounded-full">${unread}</span>`:""}</div><p class="text-[11px] text-zinc-500 truncate">${last?last.message:"No messages yet"}</p></div>
+    </button>`;
+  }).join("");
+}
+
+function renderChat(){
+  if(!selectedChatUser) return;
+  const p=profiles.find(x=>x.id===selectedChatUser);
+  document.getElementById("chat-header").textContent = p? p.name : selectedChatUser;
+  const chat=document.getElementById("chat-messages");
+  const filtered=messages.filter(m=>(m.sender_id===myProfileId && m.receiver_id===selectedChatUser) || (m.sender_id===selectedChatUser && m.receiver_id===myProfileId));
+  chat.innerHTML=filtered.map(m=>{
+    const isMe=m.sender_id===myProfileId;
+    return `<div class="flex ${isMe?'justify-end':''}"><div class="${isMe?'bg-black text-white dark:bg-white dark:text-black':'bg-white dark:bg-zinc-800 border'} rounded-[16px] px-3 py-2 max-w-[75%] text-[13px]">${m.message}<div class="text-[10px] opacity-60 mt-1">${new Date(m.created_at).toLocaleTimeString()}</div></div></div>`;
+  }).join("");
+  chat.scrollTop=chat.scrollHeight;
+  // mark read
+  filtered.filter(m=>m.receiver_id===myProfileId && !m.read).forEach(async m=>{
+    await supabase.from("messages").update({read:true}).eq("id", m.id);
+  });
+}
+
+window.startChat = function(userId){
+  if(!myProfileId){alert("Create a profile first to message!"); document.querySelector('[data-tab="inbox"]').click(); return;}
+  if(userId===myProfileId){alert("Can't message yourself"); return;}
+  selectedChatUser=userId;
+  document.querySelector('[data-tab="inbox"]').click();
+  loadInbox();
+};
+
+window.openChat = function(userId){
+  selectedChatUser=userId;
+  renderConversations();
+  renderChat();
+};
+
+document.getElementById("chat-send").addEventListener("click", sendMessage);
+document.getElementById("chat-input").addEventListener("keydown", e=>{if(e.key==="Enter") sendMessage();});
+
+async function sendMessage(){
+  const input=document.getElementById("chat-input");
+  const text=input.value.trim();
+  if(!text||!selectedChatUser||!myProfileId) return;
+  try{
+    const {data, error}=await supabase.from("messages").insert({sender_id:myProfileId, receiver_id:selectedChatUser, message:text}).select().single();
+    if(error) throw error;
+    messages.push(data);
+    input.value="";
+    renderConversations();
+    renderChat();
+  }catch(e){alert(e.message)}
+}
+
+// Login
+document.getElementById("login-btn").addEventListener("click", async ()=>{
+  const name=document.getElementById("login-name").value.trim();
+  const pass=document.getElementById("login-pass").value.trim();
+  if(!name||!pass){document.getElementById("login-error").textContent="Enter name and password"; document.getElementById("login-error").classList.remove("hidden"); return;}
+  const {data, error} = await supabase.from("profiles").select("*").eq("name", name).eq("password", pass).limit(1).single();
+  if(error||!data){document.getElementById("login-error").textContent="Invalid name or password"; document.getElementById("login-error").classList.remove("hidden"); return;}
+  myProfileId=data.id;
+  localStorage.setItem("my_profile_id", data.id);
+  loadInbox();
+});
+
+window.deleteProfile = async (id)=>{
+  if(!confirm("Delete profile "+id+"?")) return;
+  await supabase.from("profiles").delete().eq("id", id);
+  profiles=profiles.filter(p=>p.id!==id);
+  if(myProfileId===id){localStorage.removeItem("my_profile_id"); myProfileId=null;}
+  renderDiscover(); renderMyProfile();
+};
+window.deleteLive = async (id)=>{
+  if(!confirm("Delete wall post "+id+"?")) return;
+  await supabase.from("live_posts").delete().eq("id", id);
+  livePosts=livePosts.filter(p=>p.id!==id);
+  renderLive();
+};
+window.deleteMerch = async (id)=>{
+  if(!confirm("Delete merch "+id+"?")) return;
+  await supabase.from("merch").delete().eq("id", id);
+  merch=merch.filter(p=>p.id!==id);
+  renderMerch();
+};
+
+// Admin login
+document.getElementById("admin-login-btn").addEventListener("click", ()=>{
+  const pass=document.getElementById("admin-pass").value;
+  if(pass==="kashyellow5844"){amorRole="main"; localStorage.setItem("amor_role","main"); alert("Main Admin logged in"); location.reload();}
+  else if(pass==="amorstaff2024"){amorRole="sub"; localStorage.setItem("amor_role","sub"); alert("Sub Admin logged in"); location.reload();}
+  else alert("Incorrect password");
+});
+
+fetchAll();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
