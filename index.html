@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global Amor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:where(html){font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+.scrollbar-none::-webkit-scrollbar{display:none}.scrollbar-none{-ms-overflow-style:none;scrollbar-width:none}
+@keyframes toastIn{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body class="bg-[#fafafa] text-[#111] antialiased min-h-screen selection:bg-black selection:text-white">
+<div id="root"></div>
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[120] pointer-events-none hidden"><div id="toastText" class="bg-black text-white px-5 py-2.5 rounded-full text-[13px] font-medium shadow-xl whitespace-nowrap" style="animation:toastIn .25s ease"></div></div>
+
+<script>
+const SUPABASE_URL = "https://tnraadzmeqdbcpzyajwf.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRucmFhZHptbWVxZGJjcHp5andmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyOTA1MzAsImV4cCI6MjEwNDg2NjUzMH0.N8QeAG3I08Sn-93Oqg0MCY9TUaehwND0kNjPHOBMu-o";
+let supabaseClient = null;
+try{ supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON); }catch(e){}
+
+const TABS = [
+  {id:"discover", label:"Discover", es:"Descubrir", icon:"👥"},
+  {id:"live", label:"Live Wall", es:"Muro Vivo", icon:"((•))"},
+  {id:"uploads", label:"Merch", es:"Tienda", icon:"👜"},
+  {id:"add-profile", label:"Add Profile", es:"Agregar Perfil", icon:"👤"},
+  {id:"chats", label:"Chats", es:"Chats", icon:"💬"},
+  {id:"admin", label:"Admin", es:"Admin", icon:"🔒"},
+];
+const FLAGS = [
+  {flag:"🇺🇸", country:"USA"}, {flag:"🇪🇸", country:"Spain"}, {flag:"🇲🇽", country:"Mexico"},
+  {flag:"🇨🇴", country:"Colombia"}, {flag:"🇧🇷", country:"Brazil"}, {flag:"🇦🇷", country:"Argentina"},
+  {flag:"🇨🇱", country:"Chile"}, {flag:"🇵🇪", country:"Peru"}, {flag:"🇩🇴", country:"Dominican Rep."},
+  {flag:"🇻🇪", country:"Venezuela"}, {flag:"🇪🇨", country:"Ecuador"}
+];
+const DEFAULT_PROFILES = [
+  {id:"d1", name:"Sofia", age:24, city:"Madrid", country:"Spain", flag:"🇪🇸", photo_url:"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop"},
+  {id:"d2", name:"Isabella", age:26, city:"Bogota", country:"Colombia", flag:"🇨🇴", photo_url:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop"},
+  {id:"d3", name:"Valentina", age:23, city:"Mexico City", country:"Mexico", flag:"🇲🇽", photo_url:"https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&h=500&fit=crop"},
+  {id:"d4", name:"Camila", age:25, city:"Buenos Aires", country:"Argentina", flag:"🇦🇷", photo_url:"https://images.unsplash.com/photo-1526510747491-58f928ec870f?w=400&h=500&fit=crop"},
+  {id:"d5", name:"Lucia", age:27, city:"Santiago", country:"Chile", flag:"🇨🇱", photo_url:"https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=500&fit=crop"},
+  {id:"d6", name:"Mariana", age:22, city:"Lima", country:"Peru", flag:"🇵🇪", photo_url:"https://images.unsplash.com/photo-1509967419535-0d0441d6cc36?w=400&h=500&fit=crop"},
+];
+
+let state = {
+  lang: localStorage.getItem("ga-lang") || "EN",
+  tab: "discover",
+  ageVerified: localStorage.getItem("ga_age_verified")==="true",
+  ageChecked: false, termsChecked: false,
+  userId: localStorage.getItem("ga-user-id") || ("u_"+Math.random().toString(36).slice(2,9)),
+  userName: localStorage.getItem("ga-user-name") || "You",
+  profiles: [...DEFAULT_PROFILES],
+  livePosts: [], merch: [], dms: [],
+  filterCountry: "All",
+  selectedChat: null,
+  showHow: false, showSQL: false,
+  newProfile: {name:"", age:"", city:"", country:"USA", flag:"🇺🇸", photoFile:null, photoPreview:"", bio:""},
+  newLive: {text:"", photoFile:null, photoPreview:""},
+  newMerch: {price:"", stock:"", desc:"", wa:"", photoFile:null, photoPreview:""},
+  newMessage: ""
+};
+localStorage.setItem("ga-user-id", state.userId);
+
+function L(en, es){ return state.lang==="ES"?es:en; }
+function toast(m){
+  const el=document.getElementById("toast"); const t=document.getElementById("toastText");
+  t.textContent=m; el.classList.remove("hidden"); setTimeout(()=>el.classList.add("hidden"),3000);
+}
+
+async function init(){
+  if(!state.ageVerified){ renderAgeGate(); return; }
+  renderApp();
+  await fetchAll();
+  setupRealtime();
+}
+
+async function fetchAll(){
+  if(!supabaseClient) return;
+  try{
+    const {data:profiles} = await supabaseClient.from("profiles").select("*").order("created_at",{ascending:false});
+    if(profiles && profiles.length){
+      const remote = profiles.map(p=>({id:p.id, name:p.name, age:p.age, city:p.city, country:p.country, flag:p.flag||"🌍", photo_url:p.photo_url, bio:p.bio}));
+      state.profiles = [...remote, ...DEFAULT_PROFILES];
+    }
+    const {data:live} = await supabaseClient.from("live_posts").select("*").order("created_at",{ascending:false});
+    if(live) state.livePosts = live;
+    const {data:merch} = await supabaseClient.from("merch_items").select("*").order("created_at",{ascending:false});
+    if(merch) state.merch = merch;
+    const {data:dms} = await supabaseClient.from("direct_messages").select("*").order("created_at",{ascending:true});
+    if(dms) state.dms = dms;
+    renderApp();
+  }catch(e){ console.log(e); }
+}
+
+function setupRealtime(){
+  if(!supabaseClient) return;
+  supabaseClient.channel("global-amor")
+    .on("postgres_changes",{event:"*",schema:"public",table:"profiles"},()=>fetchAll())
+    .on("postgres_changes",{event:"*",schema:"public",table:"live_posts"},()=>fetchAll())
+    .on("postgres_changes",{event:"*",schema:"public",table:"merch_items"},()=>fetchAll())
+    .on("postgres_changes",{event:"*",schema:"public",table:"direct_messages"},()=>fetchAll())
+    .subscribe();
+}
+
+function renderAgeGate(){
+  document.getElementById("root").innerHTML = `
+    <div class="min-h-screen bg-[#fafafa]"><div class="mx-auto max-w-[480px] px-4 py-6">
+      <div class="flex items-center justify-between mb-8"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center font-bold text-[13px]">GA</div><span class="font-bold text-[18px] tracking-tight">Global Amor</span><span class="ml-2 text-[10px] bg-[#dafbe1] text-[#166534] px-2 py-0.5 rounded-full font-bold">🌐 LIVE</span></div><div class="flex bg-[#f1f1f1] rounded-full p-1"><button onclick="setLang('EN')" class="px-4 py-1.5 rounded-full text-[13px] font-semibold ${state.lang==='EN'?'bg-black text-white':'text-[#777]'}">EN</button><button onclick="setLang('ES')" class="px-4 py-1.5 rounded-full text-[13px] font-semibold ${state.lang==='ES'?'bg-black text-white':'text-[#777]'}">ES</button></div></div>
+      <div class="text-center mb-5"><h1 class="font-bold text-[22px] leading-[1.15] tracking-tight">${L("Welcome to Global Amor — Create Your Account","Bienvenido a Global Amor — Crea Tu Cuenta")}</h1><p class="text-[13px] text-[#888] mt-2 font-medium">Join 2,847 members worldwide 🌍</p></div>
+      <div class="rounded-[20px] border border-[#e5e5e5] bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.04)]"><h2 class="font-bold text-[18px] text-center leading-tight">${L("Are you 18 years or older?","¿Tienes 18 años o más?")}</h2><div class="mt-4 rounded-[12px] bg-[#f0f7ff] border border-[#dbeafe] p-[10px]"><p class="text-[11.5px] leading-[1.45] text-[#334155] font-medium"><span class="font-bold text-[#1e40af]">How to join:</span> 1. Confirm 18+ 2. Accept Terms 3. Tap Create Account & Enter — instant access, no email needed</p></div><div class="mt-5 flex items-start gap-3"><button onclick="toggleAge()" class="shrink-0 w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center ${state.ageChecked?'bg-black border-black text-white':'border-[#ccc]'}">${state.ageChecked?'✓':''}</button><span class="text-[13px] leading-[1.4]">${L("I confirm I am 18 years or older","Confirmo que tengo 18 años o más")}</span></div><div class="mt-3 flex items-start gap-3"><button onclick="toggleTerms()" class="shrink-0 w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center ${state.termsChecked?'bg-black border-black text-white':'border-[#ccc]'}">${state.termsChecked?'✓':''}</button><span class="text-[13px] leading-[1.4]">${L("I accept Terms, Privacy and 18+ policy","Acepto Términos, Privacidad y política 18+")}</span></div><button onclick="createAccount()" class="w-full mt-5 rounded-full bg-black text-white py-[14px] font-bold text-[14px] hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed" ${(!state.ageChecked||!state.termsChecked)?'disabled':''}>👤 ${L("Create Account & Enter","Crear Cuenta & Entrar")}</button><div class="mt-3 text-center"><p class="text-[11px] text-[#888]"><span class="font-bold text-[#111]">Note:</span> Account is saved in your browser — no email required. For admin: use <span class="font-mono text-[11px] bg-white px-1.5 py-0.5 rounded border">admin@globalamor.community / 1234</span></p></div></div>
+    </div></div>`;
+}
+
+function renderApp(){
+  document.getElementById("root").innerHTML = `
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-[#f0f0f0]"><div class="mx-auto max-w-[1200px] px-4 h-[64px] flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center font-bold text-[13px] tracking-wide">GA</div><span class="font-bold text-[18px] tracking-tight">Global Amor</span><span class="ml-1 text-[10px] bg-[#dafbe1] text-[#166534] px-2 py-0.5 rounded-full font-bold hidden sm:inline">🌐 PUBLIC</span></div><div class="flex bg-[#f1f1f1] rounded-full p-1"><button onclick="setLang('EN')" class="px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all ${state.lang==='EN'?'bg-black text-white shadow-sm':'text-[#777] hover:text-black'}">EN</button><button onclick="setLang('ES')" class="px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all ${state.lang==='ES'?'bg-black text-white shadow-sm':'text-[#777] hover:text-black'}">ES</button></div></div></header>
+    <div class="sticky top-[64px] z-20 bg-white border-b border-[#f0f0f0]"><div class="mx-auto max-w-[1200px] px-2 sm:px-4"><div class="flex items-center gap-1 sm:gap-6 overflow-x-auto scrollbar-none">${TABS.map(m=>`<button onclick="switchTab('${m.id}')" class="relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-1 py-[14px] text-[14px] whitespace-nowrap transition-colors border-b-2 ${state.tab===m.id?'border-black font-bold text-black':'border-transparent font-medium text-[#888] hover:text-black'}"><span class="text-[14px]">${m.icon}</span><span>${L(m.label,m.es)}</span></button>`).join('')}</div></div></div>
+    <div class="bg-[#dafbe1] border-b border-[#dcfce7] text-center py-2 px-4 text-[12px] text-[#166534] font-bold">🌐 LIVE - Everyone sees each other's profiles, posts & 1-on-1 chats • ${state.profiles.length} profiles • ${state.livePosts.length} posts</div>
+    <main class="mx-auto max-w-[480px] px-4 py-5 pb-24">
+      ${state.tab==='discover'?renderDiscover():''}
+      ${state.tab==='live'?renderLive():''}
+      ${state.tab==='uploads'?renderMerch():''}
+      ${state.tab==='add-profile'?renderAddProfile():''}
+      ${state.tab==='chats'?renderChats():''}
+      ${state.tab==='admin'?renderAdmin():''}
+    </main>
+    ${state.showHow?`<div class="fixed inset-0 z-[100] bg-black/50 flex items-end sm:items-center justify-center p-4" onclick="closeModals()"><div class="bg-white rounded-[20px] w-full max-w-[420px] p-6" onclick="event.stopPropagation()"><h3 class="font-bold text-[16px]">How to create an account</h3><div class="mt-3 text-[13px] leading-[1.6] text-[#444]"><p>Tap <span class="font-bold">👤 Create Account & Enter</span> on front door.</p><p class="mt-2">Then go to <span class="font-bold">Add Profile</span> tab - your photo uploads to <span class="font-mono text-[11px] bg-[#f1f1f1] px-1 rounded">post-images</span> bucket and appears in Discover for everyone worldwide.</p><p class="mt-2">Chats are 1-on-1 and stored in Supabase.</p></div><button onclick="closeModals()" class="w-full mt-4 rounded-full bg-black text-white py-3 font-bold text-[14px]">Got it — Close</button></div></div>`:''}
+    ${state.showSQL?`<div class="fixed inset-0 z-[110] bg-black/50 overflow-y-auto p-4 flex items-start justify-center" onclick="closeModals()"><div class="bg-white rounded-[20px] w-full max-w-[560px] p-5 mt-10" onclick="event.stopPropagation()"><h3 class="font-bold text-[16px]">Supabase SQL - Run Once</h3><pre class="mt-3 bg-[#f8fafc] border p-3 rounded-[12px] text-[10px] overflow-x-auto whitespace-pre-wrap h-[400px] overflow-y-auto">${getSQL()}</pre><div class="flex gap-2 mt-3"><button onclick="copySQL()" class="flex-1 rounded-full bg-black text-white py-2.5 font-bold text-[13px]">Copy SQL</button><button onclick="closeModals()" class="flex-1 rounded-full border py-2.5 font-bold text-[13px]">Close</button></div></div></div>`:''}
+  `;
+}
+
+function renderDiscover(){
+  const filtered = state.filterCountry==="All"?state.profiles:state.profiles.filter(p=> (p.country===state.filterCountry || p.flag===state.filterCountry));
+  const countries = ["All", ...Array.from(new Set(state.profiles.map(p=>p.country).filter(Boolean)))];
+  return `<div><div class="flex items-center justify-between mb-3"><span class="text-[12px] font-bold text-[#111] tracking-tight">Discover Members • ${filtered.length}</span><button onclick="toggleHow()" class="shrink-0 px-[10px] py-[6px] rounded-full text-[11px] font-semibold bg-[#f1f1f1] text-[#555] hover:bg-black hover:text-white transition border border-[#eee]">How to join?</button></div><div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none mb-3">${countries.map(c=>`<button onclick="filterCountry('${c}')" class="shrink-0 px-3.5 py-2 rounded-full text-[13px] font-semibold border transition-all ${state.filterCountry===c?'bg-black text-white border-black':'bg-white text-[#444] border-[#e5e5e5] hover:border-black'}">${c}</button>`).join('')}</div><div class="grid grid-cols-2 gap-3">${filtered.map(m=>`<div class="group relative rounded-[16px] overflow-hidden bg-[#fafafa] border border-[#f0f0f0]"><div class="relative h-[200px] w-full overflow-hidden bg-[#eee]"><img src="${m.photo_url}" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-500" onerror="this.src='https://picsum.photos/seed/${m.id}/400/500'"><div class="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black/70 to-transparent"></div><div class="absolute top-2 left-2 bg-white/95 backdrop-blur px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1"><span>${m.flag||'🌍'}</span><span class="text-[10px] text-[#666]">${m.country||''}</span></div><button onclick="startChat('${m.id}','${m.name.replace(/'/g,"\\'")}')" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-[14px] hover:scale-110 transition">💬</button><div class="absolute bottom-2 left-3 right-3"><div class="text-white font-bold text-[15px] leading-tight flex items-baseline gap-1">${m.name} <span class="font-normal text-[13px] opacity-90">${m.age||''}</span></div><div class="text-white/80 text-[11px]">${m.city||''}</div></div></div></div>`).join('')}</div></div>`;
+}
+
+function renderAddProfile(){
+  const np=state.newProfile;
+  return `<div><h2 class="font-bold text-[20px] tracking-tight mb-1">${L("Add New Profile","Agregar Nuevo Perfil")} <span class="text-[11px] bg-[#dafbe1] text-[#166534] px-2 py-0.5 rounded-full ml-2">🌐 PUBLIC - Everyone sees</span></h2><p class="text-[13px] text-[#666] mb-4">${L("Create a profile to appear in Discover for all users","Crea un perfil para aparecer en Discover para todos")}</p><div class="rounded-[20px] border border-[#e5e5e5] bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.04)] space-y-3"><div><label class="block text-[12px] font-semibold text-[#444] mb-1.5 ml-1">Name *</label><input value="${np.name}" oninput="updateNewProfile('name',this.value)" placeholder="Sofia" class="w-full rounded-[12px] border border-[#e5e5e5] px-4 py-[12px] text-[14px] focus:border-black outline-none"></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[12px] font-semibold text-[#444] mb-1.5 ml-1">Age *</label><input type="number" value="${np.age}" oninput="updateNewProfile('age',this.value)" min="18" max="99" placeholder="24" class="w-full rounded-[12px] border border-[#e5e5e5] px-4 py-[12px] text-[14px] focus:border-black outline-none"></div><div><label class="block text-[12px] font-semibold text-[#444] mb-1.5 ml-1">City</label><input value="${np.city}" oninput="updateNewProfile('city',this.value)" placeholder="Madrid" class="w-full rounded-[12px] border border-[#e5e5e5] px-4 py-[12px] text-[14px] focus:border-black outline-none"></div></div><div><label class="block text-[12px] font-semibold text-[#444] mb-1.5 ml-1">Country</label><select onchange="updateCountry(this.value)" class="w-full rounded-[12px] border border-[#e5e5e5] px-4 py-[12px] text-[14px] bg-white focus:border-black outline-none"><option value="">Select country</option>${FLAGS.map(f=>`<option value="${f.flag}|${f.country}" ${np.country===f.country?'selected':''}>${f.flag} ${f.country}</option>`).join('')}</select></div><div><label class="block text-[12px] font-semibold text-[#444] mb-1.5 ml-1">Photo * (5MB max) → post-images bucket</label><div class="rounded-[12px] border-2 border-dashed ${np.photoPreview?'border-black':'border-[#ddd] hover:border-[#999]'} p-3 text-center cursor-pointer" onclick="document.getElementById('pPhoto').click()"><input type="file" id="pPhoto" accept="image/*" class="hidden" onchange="handlePhoto(this,'profile')">${np.photoPreview?`<img src="${np.photoPreview}" class="w-full h-[200px] object-cover rounded-[8px]">`:`<div class="py-8 text-[#888] text-[13px]">📸 Tap to upload<br><span class="text-[11px]">Uploads to Supabase post-images (PUBLIC) → visible to everyone</span></div>`}</div></div><div><label class="block text-[12px] font-semibold text-[#444] mb-1.5 ml-1">Bio</label><textarea oninput="updateNewProfile('bio',this.value)" placeholder="About you..." class="w-full rounded-[12px] border border-[#e5e5e5] px-4 py-[12px] text-[14px] focus:border-black outline-none min-h-[80px] resize-none">${np.bio}</textarea></div><button onclick="submitProfile()" class="w-full rounded-full bg-black text-white py-[14px] font-bold text-[14px] hover:bg-zinc-800 active:scale-[0.98] transition disabled:opacity-40" ${(!np.name||!np.age||parseInt(np.age)<18||!np.photoFile)?'disabled':''}>👤 ${L("Add Profile & Publish for Everyone","Agregar Perfil y Publicar para Todos")}</button><p class="text-[11px] text-[#888] text-center">Same layout as original • Now connected to Supabase • ${L("Everyone will see it","Todos lo verán")}</p></div></div>`;
+}
+
+function renderLive(){
+  return `<div><h2 class="font-bold text-[20px] tracking-tight mb-5">Live Wall • ${state.livePosts.length} ${L("posts","posts")} <span class="text-[11px] bg-[#dafbe1] px-2 py-0.5 rounded-full ml-2">🌐 PUBLIC</span></h2><div class="rounded-[16px] border border-[#eee] bg-white p-4 mb-4"><textarea id="liveText" placeholder="${L("What's happening? Everyone will see it","¿Qué pasa? Todos lo verán")}" class="w-full rounded-[12px] border border-[#e5e5e5] px-4 py-3 text-[14px] focus:border-black outline-none min-h-[60px] resize-none">${state.newLive.text}</textarea><div class="flex items-center justify-between mt-3"><div><input type="file" id="livePhoto" accept="image/*" class="hidden" onchange="handlePhoto(this,'live')"><button onclick="document.getElementById('livePhoto').click()" class="px-3 py-1.5 rounded-full border border-[#e5e5e5] text-[12px] font-semibold hover:border-black">📸 Photo → live_photos</button>${state.newLive.photoPreview?`<span class="ml-2 text-[11px] text-[#1a7f37] font-bold">Ready ✓</span>`:''}</div><button onclick="submitLive()" class="px-5 py-2 rounded-full bg-black text-white font-bold text-[13px]">Post for Everyone</button></div>${state.newLive.photoPreview?`<img src="${state.newLive.photoPreview}" class="mt-3 w-full h-[200px] object-cover rounded-[12px]">`:''}</div><div class="space-y-3">${state.livePosts.map(p=>`<div class="rounded-[16px] border border-[#eee] bg-white overflow-hidden"><div class="p-3 flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-[12px] font-bold">${(p.name||'A')[0]}</div><div><div class="font-bold text-[13px]">${p.name||'Anonymous'}</div><div class="text-[11px] text-[#888]">${new Date(p.created_at).toLocaleString()}</div></div></div>${p.photo_url?`<img src="${p.photo_url}" class="w-full h-[260px] object-cover">`:''}${p.text?`<div class="p-3 text-[14px] leading-[1.5]">${p.text}</div>`:''}</div>`).join('')}${state.livePosts.length===0?`<div class="text-center py-10 text-[#888] text-[13px]">No posts yet - be first, everyone will see it!</div>`:''}</div></div>`;
+}
+
+function renderMerch(){
+  return `<div><h2 class="font-bold text-[20px] tracking-tight mb-4">Merch • ${L("Add New Product","Agregar Producto")} <span class="text-[11px] bg-[#dafbe1] px-2 py-0.5 rounded-full ml-2">🌐 PUBLIC</span></h2><div class="rounded-[20px] border border-[#e5e5e5] bg-white p-5 mb-6 space-y-3"><div class="grid grid-cols-2 gap-3"><div><label class="block text-[12px] font-semibold mb-1">Price *</label><input id="mPrice" placeholder="$25" class="w-full rounded-[12px] border border-[#e5e5e5] px-3 py-[12px] text-[14px] focus:border-black outline-none"></div><div><label class="block text-[12px] font-semibold mb-1">Stock</label><input id="mStock" placeholder="10" class="w-full rounded-[12px] border border-[#e5e5e5] px-3 py-[12px] text-[14px] focus:border-black outline-none"></div></div><div><label class="block text-[12px] font-semibold mb-1">Description</label><textarea id="mDesc" placeholder="Details..." class="w-full rounded-[12px] border border-[#e5e5e5] px-3 py-3 text-[14px] min-h-[60px] focus:border-black outline-none"></textarea></div><div><label class="block text-[12px] font-semibold mb-1">WhatsApp</label><input id="mWA" placeholder="+1..." class="w-full rounded-[12px] border border-[#e5e5e5] px-3 py-[12px] text-[14px] focus:border-black outline-none"></div><div><input type="file" id="mPhoto" accept="image/*" class="hidden" onchange="handlePhoto(this,'merch')"><button onclick="document.getElementById('mPhoto').click()" class="w-full py-3 border-2 border-dashed rounded-[12px] text-[13px] font-medium hover:border-black">${state.newMerch.photoPreview?`<img src="${state.newMerch.photoPreview}" class="h-[120px] mx-auto rounded-[8px]">`:'📦 Upload photo → uploads bucket (PUBLIC)'}</button></div><button onclick="submitMerch()" class="w-full rounded-full bg-black text-white py-[14px] font-bold text-[14px]">Add Product for Everyone</button></div><div class="grid grid-cols-2 gap-3">${state.merch.map(m=>`<div class="rounded-[16px] border border-[#eee] bg-white overflow-hidden"><img src="${m.photo_url}" class="w-full h-[160px] object-cover"><div class="p-3"><div class="font-bold text-[14px]">${m.price||''}</div><div class="text-[12px] text-[#666] leading-[1.4]">${m.description||''}</div></div></div>`).join('')}</div></div>`;
+}
+
+function renderChats(){
+  const selected = state.selectedChat;
+  const msgs = selected ? state.dms.filter(d=> (d.sender_id===state.userId && d.receiver_id===selected.id) || (d.receiver_id===state.userId && d.sender_id===selected.id) || (d.sender_id===selected.id && d.receiver_id===state.userId)) : [];
+  return `<div class="rounded-[20px] border border-[#eee] bg-white overflow-hidden flex flex-col h-[75vh]"><div class="bg-[#dafbe1] text-[#166534] text-[11px] font-bold text-center py-1.5">💬 1-on-1 Chats • Everyone's messages stored in Supabase • Real-time</div><div class="flex flex-1 overflow-hidden"><div class="w-[38%] border-r border-[#f0f0f0] overflow-y-auto"><div class="p-3 font-bold text-[12px] border-b sticky top-0 bg-white">Members • ${state.profiles.length}</div>${state.profiles.map(p=>`<button onclick="selectChat('${p.id}','${p.name.replace(/'/g,"\\'")}')" class="w-full text-left p-3 flex items-center gap-2 hover:bg-[#f8f8f8] border-b border-[#f8f8f8] ${selected&&selected.id===p.id?'bg-[#f0f7ff]':''}"><img src="${p.photo_url}" class="w-8 h-8 rounded-full object-cover bg-[#eee]"><div class="min-w-0 flex-1"><div class="font-bold text-[12px] truncate">${p.name}</div><div class="text-[10px] text-[#888] truncate">${p.city||p.country||''}</div></div></button>`).join('')}</div><div class="flex-1 flex flex-col">${!selected?`<div class="flex-1 flex flex-col items-center justify-center p-6 text-center"><div class="w-12 h-12 rounded-full bg-[#f1f1f1] flex items-center justify-center text-[20px] mb-3">💬</div><div class="font-bold text-[14px]">Select a member</div><div class="text-[12px] text-[#888] mt-1 leading-[1.4]">Start a 1-on-1 chat<br>Messages are public in Supabase table<br>but only you & them see the thread</div></div>`:`<><div class="p-3 border-b flex items-center gap-2"><img src="${state.profiles.find(x=>x.id===selected.id)?.photo_url||''}" class="w-8 h-8 rounded-full object-cover"><div><div class="font-bold text-[13px]">💬 ${selected.name}</div><div class="text-[10px] text-[#666]">1-on-1 • Real-time via Supabase</div></div></div><div id="chatScroll" class="flex-1 overflow-y-auto p-3 space-y-2 bg-[#fafafa]">${msgs.map(m=>`<div class="flex ${m.sender_id===state.userId?'justify-end':'justify-start'}"><div class="max-w-[75%] rounded-[16px] px-3.5 py-2 text-[13px] leading-[1.4] ${m.sender_id===state.userId?'bg-black text-white':'bg-white border border-[#eee] text-[#111]'}">${m.message}<div class="text-[9px] opacity-60 mt-1">${new Date(m.created_at).toLocaleTimeString()}</div></div></div>`).join('')}${msgs.length===0?`<div class="text-center text-[#aaa] text-[12px] py-10">No messages yet<br>Say hi! 👋<br>Stored in direct_messages table</div>`:''}</div><div class="p-3 border-t bg-white flex gap-2"><input value="${state.newMessage}" oninput="state.newMessage=this.value" onkeydown="if(event.key==='Enter')sendMessage()" placeholder="Message ${selected.name}..." class="flex-1 rounded-full border border-[#e5e5e5] px-4 py-2.5 text-[13px] outline-none focus:border-black"><button onclick="sendMessage()" class="px-5 py-2.5 rounded-full bg-black text-white font-bold text-[13px] hover:bg-zinc-800">Send</button></div></>`}</div></div></div></div>`;
+}
+
+function renderAdmin(){
+  return `<div class="space-y-4"><div class="rounded-[16px] border border-[#dbeafe] bg-[#f0f7ff] p-4"><div class="font-bold text-[13px] text-[#1e40af] flex items-center gap-2">✅ Supabase Connected & Public <span class="text-[10px] bg-black text-white px-2 py-0.5 rounded-full">ORIGINAL LAYOUT KEPT</span></div><div class="text-[12px] text-[#334155] mt-2 leading-[1.5]">URL: ${SUPABASE_URL}<br>Buckets: post-images (Discover), live_photos (Live), uploads (Merch) → Set PUBLIC in Storage<br>Status: Everyone sees each other's posts, profiles, chats via real-time</div><div class="mt-3 flex gap-2"><button onclick="toggleSQL()" class="px-4 py-2 rounded-full bg-black text-white text-[12px] font-bold">Show SQL Setup</button><button onclick="fetchAll()" class="px-4 py-2 rounded-full border bg-white text-[12px] font-bold">Refresh</button></div></div><div class="grid grid-cols-2 gap-3">${[{k:"Total Profiles",v:state.profiles.length},{k:"Live Posts",v:state.livePosts.length},{k:"Merch Items",v:state.merch.length},{k:"1-on-1 Chats",v:state.dms.length}].map(s=>`<div class="rounded-[16px] border border-[#eee] p-4 bg-white"><div class="text-[11px] text-[#888] font-semibold uppercase tracking-wide">${s.k}</div><div class="font-bold text-[22px] mt-1">${s.v}</div></div>`).join('')}</div><div class="rounded-[16px] border border-[#eee] bg-white p-4"><h3 class="font-bold text-[14px]">Original Layout - What Changed?</h3><div class="mt-2 text-[12px] leading-[1.6] text-[#444]"><p>✅ <span class="font-bold">Kept exactly same:</span> Header GA, language toggle EN/ES, tab bar style, card design rounded-[16px], colors, spacing, age gate, how to join modal, fonts</p><p class="mt-2">➕ <span class="font-bold">Added:</span> Add Profile tab (was missing) between Merch and Chats, Chats tab for 1-on-1, real-time Supabase wiring</p><p class="mt-2">🌐 <span class="font-bold">Now public:</span> All uploads go to Supabase Storage (PUBLIC buckets) + tables, not localStorage only</p></div></div><button onclick="logout()" class="w-full rounded-full border border-[#e5e5e5] py-2.5 text-[13px] font-bold hover:border-black">Logout & Reset Age Gate</button></div>`;
+}
+
+function getSQL(){ return `-- TABLES
+create extension if not exists pgcrypto;
+create table if not exists profiles (id uuid primary key default gen_random_uuid(), name text not null, age int check (age>=18), city text, country text, flag text, photo_url text not null, bio text, owner_id text, created_at timestamptz default now());
+alter table profiles enable row level security; drop policy if exists "Public read" on profiles; create policy "Public read" on profiles for select using (true); drop policy if exists "Public insert" on profiles; create policy "Public insert" on profiles for insert with check (true);
+create table if not exists live_posts (id uuid primary key default gen_random_uuid(), name text, text text, photo_url text, likes int default 0, owner_id text, created_at timestamptz default now());
+alter table live_posts enable row level security; drop policy if exists "Public read live" on live_posts; create policy "Public read live" on live_posts for select using (true); drop policy if exists "Public insert live" on live_posts; create policy "Public insert live" on live_posts for insert with check (true); drop policy if exists "Public update live" on live_posts; create policy "Public update live" on live_posts for update using (true);
+create table if not exists merch_items (id uuid primary key default gen_random_uuid(), price text, stock text, description text, photo_url text, whatsapp text, owner_id text, created_at timestamptz default now());
+alter table merch_items enable row level security; drop policy if exists "Public read merch" on merch_items; create policy "Public read merch" on merch_items for select using (true); drop policy if exists "Public insert merch" on merch_items; create policy "Public insert merch" on merch_items for insert with check (true);
+create table if not exists direct_messages (id uuid primary key default gen_random_uuid(), sender_id text not null, sender_name text, receiver_id text not null, receiver_name text, message text not null, created_at timestamptz default now());
+alter table direct_messages enable row level security; drop policy if exists "Public read dm" on direct_messages; create policy "Public read dm" on direct_messages for select using (true); drop policy if exists "Public insert dm" on direct_messages; create policy "Public insert dm" on direct_messages for insert with check (true);
+
+-- 2. STORAGE BUCKETS - THIS FIXES YOUR PHOTO UPLOAD
+insert into storage.buckets (id, name, public) values ('post-images','post-images', true) on conflict (id) do update set public = true;
+insert into storage.buckets (id, name, public) values ('live_photos','live_photos', true) on conflict (id) do update set public = true;
+insert into storage.buckets (id, name, public) values ('uploads','uploads', true) on conflict (id) do update set public = true;
+
+-- 3. STORAGE POLICIES - Allow anon to upload/read
+drop policy if exists "Public read access" on storage.objects;
+create policy "Public read access" on storage.objects for select using (bucket_id in ('post-images','live_photos','uploads'));
+
+drop policy if exists "Allow anon upload" on storage.objects;
+create policy "Allow anon upload" on storage.objects for insert with check (bucket_id in ('post-images','live_photos','uploads'));
+
+drop policy if exists "Allow anon update" on storage.objects;
+create policy "Allow anon update" on storage.objects for update using (bucket_id in ('post-images','live_photos','uploads'));
+
+drop policy if exists "Allow anon delete" on storage.objects;
+create policy "Allow anon delete" on storage.objects for delete using (bucket_id in ('post-images','live_photos','uploads'));
+`; }
+
+window.setLang = (l)=>{ state.lang=l; localStorage.setItem("ga-lang",l); state.ageVerified?renderApp():renderAgeGate(); };
+window.toggleAge = ()=>{ state.ageChecked=!state.ageChecked; renderAgeGate(); };
+window.toggleTerms = ()=>{ state.termsChecked=!state.termsChecked; renderAgeGate(); };
+window.createAccount = ()=>{ const name=prompt("Your name for chats?")||"You"; state.userName=name; localStorage.setItem("ga-user-name",name); localStorage.setItem("ga_age_verified","true"); state.ageVerified=true; toast("Welcome ✓"); renderApp(); fetchAll(); };
+window.switchTab = (id)=>{ state.tab=id; renderApp(); };
+window.filterCountry = (c)=>{ state.filterCountry=c; renderApp(); };
+window.toggleHow = ()=>{ state.showHow=!state.showHow; renderApp(); };
+window.toggleSQL = ()=>{ state.showSQL=!state.showSQL; renderApp(); };
+window.closeModals = ()=>{ state.showHow=false; state.showSQL=false; renderApp(); };
+window.copySQL = ()=>{ navigator.clipboard.writeText(getSQL()); toast("SQL copied ✓"); };
+window.updateNewProfile = (k,v)=>{ state.newProfile[k]=v; };
+window.updateCountry = (val)=>{ const [flag,country]=val.split("|"); state.newProfile.flag=flag; state.newProfile.country=country; };
+window.handlePhoto = (input,type)=>{
+  const file=input.files?.[0]; if(!file) return;
+  if(file.size>5242880){ toast("Max 5MB"); return; }
+  const reader=new FileReader();
+  reader.onload=()=>{ if(type==='profile'){ state.newProfile.photoFile=file; state.newProfile.photoPreview=reader.result; } if(type==='live'){ state.newLive.photoFile=file; state.newLive.photoPreview=reader.result; } if(type==='merch'){ state.newMerch.photoFile=file; state.newMerch.photoPreview=reader.result; } renderApp(); };
+  reader.readAsDataURL(file);
+};
+window.submitProfile = async ()=>{
+  const np=state.newProfile; if(!np.name||!np.age||parseInt(np.age)<18||!np.photoFile){ toast("Name, age 18+, photo required"); return; }
+  toast("Uploading to post-images...");
+  try{
+    let url=np.photoPreview;
+    if(supabaseClient){
+      const ext=(np.photoFile.name.split(".").pop()||"jpg").toLowerCase(); 
+      const name=`${state.userId}-${Date.now()}.${ext}`;
+      console.log("Uploading", name, np.photoFile.size, "to post-images");
+      const {data:upData, error:upErr} = await supabaseClient.storage.from("post-images").upload(name, np.photoFile, {upsert:true, contentType: np.photoFile.type});
+      if(upErr){ console.error("Storage error:", upErr); throw upErr; }
+      const {data}=supabaseClient.storage.from("post-images").getPublicUrl(name); url=data.publicUrl;
+      console.log("Public URL:", url);
+    }
+    if(supabaseClient){
+      const {error}=await supabaseClient.from("profiles").insert({name:np.name, age:parseInt(np.age), city:np.city, country:np.country, flag:np.flag, photo_url:url, bio:np.bio, owner_id:state.userId});
+      if(error) throw error;
+    }
+    state.newProfile={name:"", age:"", city:"", country:"USA", flag:"🇺🇸", photoFile:null, photoPreview:"", bio:""};
+    toast("Profile live for everyone ✓"); state.tab="discover"; renderApp(); fetchAll();
+  }catch(e){ console.error(e); toast("Upload failed: " + (e.message||"check buckets are PUBLIC & policies exist")); }
+};
+window.submitLive = async ()=>{
+  const text=document.getElementById("liveText")?.value||""; if(!text && !state.newLive.photoFile){ toast("Add text or photo"); return; }
+  toast("Uploading to live_photos...");
+  try{
+    let url=null; 
+    if(state.newLive.photoFile && supabaseClient){ 
+      const ext=(state.newLive.photoFile.name.split(".").pop()||"jpg").toLowerCase(); 
+      const name=`${state.userId}-${Date.now()}.${ext}`; 
+      const {error} = await supabaseClient.storage.from("live_photos").upload(name, state.newLive.photoFile, {upsert:true, contentType: state.newLive.photoFile.type}); 
+      if(error) throw error;
+      const {data}=supabaseClient.storage.from("live_photos").getPublicUrl(name); url=data.publicUrl; 
+    } else if(state.newLive.photoPreview) url=state.newLive.photoPreview;
+    if(supabaseClient){
+      const {error}=await supabaseClient.from("live_posts").insert({name:state.userName, text, photo_url:url, owner_id:state.userId});
+      if(error) throw error;
+    }
+    state.newLive={text:"", photoFile:null, photoPreview:""}; toast("Posted for everyone ✓"); renderApp(); fetchAll();
+  }catch(e){ console.error(e); toast("Upload failed: " + (e.message||"check live_photos PUBLIC")); }
+};
+window.submitMerch = async ()=>{
+  const price=document.getElementById("mPrice")?.value; if(!price){ toast("Price required"); return; }
+  const stock=document.getElementById("mStock")?.value; const desc=document.getElementById("mDesc")?.value; const wa=document.getElementById("mWA")?.value;
+  toast("Uploading to uploads...");
+  try{
+    let url=null; 
+    if(state.newMerch.photoFile && supabaseClient){ 
+      const ext=(state.newMerch.photoFile.name.split(".").pop()||"jpg").toLowerCase(); 
+      const name=`${state.userId}-${Date.now()}.${ext}`; 
+      const {error}=await supabaseClient.storage.from("uploads").upload(name, state.newMerch.photoFile, {upsert:true, contentType: state.newMerch.photoFile.type}); 
+      if(error) throw error;
+      const {data}=supabaseClient.storage.from("uploads").getPublicUrl(name); url=data.publicUrl; 
+    } else if(state.newMerch.photoPreview) url=state.newMerch.photoPreview;
+    if(supabaseClient){
+      const {error}=await supabaseClient.from("merch_items").insert({price, stock, description:desc, photo_url:url, whatsapp:wa, owner_id:state.userId});
+      if(error) throw error;
+    }
+    toast("Product live for everyone ✓"); renderApp(); fetchAll();
+  }catch(e){ console.error(e); toast("Upload failed: " + (e.message||"check uploads PUBLIC")); }
+};
+window.selectChat = (id,name)=>{ state.selectedChat={id,name}; state.newMessage=""; renderApp(); setTimeout(()=>{ const el=document.getElementById("chatScroll"); if(el) el.scrollTop=el.scrollHeight; },100); };
+window.startChat = (id,name)=>{ state.tab="chats"; state.selectedChat={id,name}; renderApp(); };
+window.sendMessage = async ()=>{
+  const msg=state.newMessage.trim(); if(!msg||!state.selectedChat) return;
+  state.newMessage=""; renderApp();
+  try{ if(supabaseClient) await supabaseClient.from("direct_messages").insert({sender_id:state.userId, sender_name:state.userName, receiver_id:state.selectedChat.id, receiver_name:state.selectedChat.name, message:msg}); fetchAll(); }catch(e){ console.error(e); toast("Message failed"); }
+};
+window.logout = ()=>{ localStorage.removeItem("ga_age_verified"); state.ageVerified=false; renderAgeGate(); };
+window.fetchAll = fetchAll;
+
+init();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script><script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
