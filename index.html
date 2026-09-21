@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GlobalAmor — Travel • Connect • Belong</title>
+<style>
+:root{--navy:#08233f;--pink:#ff2474;--blue:#1976e8;--ink:#142033;--muted:#697386;--bg:#f6f8fb;--card:#fff;--line:#e5e9ef;--green:#16a56a}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.top{background:var(--navy);color:white;position:sticky;top:0;z-index:50}.bar{max-width:1250px;margin:auto;display:flex;align-items:center;gap:18px;padding:12px 18px}.brand{display:flex;align-items:center;gap:9px;min-width:max-content}.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--pink),#ff6e9f);font-size:21px}.brand-name{font-size:23px;font-weight:850}.brand-name span{color:#ff3e82}.tag{font-size:11px;color:#c8d4e2;letter-spacing:.8px}.mainnav{display:flex;gap:4px;margin-left:auto}.mainnav button,.lang button{border:0;background:transparent;color:#dce6f1;padding:9px 11px;border-radius:10px}.mainnav button:hover,.lang button:hover{background:#153452}.lang{display:flex;border-left:1px solid #29425d;padding-left:8px}.lang button.active{background:white;color:var(--navy)}.userdot{width:34px;height:34px;border-radius:50%;object-fit:cover}
+.page{max-width:1250px;margin:auto;padding:22px 18px 70px}.hero{min-height:450px;border-radius:28px;overflow:hidden;position:relative;background:linear-gradient(90deg,rgba(4,25,45,.96),rgba(4,25,45,.48),rgba(4,25,45,.08)),url("https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=1800&q=85") center/cover;color:#fff;display:flex;align-items:center;padding:55px}.hero-content{max-width:560px}.eyebrow{color:#ff77a8;font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:13px}.hero h1{font-size:clamp(42px,6vw,70px);line-height:.98;letter-spacing:-3px;margin:12px 0}.hero h1 span{color:#ff3981}.hero p{font-size:18px;line-height:1.55;color:#edf3f9}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}.primary{background:var(--pink);color:white;border:0;border-radius:13px;padding:13px 23px;font-weight:800}.ghost{background:transparent;color:white;border:1px solid #fff;border-radius:13px;padding:13px 23px;font-weight:750}
+.featurebar{background:white;border:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);border-radius:0 0 20px 20px;margin:-20px 20px 25px;position:relative;z-index:2}.feature{padding:22px;text-align:center;border-right:1px solid var(--line)}.feature:last-child{border:0}.feature b{display:block;margin-bottom:5px}.feature span{color:var(--muted);font-size:13px}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}.toolbar h2{margin:0;font-size:30px}.search{flex:1;min-width:220px;padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:#fff}.chips{display:flex;gap:8px;overflow:auto;margin-bottom:18px}.chip{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:22px;padding:9px 14px}.chip.active{border-color:var(--pink);color:var(--pink);background:#fff5f8}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:17px}.card{background:#fff;border:1px solid var(--line);border-radius:19px;overflow:hidden;box-shadow:0 6px 22px rgba(9,34,60,.05)}.profile-photo{width:100%;aspect-ratio:4/4.7;object-fit:cover}.cardbody{padding:14px}.online{font-size:11px;color:var(--green);font-weight:800}.name{font-size:19px;font-weight:850;margin:3px 0}.muted{color:var(--muted);font-size:13px}.desc{font-size:13px;line-height:1.45;color:#536071;min-height:38px}.card-actions{display:flex;gap:8px}.smallbtn{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px;font-weight:750}.smallbtn.like{color:var(--pink)}.messagebtn{flex:2;background:var(--pink);color:#fff;border:0;border-radius:10px;font-weight:800}
+.section{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;margin-bottom:20px}.section h2{margin:0 0 6px;font-size:28px}.section>p{color:var(--muted);margin-top:0}
+.feed{display:grid;grid-template-columns:1fr 300px;gap:18px}.post{border:1px solid var(--line);border-radius:17px;padding:16px;margin-top:14px}.posthead{display:flex;gap:10px;align-items:center}.avatar{width:40px;height:40px;border-radius:50%;object-fit:cover}.post p{line-height:1.5}.postimg{width:100%;max-height:500px;object-fit:cover;border-radius:13px}.composer textarea{width:100%;min-height:100px;border:1px solid var(--line);border-radius:14px;padding:13px;resize:vertical}.row{display:flex;gap:10px;align-items:center;margin-top:10px}.file{font-size:13px;flex:1}.sidebox{background:#f8fafc;border:1px solid var(--line);border-radius:17px;padding:17px}.sidebox h3{margin-top:0}.sidebox div{padding:8px 0;border-bottom:1px solid var(--line)}
+.merchgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}.productimg{width:100%;aspect-ratio:4/3;object-fit:cover}.price{font-size:22px;font-weight:900;margin-top:7px}.seller{font-size:12px;color:var(--muted);margin:7px 0 12px}.product button{width:100%}
+.chat{display:grid;grid-template-columns:280px 1fr;min-height:550px;border:1px solid var(--line);border-radius:18px;overflow:hidden}.chatlist{background:#f8fafc;border-right:1px solid var(--line)}.chatperson{padding:15px;display:flex;gap:10px;border-bottom:1px solid var(--line);cursor:pointer}.chatperson.active{background:white}.chatwindow{display:flex;flex-direction:column}.chathead{padding:15px;border-bottom:1px solid var(--line)}.bubbles{padding:20px;flex:1;overflow:auto;background:#fff}.bubble{max-width:70%;padding:11px 13px;border-radius:15px;margin:8px 0;background:#eef3f8}.bubble.me{margin-left:auto;background:#ffebf2}.chatinput{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}.chatinput input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px}
+.adminwrap{display:grid;grid-template-columns:210px 1fr;min-height:560px;border:1px solid var(--line);border-radius:18px;overflow:hidden}.adminnav{background:var(--navy);color:white;padding:18px}.adminnav b{display:block;margin-bottom:20px}.adminnav button{width:100%;text-align:left;border:0;background:transparent;color:#dbe7f2;padding:11px;border-radius:9px}.adminnav button.active{background:#ff2474;color:white}.adminmain{padding:22px;background:#f8fafc}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{background:white;border:1px solid var(--line);border-radius:14px;padding:15px}.stat b{font-size:27px;display:block}.table{background:#fff;border:1px solid var(--line);border-radius:14px;margin-top:16px;overflow:auto}.tr{display:grid;grid-template-columns:1.2fr 1fr .7fr .8fr;gap:10px;padding:13px 15px;border-bottom:1px solid var(--line);min-width:560px}.approve{background:#dff7eb;color:#087a4c;border:0;border-radius:8px;padding:7px 10px;font-weight:700}.deny{background:#ffe5eb;color:#bd214e;border:0;border-radius:8px;padding:7px 10px;font-weight:700}
+.modal{position:fixed;inset:0;background:rgba(3,16,29,.65);display:none;place-items:center;padding:18px;z-index:100}.modal.show{display:grid}.modalbox{background:white;border-radius:22px;width:min(560px,100%);padding:22px;max-height:90vh;overflow:auto}.modalbox h2{margin-top:0}.close{float:right;border:0;background:#f1f3f6;border-radius:50%;width:34px;height:34px}.field{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;margin:7px 0}.footer{background:var(--navy);color:white;padding:30px 18px;text-align:center}.footer .brand{justify-content:center}.footer small{color:#aebfd0}
+.hidden{display:none!important}
+@media(max-width:950px){.grid{grid-template-columns:repeat(3,1fr)}.feed{grid-template-columns:1fr}.mainnav{display:none}.merchgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.bar{padding:10px 13px}.tag{display:none}.brand-name{font-size:20px}.page{padding:12px 12px 50px}.hero{min-height:520px;padding:27px;border-radius:21px;background-position:62% center}.hero h1{font-size:46px}.featurebar{grid-template-columns:repeat(2,1fr);margin:-10px 8px 18px}.feature{padding:15px 8px}.feature:nth-child(2){border-right:0}.feature:nth-child(-n+2){border-bottom:1px solid var(--line)}.grid{grid-template-columns:repeat(2,1fr);gap:10px}.cardbody{padding:10px}.name{font-size:16px}.desc{font-size:12px}.toolbar h2{font-size:25px;width:100%}.search{width:100%;flex-basis:100%}.merchgrid{grid-template-columns:1fr 1fr;gap:10px}.chat{grid-template-columns:1fr}.chatlist{display:none}.adminwrap{grid-template-columns:1fr}.adminnav{display:none}.stats{grid-template-columns:1fr 1fr}.hero p{font-size:16px}}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="bar">
+  <div class="brand"><div class="brand-mark">🌎</div><div><div class="brand-name">Global<span>Amor</span></div><div class="tag">TRAVEL • CONNECT • BELONG</div></div></div>
+  <nav class="mainnav"><button onclick="show('discover')">⌕ Discover</button><button onclick="show('community')">♧ Community</button><button onclick="show('messages')">♡ Messages</button><button onclick="show('merch')">♜ Merch</button><button onclick="show('admin')">Admin</button></nav>
+  <div class="lang"><button id="en" class="active" onclick="setLang('en')">🇺🇸 EN</button><button id="es" onclick="setLang('es')">🇪🇸 ES</button></div>
+  <img class="userdot" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80">
+ </div>
+</header>
+
+<main class="page">
+<section id="home" class="view">
+ <div class="hero"><div class="hero-content">
+  <div class="eyebrow" data-en="A global community for modern travelers" data-es="Una comunidad global para viajeros modernos">A global community for modern travelers</div>
+  <h1>Real People.<br><span>Real Connections.</span><br>Across the World.</h1>
+  <p data-en="Meet expats, travelers and locals who share your love for adventure, culture and new experiences. Your next chapter could be a click away." data-es="Conoce expatriados, viajeros y personas locales que comparten tu amor por la aventura, la cultura y nuevas experiencias. Tu próxima historia podría estar a un clic.">Meet expats, travelers and locals who share your love for adventure, culture and new experiences. Your next chapter could be a click away.</p>
+  <div class="actions"><button class="primary" onclick="show('discover')" data-en="Join Now" data-es="Unirme ahora">Join Now</button><button class="ghost" onclick="show('community')" data-en="Explore Community" data-es="Explorar comunidad">Explore Community</button></div>
+ </div></div>
+ <div class="featurebar">
+  <div class="feature">♡ <b data-en="Find Love" data-es="Encuentra el amor">Find Love</b><span data-en="Meet amazing people worldwide" data-es="Conoce personas increíbles">Meet amazing people worldwide</span></div>
+  <div class="feature">◎ <b data-en="Travel & Explore" data-es="Viaja y explora">Travel & Explore</b><span data-en="Connect across cultures" data-es="Conecta entre culturas">Connect across cultures</span></div>
+  <div class="feature">♧ <b data-en="Community" data-es="Comunidad">Community</b><span data-en="Share, chat and make friends" data-es="Comparte, conversa y haz amigos">Share, chat and make friends</span></div>
+  <div class="feature">♜ <b data-en="Support Local" data-es="Apoya lo local">Support Local</b><span data-en="Shop unique products" data-es="Compra productos únicos">Shop unique products</span></div>
+ </div>
+</section>
+
+<section id="discover" class="view hidden">
+ <div class="toolbar"><h2 data-en="Discover" data-es="Descubrir">Discover</h2><input class="search" id="profileSearch" oninput="renderProfiles()" placeholder="Search by name, country, interests..."></div>
+ <div class="chips"><button class="chip active">🌎 All</button><button class="chip">🇺🇸 United States</button><button class="chip">🇨🇴 Colombia</button><button class="chip">🇲🇽 Mexico</button><button class="chip">🇪🇸 Spain</button><button class="chip">🇩🇴 Dominican Republic</button></div>
+ <div id="profiles" class="grid"></div>
+</section>
+
+<section id="community" class="view hidden">
+ <div class="section"><h2 data-en="Community Feed" data-es="Feed de la comunidad">Community Feed</h2><p data-en="Share your moments, experiences and adventures." data-es="Comparte tus momentos, experiencias y aventuras.">Share your moments, experiences and adventures.</p>
+  <div class="feed"><div>
+   <div class="section composer"><b data-en="Create Post" data-es="Crear publicación">Create Post</b><textarea id="postText" placeholder="What's on your mind?"></textarea><div class="row"><input id="postFile" class="file" type="file" accept="image/*"><button class="primary" onclick="addPost()" data-en="Post" data-es="Publicar">Post</button></div></div>
+   <div id="feed"></div>
+  </div>
+  <aside class="sidebox"><h3>Trending</h3><div>#Travel</div><div>#ExpatLife</div><div>#Love</div><div>#Adventure</div><div>#GlobalAmor</div><h3 style="margin-top:20px">Popular Countries</h3><div>🇨🇴 Colombia</div><div>🇲🇽 Mexico</div><div>🇪🇸 Spain</div><div>🇺🇸 United States</div></aside></div>
+ </div>
+</section>
+
+<section id="merch" class="view hidden">
+ <div class="section"><div class="toolbar"><div><h2 data-en="Community Merch" data-es="Productos de la comunidad">Community Merch</h2><p data-en="Support local businesses and take a piece of the world home with you." data-es="Apoya negocios locales y llévate un pedacito del mundo a casa.">Support local businesses and take a piece of the world home with you.</p></div><button class="primary" onclick="openSell()" data-en="+ Sell an Item" data-es="+ Vender un producto">+ Sell an Item</button></div>
+  <div class="merchgrid" id="products"></div>
+ </div>
+</section>
+
+<section id="messages" class="view hidden">
+ <div class="section"><h2 data-en="Messages" data-es="Mensajes">Messages</h2><p data-en="Private 1-on-1 conversations with your connections." data-es="Conversaciones privadas 1 a 1 con tus conexiones.">Private 1-on-1 conversations with your connections.</p>
+  <div class="chat"><div class="chatlist" id="chatlist"></div><div class="chatwindow"><div class="chathead"><b id="chatName">Sofia</b><div class="muted">● Online</div></div><div class="bubbles" id="bubbles"><div class="bubble">Hola! 👋 ¿De dónde eres?</div><div class="bubble me">Soy de Estados Unidos. ¿Y tú?</div><div class="bubble">Qué genial! Me encanta viajar y conocer nuevas culturas.</div></div><div class="chatinput"><input id="chatInput" placeholder="Write a message..."><button class="primary" onclick="sendMessage()">➤</button></div></div></div>
+ </div>
+</section>
+
+<section id="admin" class="view hidden">
+ <div class="section"><h2>Admin Dashboard</h2><p>Owner and authorized sub-admin moderation tools.</p>
+  <div class="adminwrap"><aside class="adminnav"><b>GlobalAmor Admin</b><button class="active">Dashboard</button><button>Pending Profiles <strong>5</strong></button><button>Members</button><button>Reports <strong>3</strong></button><button>Community Posts</button><button>Merch Listings</button><button>Administrators</button><button>Settings</button></aside>
+  <div class="adminmain"><div class="stats"><div class="stat"><span class="muted">Total Members</span><b>1,248</b></div><div class="stat"><span class="muted">Pending Profiles</span><b>5</b></div><div class="stat"><span class="muted">Reports</span><b>3</b></div><div class="stat"><span class="muted">Active Merch</span><b>18</b></div></div>
+   <div class="table"><div class="tr"><b>Pending Profile</b><b>Country</b><b>Age</b><b>Action</b></div><div class="tr"><span>Daniel R.</span><span>🇪🇸 Spain</span><span>29</span><span><button class="approve" onclick="moderate(this)">Approve</button> <button class="deny" onclick="moderate(this)">Deny</button></span></div><div class="tr"><span>Alejandra G.</span><span>🇲🇽 Mexico</span><span>26</span><span><button class="approve" onclick="moderate(this)">Approve</button> <button class="deny" onclick="moderate(this)">Deny</button></span></div><div class="tr"><span>Matias S.</span><span>🇨🇴 Colombia</span><span>32</span><span><button class="approve" onclick="moderate(this)">Approve</button> <button class="deny" onclick="moderate(this)">Deny</button></span></div></div>
+  </div></div>
+ </div>
+</section>
+</main>
+
+<footer class="footer"><div class="brand"><div class="brand-mark">🌎</div><div><div class="brand-name">Global<span>Amor</span></div><small>Travel • Connect • Belong</small></div></div><p>Un mundo de oportunidades. &nbsp;|&nbsp; A world of opportunities.</p></footer>
+
+<div class="modal" id="modal"><div class="modalbox"><button class="close" onclick="closeModal()">×</button><h2 id="modalTitle">Sell an Item</h2><input id="pn" class="field" placeholder="Product name"><input id="pp" class="field" placeholder="Price"><input id="ps" class="field" placeholder="Seller contact"><textarea id="pd" class="field" placeholder="Short product description"></textarea><button class="primary" style="width:100%;margin-top:8px" onclick="publishProduct()">Publish Listing</button></div></div>
+
+<script>
+const people=[
+["Valentina",28,"Colombia","🇨🇴","Travel, coffee, good food, beach...","https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=700&q=85"],
+["Carlos",32,"Spain","🇪🇸","Adventure, hiking, photography...","https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=85"],
+["Sofia",24,"Mexico","🇲🇽","Music, travel, art, new experiences...","https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85"],
+["Isabella",25,"Colombia","🇨🇴","Beach soul, hosting meetups.","https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=700&q=85"],
+["Camila",27,"Mexico","🇲🇽","Food, culture and weekend adventures.","https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=700&q=85"],
+["Maya",26,"Thailand","🇹🇭","Remote worker who loves meeting travelers.","https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=700&q=85"]
+];
+let products=[
+["Handmade Bracelet","$12 USD","Colombia","Traditional handmade bracelet with local materials.","https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=800&q=85"],
+["Organic Coffee","$18 USD","Colombia","Premium Colombian coffee, 100% organic.","https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=85"],
+["Local Art Painting","$45 USD","Mexico","Original painting by a local artist.","https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&w=800&q=85"],
+["Handcrafted Necklace","$36 USD","Dominican Republic","Colorful handmade jewelry.","https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=85"],
+["Sombrero Vueltiao","$39 USD","Colombia","Authentic woven Colombian hat.","https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=800&q=85"],
+["Local Salsa & Spices","$10 USD","Mexico","Authentic local flavors for cooking.","https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=85"]
+];
+function show(id){document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");scrollTo({top:0,behavior:"smooth"})}
+function renderProfiles(){let q=(document.getElementById("profileSearch")?.value||"").toLowerCase();profiles.innerHTML=people.filter(p=>p.join(" ").toLowerCase().includes(q)).map(p=>`<article class="card"><img class="profile-photo" src="${p[5]}"><div class="cardbody"><div class="online">● Online</div><div class="name">${p[0]}, ${p[1]}</div><div class="muted">${p[3]} ${p[2]} • 1,200 km away</div><div class="desc">${p[4]}</div><div class="card-actions"><button class="smallbtn like">♡</button><button class="messagebtn" onclick="openChat('${p[0]}')">Message</button></div></div></article>`).join("")}
+function renderProducts(){productsEl.innerHTML=products.map(p=>`<article class="card product"><img class="productimg" src="${p[4]}"><div class="cardbody"><div class="name">${p[0]}</div><div class="price">${p[1]}</div><div class="muted">${p[2]}</div><p class="desc">${p[3]}</p><div class="seller">Contact Seller</div><button class="primary" onclick="alert('Seller contact can be connected here in the live version.')">Contact Seller</button></div></article>`).join("")}
+function openChat(name){show("messages");chatName.textContent=name}
+function sendMessage(){let i=chatInput,v=i.value.trim();if(!v)return;let b=document.createElement("div");b.className="bubble me";b.textContent=v;bubbles.appendChild(b);i.value="";bubbles.scrollTop=bubbles.scrollHeight}
+function addPost(){let text=postText.value.trim();if(!text)return alert("Please write something first.");let p=document.createElement("article");p.className="post";p.innerHTML=`<div class="posthead"><div class="avatar" style="display:grid;place-items:center;background:#eaf1f8">🌎</div><div><b>GlobalAmor Member</b><div class="muted">Just now</div></div></div><p></p>`;p.querySelector("p").textContent=text;let f=postFile.files[0];if(f){let img=document.createElement("img");img.className="postimg";img.src=URL.createObjectURL(f);p.appendChild(img)}feed.prepend(p);postText.value="";postFile.value=""}
+function openSell(){modal.classList.add("show")}
+function closeModal(){modal.classList.remove("show")}
+function publishProduct(){let n=pn.value.trim(),p=pp.value.trim(),s=ps.value.trim(),d=pd.value.trim();if(!n||!p||!s)return alert("Please complete product, price and seller contact.");products.unshift([n,p,s,d||"Community marketplace listing.","https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=85"]);renderProducts();closeModal();pn.value=pp.value=ps.value=pd.value=""}
+function moderate(btn){btn.parentElement.innerHTML="<span style='color:#087a4c;font-weight:800'>✓ Completed</span>"}
+function setLang(l){document.getElementById("en").classList.toggle("active",l==="en");document.getElementById("es").classList.toggle("active",l==="es");document.querySelectorAll("[data-en]").forEach(e=>e.textContent=e.dataset[l==="es"?"es":"en"])}
+const profiles=document.getElementById("profiles"),productsEl=document.getElementById("products"),feed=document.getElementById("feed"),modal=document.getElementById("modal"),chatName=document.getElementById("chatName"),chatInput=document.getElementById("chatInput"),bubbles=document.getElementById("bubbles"),postText=document.getElementById("postText"),postFile=document.getElementById("postFile");
+renderProfiles();renderProducts();
+</script>
+</body>
+</html>
