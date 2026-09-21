@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global Amor - Connected</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.54.0/dist/umd/supabase.min.js"></script>
+</head>
+<body class="bg-white min-h-screen">
+
+<!-- AGE GATE - WORKS OFFLINE, NO SUPABASE DEPENDENCY -->
+<div id="gate" style="position:fixed;inset:0;background:white;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:360px;width:100%;text-align:center;">
+    <div style="width:48px;height:48px;background:black;color:white;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-weight:900;margin:0 auto 16px;">GA</div>
+    <h1 style="font-size:24px;font-weight:900;">Welcome to Global Amor</h1>
+    <p style="font-size:13px;color:gray;margin:8px 0 20px;">You must be 18+ to continue</p>
+    <input id="nameInput" value="Kash" style="width:100%;border:1px solid #ddd;border-radius:12px;padding:14px;font-size:16px;margin-bottom:12px;">
+    <button id="enterBtn" type="button" style="width:100%;background:black;color:white;border-radius:12px;padding:16px;font-weight:900;font-size:18px;">Enter - I'm 18+</button>
+    <p id="gateStatus" style="font-size:11px;color:#999;margin-top:10px;">Tap to enter</p>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+<header style="border-bottom:1px solid #eee;position:sticky;top:0;background:white;z-index:50;">
+  <div style="padding:12px 16px;display:flex;align-items:center;gap:8px;">
+    <div style="width:36px;height:36px;background:black;color:white;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-weight:900;">GA</div>
+    <b>Global Amor</b>
+    <span id="connDot" style="margin-left:12px;font-size:11px;background:#f3f3f3;padding:3px 10px;border-radius:9999px;">○ Connecting to Supabase...</span>
+  </div>
+  <div style="display:flex;gap:20px;padding:0 16px;overflow-x:auto;border-top:1px solid #f5f5f5;">
+    <button onclick="showTab('discover')" id="t-discover" style="padding:12px 0;border-bottom:2px solid black;font-weight:700;font-size:14px;">Discover</button>
+    <button onclick="showTab('live')" id="t-live" style="padding:12px 0;border-bottom:2px solid transparent;color:gray;font-size:14px;">Live 📸</button>
+    <button onclick="showTab('add')" id="t-add" style="padding:12px 0;border-bottom:2px solid transparent;color:gray;font-size:14px;">Add Profile 👤</button>
+    <button onclick="showTab('chats')" id="t-chats" style="padding:12px 0;border-bottom:2px solid transparent;color:gray;font-size:14px;">Chats 💬</button>
+  </div>
+</header>
+
+<main style="max-width:1000px;margin:0 auto;padding:16px;">
+  <!-- DISCOVER -->
+  <div id="v-discover">
+    <div id="profilesGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
+    <p id="emptyProfiles" style="text-align:center;color:#aaa;margin-top:40px;display:none;">No profiles yet — be first in Add Profile tab</p>
+  </div>
+
+  <!-- LIVE WITH PHOTO UPLOAD -->
+  <div id="v-live" style="display:none;max-width:600px;margin:0 auto;">
+    <div style="border:1px solid #eee;border-radius:16px;padding:16px;background:white;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+      <div style="display:flex;gap:10px;">
+        <div id="avatar" style="width:36px;height:36px;background:black;color:white;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">K</div>
+        <textarea id="liveText" placeholder="What's happening? Share a photo or text..." style="flex:1;border:1px solid #ddd;border-radius:12px;padding:12px;font-size:14px;min-height:60px;resize:none;"></textarea>
+      </div>
+      <div id="previewWrap" style="display:none;margin-top:12px;position:relative;">
+        <img id="previewImg" style="width:100%;max-height:400px;object-fit:cover;border-radius:12px;border:1px solid #eee;">
+        <button onclick="clearLivePhoto()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);color:white;border-radius:9999px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
+        <label for="liveFile" style="background:#f3f3f3;padding:9px 18px;border-radius:9999px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">📷 Photo</label>
+        <input type="file" id="liveFile" accept="image/*" style="display:none;">
+        <button id="postBtn" onclick="postLive()" style="background:black;color:white;padding:10px 22px;border-radius:9999px;font-weight:700;font-size:14px;">Post to Live</button>
+      </div>
+      <p id="liveStatus" style="font-size:11px;color:#666;margin-top:8px;"></p>
+    </div>
+    <div id="liveFeed" style="margin-top:20px;display:flex;flex-direction:column;gap:12px;"></div>
+  </div>
+
+  <!-- ADD PROFILE -->
+  <div id="v-add" style="display:none;max-width:520px;margin:0 auto;">
+    <div style="border:1px solid #eee;border-radius:16px;padding:20px;background:white;">
+      <h2 style="font-weight:900;font-size:18px;">Add Your Profile — Visible to Everyone</h2>
+      <p style="font-size:11px;color:gray;margin:6px 0 14px;">Photo uploads to Supabase bucket <b>post-images</b> (must be PUBLIC). Profile saved to <b>profiles</b> table.</p>
+      <input id="pName" placeholder="Name *" style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:8px;font-size:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <input id="pAge" type="number" placeholder="Age 18+" value="25" style="border:1px solid #ddd;border-radius:12px;padding:12px;font-size:14px;">
+        <input id="pCity" placeholder="City" style="border:1px solid #ddd;border-radius:12px;padding:12px;font-size:14px;">
+      </div>
+      <input id="pFile" type="file" accept="image/*" style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:8px;font-size:14px;">
+      <textarea id="pBio" placeholder="Bio..." style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;font-size:14px;min-height:70px;"></textarea>
+      <button onclick="addProfile()" id="addBtn" style="width:100%;background:black;color:white;border-radius:12px;padding:13px;font-weight:800;margin-top:12px;">Publish Publicly</button>
+      <p id="addStatus" style="font-size:11px;color:#666;margin-top:8px;"></p>
+    </div>
+  </div>
+
+  <!-- CHATS -->
+  <div id="v-chats" style="display:none;">
+    <div style="display:grid;grid-template-columns:280px 1fr;gap:12px;height:68vh;">
+      <div style="border:1px solid #eee;border-radius:12px;padding:8px;overflow-y:auto;background:white;">
+        <b style="font-size:12px;padding:8px;display:block;">Members</b>
+        <div id="userList"></div>
+      </div>
+      <div style="border:1px solid #eee;border-radius:12px;display:flex;flex-direction:column;background:white;">
+        <div id="chatHead" style="padding:12px;border-bottom:1px solid #eee;font-weight:700;font-size:13px;">Select a member to chat</div>
+        <div id="chatMsgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#fafafa;"></div>
+        <div style="padding:10px;border-top:1px solid #eee;display:flex;gap:8px;">
+          <input id="chatInput" placeholder="Type message..." style="flex:1;border:1px solid #ddd;border-radius:9999px;padding:10px 16px;font-size:14px;">
+          <button onclick="sendDM()" style="background:black;color:white;padding:10px 20px;border-radius:9999px;font-size:13px;font-weight:700;">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+// --- GATE LOGIC - WORKS OFFLINE FIRST ---
+const gate = document.getElementById('gate');
+const app = document.getElementById('app');
+const enterBtn = document.getElementById('enterBtn');
+const nameInput = document.getElementById('nameInput');
+const statusEl = document.getElementById('gateStatus');
+
+function openApp(){
+  const n = (nameInput.value.trim() || 'Kash');
+  localStorage.setItem('ga_name', n);
+  gate.style.display='none';
+  app.style.display='block';
+  document.getElementById('avatar').textContent = n[0].toUpperCase();
+  statusEl.textContent = 'Entered as '+n;
+  initSupabase();
+}
+enterBtn.addEventListener('click', openApp);
+nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') openApp(); });
+if(localStorage.getItem('ga_name')){
+  nameInput.value = localStorage.getItem('ga_name');
+  setTimeout(openApp, 200);
+}
+
+function showTab(t){
+  ['discover','live','add','chats'].forEach(k=>{
+    document.getElementById('v-'+k).style.display = k===t?'block':'none';
+    const btn=document.getElementById('t-'+k);
+    btn.style.borderBottomColor = k===t?'black':'transparent';
+    btn.style.color = k===t?'black':'gray';
+    btn.style.fontWeight = k===t?'700':'400';
+  });
+}
+
+// --- SUPABASE CONNECTION ---
+const SUPABASE_URL = "https://tnraadzmeqdbcpzyajwf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.[STRIPPED 127 bytes].N8QeAG3I08Sn-93Oqg0MCY9TUaehwND0kNjPHOBMu-o";
+let sb;
+let myId = localStorage.getItem('ga_owner') || ('user_'+Math.random().toString(36).slice(2,9));
+localStorage.setItem('ga_owner', myId);
+let myName = localStorage.getItem('ga_name') || 'Kash';
+let currentChat = null;
+let selectedFile = null;
+
+function initSupabase(){
+  try{
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    document.getElementById('connDot').textContent = '● Connecting...';
+    checkConnection();
+    loadProfiles(); loadLive(); loadUsers();
+    // Realtime
+    sb.channel('ga-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'profiles'}, loadProfiles)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'live_posts'}, loadLive)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages'}, loadChatMsgs)
+      .subscribe();
+  }catch(e){
+    document.getElementById('connDot').textContent = '○ Supabase error: '+e.message;
+  }
+}
+
+async function checkConnection(){
+  try{
+    const {error} = await sb.from('profiles').select('id').limit(1);
+    if(error) throw error;
+    document.getElementById('connDot').textContent = '● Connected to Supabase - Live';
+    document.getElementById('connDot').style.background = '#dcfce7';
+    document.getElementById('connDot').style.color = '#166534';
+  }catch(e){
+    document.getElementById('connDot').textContent = '○ Need SQL + PUBLIC buckets - see console';
+    document.getElementById('connDot').style.background = '#fee2e2';
+    document.getElementById('connDot').style.color = '#991b1b';
+    console.error('Run this SQL in Supabase SQL Editor:', e);
+  }
+}
+
+async function upload(bucket, file){
+  const path = `${myId}/${Date.now()}_${file.name}`;
+  const {error} = await sb.storage.from(bucket).upload(path, file);
+  if(error) throw error;
+  return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+}
+
+// --- PROFILES ---
+async function addProfile(){
+  const st=document.getElementById('addStatus');
+  const name=document.getElementById('pName').value.trim() || myName;
+  const file=document.getElementById('pFile').files[0];
+  if(!file){ st.textContent='Pick a photo — required'; return; }
+  st.textContent='Uploading to post-images...';
+  try{
+    const url = await upload('post-images', file);
+    st.textContent='Saving to profiles table...';
+    const {error} = await sb.from('profiles').insert({name, age:parseInt(document.getElementById('pAge').value)||25, city:document.getElementById('pCity').value, photo_url:url, bio:document.getElementById('pBio').value, owner_id:myId});
+    if(error) throw error;
+    st.textContent='✅ Published! Everyone sees it in Discover now.';
+    loadProfiles(); showTab('discover');
+  }catch(e){ st.textContent='Error: '+e.message+' - make bucket post-images PUBLIC'; }
+}
+
+async function loadProfiles(){
+  const {data} = await sb.from('profiles').select('*').order('created_at',{ascending:false}).limit(100);
+  const grid=document.getElementById('profilesGrid');
+  const empty=document.getElementById('emptyProfiles');
+  if(!data || data.length===0){ empty.style.display='block'; grid.innerHTML=''; return; }
+  empty.style.display='none';
+  grid.innerHTML = data.map(p=>`
+    <div style="border:1px solid #eee;border-radius:16px;overflow:hidden;background:white;">
+      <img src="${p.photo_url}" style="height:200px;width:100%;object-fit:cover;">
+      <div style="padding:10px;"><div style="font-weight:700;font-size:13px;">${p.name}</div><div style="font-size:11px;color:gray;">${p.city||''}</div><button onclick="openChat('${p.owner_id}','${p.name.replace(/'/g,'')}')" style="margin-top:8px;width:100%;background:black;color:white;border-radius:9999px;padding:7px;font-size:12px;font-weight:700;">💬 Chat</button></div>
+    </div>`).join('');
+}
+
+// --- LIVE PHOTO UPLOAD ---
+document.getElementById('liveFile').addEventListener('change', function(e){
+  const file=e.target.files[0]; if(!file) return;
+  selectedFile=file;
+  const reader=new FileReader();
+  reader.onload=function(ev){ document.getElementById('previewImg').src=ev.target.result; document.getElementById('previewWrap').style.display='block'; document.getElementById('liveStatus').textContent='Photo ready — add text then Post'; };
+  reader.readAsDataURL(file);
+});
+function clearLivePhoto(){ selectedFile=null; document.getElementById('liveFile').value=''; document.getElementById('previewWrap').style.display='none'; }
+
+async function postLive(){
+  const btn=document.getElementById('postBtn');
+  const st=document.getElementById('liveStatus');
+  const text=document.getElementById('liveText').value.trim();
+  if(!text && !selectedFile){ st.textContent='Add text or photo'; return; }
+  btn.textContent='Posting...'; btn.disabled=true;
+  st.textContent='Uploading...';
+  try{
+    let photo_url=null;
+    if(selectedFile){ photo_url = await upload('live_photos', selectedFile); }
+    myName = localStorage.getItem('ga_name')||'Kash';
+    const {error} = await sb.from('live_posts').insert({name:myName, text:text||null, photo_url, owner_id:myId});
+    if(error) throw error;
+    document.getElementById('liveText').value=''; clearLivePhoto();
+    st.textContent='✅ Posted — visible to everyone!';
+    btn.textContent='Post to Live'; btn.disabled=false;
+    loadLive();
+  }catch(e){ st.textContent='Error: '+e.message+' (make live_photos bucket PUBLIC)'; btn.textContent='Post to Live'; btn.disabled=false; }
+}
+
+async function loadLive(){
+  const {data} = await sb.from('live_posts').select('*').order('created_at',{ascending:false}).limit(50);
+  if(!data) return;
+  document.getElementById('liveFeed').innerHTML = data.map(p=>`
+    <div style="border:1px solid #eee;border-radius:12px;padding:12px;background:white;">
+      <div style="display:flex;gap:8px;align-items:center;"><div style="width:28px;height:28px;background:black;color:white;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">${(p.name||'A')[0]}</div><b style="font-size:12px;">${p.name}</b><span style="font-size:10px;color:#999;margin-left:6px;">${new Date(p.created_at).toLocaleTimeString()}</span></div>
+      ${p.text?`<p style="font-size:14px;margin-top:8px;">${p.text}</p>`:''}
+      ${p.photo_url?`<img src="${p.photo_url}" style="margin-top:10px;border-radius:12px;width:100%;max-height:500px;object-fit:cover;">`:''}
+    </div>`).join('');
+}
+
+// --- CHATS ---
+function openChat(id,name){ if(id===myId) return alert('That is you'); currentChat={id,name}; document.getElementById('chatHead').textContent='Chat with '+name; showTab('chats'); loadChatMsgs(); }
+async function loadUsers(){ const {data}=await sb.from('profiles').select('owner_id,name,photo_url').limit(100); if(!data) return; const seen=new Set(); const uniq=[]; data.forEach(p=>{ if(p.owner_id!==myId && !seen.has(p.owner_id)){ seen.add(p.owner_id); uniq.push(p);} }); document.getElementById('userList').innerHTML = uniq.map(u=>`<button onclick="openChat('${u.owner_id}','${u.name.replace(/'/g,'')}')" style="width:100%;display:flex;gap:8px;align-items:center;padding:8px;border-radius:10px;text-align:left;"><img src="${u.photo_url}" style="width:32px;height:32px;border-radius:9999px;object-fit:cover;"><span style="font-size:12px;font-weight:700;">${u.name}</span></button>`).join('') || '<p style="font-size:11px;color:#aaa;padding:8px;">No members yet</p>'; }
+async function loadChatMsgs(){ if(!currentChat) return; const {data}=await sb.from('direct_messages').select('*').or(`and(sender_id.eq.${myId},receiver_id.eq.${currentChat.id}),and(sender_id.eq.${currentChat.id},receiver_id.eq.${myId})`).order('created_at',{ascending:true}); document.getElementById('chatMsgs').innerHTML = data.map(m=>{ const mine=m.sender_id===myId; return `<div style="display:flex;${mine?'justify-content:flex-end':''}"><div style="background:${mine?'black':'white'};color:${mine?'white':'black'};border:${mine?'none':'1px solid #eee'};border-radius:16px;padding:8px 12px;font-size:12px;max-width:70%;">${m.message}</div></div>`; }).join(''); document.getElementById('chatMsgs').scrollTop=document.getElementById('chatMsgs').scrollHeight; }
+async function sendDM(){ const inp=document.getElementById('chatInput'); const txt=inp.value.trim(); if(!txt||!currentChat) return; inp.value=''; await sb.from('direct_messages').insert({sender_id:myId,sender_name:localStorage.getItem('ga_name'),receiver_id:currentChat.id,receiver_name:currentChat.name,message:txt}); loadChatMsgs(); }
+document.getElementById('chatInput').addEventListener('keydown', e=>{ if(e.key==='Enter') sendDM(); });
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
