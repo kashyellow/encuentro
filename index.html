@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KashYellow — Card Manager</title>
+<style>
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif}
+body{margin:0;background:#f6f5f2;color:#111}
+header{padding:16px 20px;background:#fff;border-bottom:1px solid #e5e5e5;position:sticky;top:0;z-index:10}
+header h1{font-size:13px;letter-spacing:.12em;color:#999;margin:0;text-transform:uppercase}
+.wrap{max-width:720px;margin:0 auto;padding:20px}
+.card{background:#fff;border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.row{display:flex;gap:14px;align-items:center}
+.avatar{width:64px;height:64px;border-radius:16px;object-fit:cover;background:#eee}
+.name{font-weight:700;font-size:18px}
+.role{color:#666;font-size:14px;margin-top:2px}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+.btn-black{background:#111;color:#fff}
+.btn-light{background:#f2f2f2;color:#111;border:1px solid #e5e5e5}
+.btn-yellow{background:#ffde59;color:#111;width:100%;font-size:16px;padding:16px;border-radius:14px}
+input,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;margin-top:8px}
+label{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.08em;margin-top:14px;display:block}
+.profile{max-width:520px;margin:0 auto;padding:20px;text-align:center}
+.profile img{width:110px;height:110px;border-radius:24px;object-fit:cover}
+.link-list a{display:block;background:#fff;padding:14px;border-radius:12px;margin:8px 0;text-decoration:none;color:#111;font-weight:600;border:1px solid #eee}
+.badge{font-size:11px;background:#111;color:#fff;padding:4px 8px;border-radius:6px}
+</style>
+</head>
+<body>
+<header><h1 id="topLabel">YOUR CARD COLLECTION</h1></header>
+<div class="wrap" id="app"></div>
+<script>
+const STORAGE_KEY='kashyellow_cards_v4';
+const initialCards=[
+  {id:'4ff0c29c-591b-49ad-9fe0-4a985f8425e6', slug:'claudia-loaiza', name:'CLAUDIA LOAIZA', role:'Nail Art & Beauty Specialist', image:'https://picsum.photos/seed/claudia/200', phone:'', links:[]},
+  {id:'25077dea-9ae4-4a77-bf01-91c7d662a74d', slug:'omar', name:'Omar', role:'', image:'https://picsum.photos/seed/omar/200', phone:'', links:[]},
+  {id:'aab27265-87ab-4fae-848b-895384d7d861', slug:'danielle', name:'Danielle Drayton', role:'Research Scientist', image:'https://picsum.photos/seed/danielle/200', phone:'', links:[]},
+  // add more here as you send them
+];
+
+function load(){
+ try{
+  const v=localStorage.getItem(STORAGE_KEY);
+  if(v){
+   const parsed=JSON.parse(v);
+   // merge any new initial cards that are not in saved
+   initialCards.forEach(ic=>{ if(!parsed.find(p=>p.id===ic.id)) parsed.push(ic); });
+   return parsed;
+  }
+  return initialCards;
+ }catch(e){return initialCards}
+}
+function save(cards){localStorage.setItem(STORAGE_KEY,JSON.stringify(cards))}
+let cards=load();
+
+function getIdFromUrl(){
+ // supports /p/UUID , /c/UUID , #/c/UUID , #/p/UUID
+ const path=window.location.pathname;
+ let m=path.match(/\/p\/([^\/\?]+)/);
+ if(m) return m[1];
+ m=path.match(/\/c\/([^\/\?]+)/);
+ if(m) return m[1];
+ const hash=location.hash||'';
+ m=hash.match(/#\/c\/(.+)/);
+ if(m) return m[1];
+ m=hash.match(/#\/p\/(.+)/);
+ if(m) return m[1];
+ m=hash.match(/#\/(.+)/); // fallback #/ID
+ if(m && m[1] && !['new'].includes(m[1]) && !m[1].startsWith('edit')) return m[1];
+ return null;
+}
+
+function router(){
+ const path=window.location.pathname;
+ const hash=location.hash;
+ if(hash.startsWith('#/edit/') || path.startsWith('/edit/')){
+   const id= (hash.replace('#/edit/','') || path.replace('/edit/','')).trim();
+   return renderEdit(id);
+ }
+ if(hash==='#/new' || path==='/new'){
+   return renderEdit(null);
+ }
+ const profileId=getIdFromUrl();
+ if(profileId){
+   return renderProfile(profileId);
+ }
+ renderManager();
+}
+
+function renderManager(){
+ document.getElementById('topLabel').innerText='YOUR CARD COLLECTION — '+cards.length+' cards';
+ const host=location.origin;
+ const app=document.getElementById('app');
+ app.innerHTML=`
+  <div style="background:#fff;padding:12px 14px;border-radius:12px;margin-bottom:14px;font-size:13px;color:#666;border:1px dashed #ddd">
+   Manager: <b>${host}</b><br>
+   Create a page once. Update it whenever you need.<br>
+   <span style="font-size:11px">This site replaces brave-pixie-3628.chatgpt.site — free forever on Vercel</span>
+  </div>
+  <button class="btn btn-yellow" onclick="location.hash='#/new'">+ Add a person</button>
+  <div style="margin-top:18px">
+   ${cards.map(c=>`
+    <div class="card">
+     <div class="row">
+      <img class="avatar" src="${c.image||''}" onerror="this.src='https://picsum.photos/seed/fallback/200'">
+      <div><div class="name">${c.name}</div><div class="role">${c.role||c.slug||''}</div><div style="font-size:10px;color:#aaa;margin-top:4px">${c.id.slice(0,8)}…</div></div>
+     </div>
+     <div class="actions">
+      <button class="btn btn-black" onclick="location.hash='#/edit/${c.id}'">Edit details</button>
+      <button class="btn btn-light" onclick="copyLink('${c.id}')">📋 Copy link</button>
+      <button class="btn btn-light" onclick="openProfile('${c.id}')">↗ Open</button>
+     </div>
+     <div style="font-size:11px;color:#999;margin-top:8px;word-break:break-all">${host}/p/${c.id}</div>
+    </div>
+   `).join('')}
+  </div>
+ `;
+}
+
+function renderProfile(id){
+ const c=cards.find(x=>x.id===id || x.slug===id);
+ if(!c){
+   document.getElementById('app').innerHTML=`<div class="card"><h3>Card not found</h3><p>ID: ${id}</p><button class="btn btn-black" onclick="location.href='/'">Back to manager</button></div>`;
+   return;
+ }
+ document.getElementById('topLabel').innerText='KashYellow';
+ const app=document.getElementById('app');
+ app.innerHTML=`
+  <div class="profile">
+   <img src="${c.image}">
+   <h2 style="margin:12px 0 4px">${c.name}</h2>
+   <div style="color:#666">${c.role||''}</div>
+   <div style="margin-top:18px" class="link-list">
+    ${c.phone?`<a href="tel:${c.phone}">Call ${c.phone}</a>`:''}
+    ${(c.links||[]).map(l=>`<a href="${l.url}" target="_blank">${l.label}</a>`).join('')}
+    <a href="/" style="background:#ffde59">← Back to collection</a>
+   </div>
+   <div style="margin-top:24px;font-size:12px;color:#999">kashyellow.vercel.app — free forever</div>
+  </div>
+ `;
+}
+
+function renderEdit(id){
+ const isNew=!id;
+ const c=isNew?{id:crypto.randomUUID(),name:'',role:'',phone:'',image:'',links:[]}: (cards.find(x=>x.id===id) || {id,name:'',role:'',phone:'',image:'',links:[]});
+ document.getElementById('topLabel').innerText=isNew?'ADD PERSON':'EDIT DETAILS';
+ const app=document.getElementById('app');
+ app.innerHTML=`
+  <div class="card">
+   <label>ID (must match old link UUID to keep cards working)</label>
+   <input id="fid" value="${c.id}">
+   <label>Name</label><input id="fname" value="${c.name}">
+   <label>Role / Title</label><input id="frole" value="${c.role||''}">
+   <label>Phone</label><input id="fphone" value="${c.phone||''}">
+   <label>Image URL (paste direct image link)</label><input id="fimg" value="${c.image||''}">
+   <label>Links JSON — [{"label":"Instagram","url":"https://..."}]</label>
+   <textarea id="flinks" rows="5">${JSON.stringify(c.links||[],null,2)}</textarea>
+   <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+    <button class="btn btn-black" onclick="saveEdit(${isNew})">Save</button>
+    <button class="btn btn-light" onclick="location.href='/'">Cancel</button>
+    ${!isNew?`<button class="btn btn-light" style="color:red" onclick="del('${c.id}')">Delete</button>`:''}
+   </div>
+   <div style="margin-top:12px;font-size:11px;color:#888">After saving, your new FREE link will be:<br><b>${location.origin}/p/${c.id}</b><br>Use this in NFC Tools → Write → URL</div>
+  </div>
+ `;
+}
+
+function saveEdit(isNew){
+ try{
+  const id=document.getElementById('fid').value.trim();
+  const data={
+   id,
+   slug:id,
+   name:document.getElementById('fname').value,
+   role:document.getElementById('frole').value,
+   phone:document.getElementById('fphone').value,
+   image:document.getElementById('fimg').value,
+   links:JSON.parse(document.getElementById('flinks').value||'[]')
+  };
+  if(!id||!data.name){alert('Need id and name');return}
+  if(isNew){cards.push(data)} else {const i=cards.findIndex(x=>x.id===id); if(i>=0) cards[i]=data; else cards.push(data)}
+  save(cards); location.href='/';
+ }catch(e){alert('Links JSON error: '+e.message)}
+}
+function del(id){if(confirm('Delete this card?')){cards=cards.filter(x=>x.id!==id);save(cards);location.href='/';}}
+function copyLink(id){
+ const url=`${location.origin}/p/${id}`;
+ navigator.clipboard.writeText(url).then(()=>alert('Copied FREE link:\n'+url+'\n\nUse this in NFC Tools → Write → URL'));
+}
+function openProfile(id){
+  // use hash so it works locally AND on Vercel
+  location.hash=`/p/${id}`;
+  // also try clean url if on vercel
+  if(location.origin.includes('vercel.app')){
+    history.pushState(null,'',`/p/${id}`);
+  }
+  router();
+}
+window.addEventListener('hashchange',router);
+window.addEventListener('popstate',router);
+router();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
